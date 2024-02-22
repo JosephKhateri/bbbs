@@ -18,6 +18,7 @@ Zack Cherry
 Duy Nguyen
 Conor Gill
 Noor Cheema
+Joel Amanuel
 
 ## User Types
 There are two types of users (also referred to as 'roles') within the ODHS.
