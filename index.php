@@ -139,6 +139,10 @@
                     <img src="images/logout.svg">
                     <span>Log out</span>
                 </div>
+                <div class="dashboard-item" data-link="UploadForm.php">
+                    <img src="images/logout.svg">
+                    <span>Upload File</span>
+                </div>
             </div>
         </main>
     </body>
