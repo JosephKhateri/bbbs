@@ -64,7 +64,7 @@
                 'start-date', 'password', 'gender'
             );
             $errors = false;
-            if (!wereRequiredFieldsSubmitted($args, $required)) {
+            if (!wereRequiredFieldsSubmitted($args, $required)) { 
                 $errors = true;
             }
             $first = $args['first-name'];
