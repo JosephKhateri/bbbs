@@ -14,7 +14,7 @@
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $targetDir = '/path/to/upload/directory/'; // Replace with correct directory eventually
+        $targetDir = '/Users/josephkhateri/Downloads/CPSC430CSVTEST/'; // Replace with correct directory eventually
         $targetFile = $targetDir . basename($_FILES['file']['name']);
         $fileType = pathinfo($targetFile, PATHINFO_EXTENSION);
 
