@@ -33,6 +33,7 @@
         */
 
         // Validate file type
+        $fileType = mime_content_type($tmpFilePath);
         if ($fileType !== 'csv') {
             echo 'Only CSV files are allowed.';
         } else {
