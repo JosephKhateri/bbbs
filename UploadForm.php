@@ -16,7 +16,7 @@
     // File upload handling
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Target directory
-        $targetDir = '/Users/josephkhateri/Downloads/CPSC430CSVTEST/';
+        $targetDir = '/csvData';
         if (!file_exists($targetDir) || !is_writable($targetDir)) {
             die('Upload directory is not writable, or does not exist.');
         }
