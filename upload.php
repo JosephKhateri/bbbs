@@ -5,12 +5,6 @@
 //$csvFilePath = '/Users/josephkhateri/Downloads/CPSC430CSVTEST/' . $csvFileName;
 
 public static function parseCSV($csvFilePath){
-
-    // Check if the CSV file exists
-    if (!file_exists($csvFilePath)) {
-        die("CSV file does not exist at the specified path.");
-    }
-
     // Open the CSV file
     $file = fopen($csvFilePath, 'r');
 
@@ -30,8 +24,10 @@ public static function parseCSV($csvFilePath){
         // Convert the data array to a string
         $parsedCSV = var_export($data, true);
 
+        /*
         // Put it into donor.php
         file_put_contents('donor.php', "<?php \$parsedCSV = " . $parsedCSV . "; ?>");
+        */
         
         echo 'CSV file parsed and saved successfully.';
     } else {

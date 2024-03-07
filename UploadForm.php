@@ -19,6 +19,7 @@
         // Get the temporary file path
         $tmpFilePath = $_FILES['file']['tmp_name'];
 
+        
 
         /*
         // Target directory
@@ -34,6 +35,7 @@
 
         // Validate file type
         $fileType = mime_content_type($tmpFilePath);
+        echo $fileType
         if ($fileType !== 'csv') {
             echo 'Only CSV files are allowed.';
         } else {
