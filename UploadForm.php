@@ -15,6 +15,12 @@
 
     // File upload handling
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        // Get the temporary file path
+        $tmpFilePath = $_FILES['file']['tmp_name'];
+
+
+        /*
         // Target directory
         $targetDir = '/csvData';
         if (!file_exists($targetDir) || !is_writable($targetDir)) {
@@ -24,21 +30,28 @@
         // Full path for the uploaded file
         $targetFile = $targetDir . basename($_FILES['file']['name']);
         $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+        */
 
         // Validate file type
         if ($fileType !== 'csv') {
             echo 'Only CSV files are allowed.';
         } else {
+
+            require 'upload.php'; // Make sure the path is correct
+            parseCSV($tmpFilePath); // Assuming upload.php defines a function called parseCSV() (this is probably wrong tbh)
+
+            /*
             // Attempt to move the uploaded file to the target directory
             if (move_uploaded_file($_FILES['file']['tmp_name'], $targetFile)) {
                 echo 'File uploaded successfully.';
                 // Include upload.php to start CSV parsing
                 require 'upload.php'; // Make sure the path is correct
-                parseCSV($targetFile); // Assuming upload.php defines a function called parseCSV() (this is probably wrong tbh)
+                parseCSV($tmpFilePath); // Assuming upload.php defines a function called parseCSV() (this is probably wrong tbh)
             } else {
                 $error = error_get_last();
                 echo 'Error uploading file. ' . htmlspecialchars($error['message']);
             }
+            */
         }
     }
 ?>

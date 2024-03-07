@@ -4,7 +4,7 @@
 //$csvFileName = 'example.csv'; 
 //$csvFilePath = '/Users/josephkhateri/Downloads/CPSC430CSVTEST/' . $csvFileName;
 
-public static function parseCSV($targetFile){
+public static function parseCSV($csvFilePath){
 
     // Check if the CSV file exists
     if (!file_exists($csvFilePath)) {
