@@ -1,31 +1,43 @@
 <?php
-
     session_cache_expire(30);
     session_start();
 
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
+
+    // Check if user is logged in
     if (isset($_SESSION['_id'])) {
         $loggedIn = true;
-        // 0 = not logged in, 1 = standard user, 2 = manager (Admin), 3 super admin (TBI)
-        $accessLevel = $_SESSION['access_level'];
+        $accessLevel = $_SESSION['access_level']; // Assuming this is set when the user logs in
         $userID = $_SESSION['_id'];
     }
 
+    // File upload handling
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $targetDir = '/Users/josephkhateri/Downloads/CPSC430CSVTEST/'; // Replace with correct directory eventually
-        $targetFile = $targetDir . basename($_FILES['file']['name']);
-        $fileType = pathinfo($targetFile, PATHINFO_EXTENSION);
+        // Target directory
+        $targetDir = '/Users/josephkhateri/Downloads/CPSC430CSVTEST/';
+        if (!file_exists($targetDir) || !is_writable($targetDir)) {
+            die('Upload directory is not writable, or does not exist.');
+        }
 
-        // Check if file is a CSV
+        // Full path for the uploaded file
+        $targetFile = $targetDir . basename($_FILES['file']['name']);
+        $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+
+        // Validate file type
         if ($fileType !== 'csv') {
             echo 'Only CSV files are allowed.';
         } else {
+            // Attempt to move the uploaded file to the target directory
             if (move_uploaded_file($_FILES['file']['tmp_name'], $targetFile)) {
                 echo 'File uploaded successfully.';
+                // Include upload.php to start CSV parsing
+                require 'upload.php'; // Make sure the path is correct
+                parseCSV($targetFile); // Assuming upload.php defines a function called parseCSV() (this is probably wrong tbh)
             } else {
-                echo 'Error uploading file.';
+                $error = error_get_last();
+                echo 'Error uploading file. ' . htmlspecialchars($error['message']);
             }
         }
     }

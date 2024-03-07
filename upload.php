@@ -1,12 +1,17 @@
 <?php
 
-// Path to the CSV file
-$csvFile = '/path/to/your/csv/file.csv';
+// Assuming the CSV filename is known and static for demonstration; adjust as needed
+$csvFileName = 'example.csv'; 
+$csvFilePath = '/Users/josephkhateri/Downloads/CPSC430CSVTEST/' . $csvFileName;
+
+// Check if the CSV file exists
+if (!file_exists($csvFilePath)) {
+    die("CSV file does not exist at the specified path.");
+}
 
 // Open the CSV file
-$file = fopen($csvFile, 'r');
+$file = fopen($csvFilePath, 'r');
 
-// Check if the file was opened successfully
 if ($file) {
     // Array to store the parsed CSV data
     $data = [];
@@ -23,10 +28,11 @@ if ($file) {
     // Convert the data array to a string
     $parsedCSV = var_export($data, true);
 
-    // Save the parsed CSV data into donor.php
-    file_put_contents('donor.php', '<?php $parsedCSV = ' . $parsedCSV . ';');
+    // Put it into donor.php
+    file_put_contents('donor.php', "<?php \$parsedCSV = " . $parsedCSV . "; ?>");
     
     echo 'CSV file parsed and saved successfully.';
 } else {
     echo 'Failed to open the CSV file.';
 }
+?>
