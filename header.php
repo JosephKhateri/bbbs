@@ -25,8 +25,7 @@
         <nav>
             <span id="nav-top">
                 <span class="logo">
-                    <img src="images/gwynethsgift.png">
-                    <span id="vms-logo"> MedTracker </span>
+                    <img src="images/bbbsLogo.png">
                 </span>
                 <img id="menu-toggle" src="images/menu.png">
             </span>
@@ -114,7 +113,7 @@
         }
         else {
             echo('<nav>');
-            echo('<span id="nav-top"><span class="logo"><a class="navbar-brand" href="' . $path . 'index.php"><img src="images/gwynethsgift.png"></a>');
+            echo('<span id="nav-top"><span class="logo"><a class="navbar-brand" href="' . $path . 'index.php"><img src="images/bbbsLogo.png"></a>');
             echo('<a class="navbar-brand" id="vms-logo"> MedTracker </a></span><img id="menu-toggle" src="images/menu.png"></span>');
             echo('<ul>');
             //echo " <br><b>"."Gwyneth's Gift Homebase"."</b>|"; //changed: 'Homebase' to 'Gwyneth's Gift Homebase'
