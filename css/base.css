@@ -60,9 +60,15 @@ table, td, tr, th, form, fieldset, em, button, a {
 
     --shadow-and-border-color: #e8e8e8;
 
+    /* ODHS Colors
     --main-color: #FF289A;
     --accent-color: #BFF079;
-    --secondary-accent-color: #f6a4b5;
+    --secondary-accent-color: #f6a4b5;*/
+
+    /* BBBS Colors */
+    --main-color: #FFFFFF;
+    --accent-color: #000000;
+    --secondary-accent-color: #00FC87;
 
     --calendar-event-color: #808080;
     --calendar-event-color-hover: var(--main-color);
