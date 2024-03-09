@@ -33,14 +33,7 @@ function add_user($user) {
             $user->get_id() . '","' .
             $user->get_first_name() . '","' .
             $user->get_last_name() . '","' .
-            $user->get_birthday() . '","' .
             $user->get_email() . '","' .
-            implode(',', $user->get_type()) . '","' .
-            $user->get_status() . '","' .
-            implode(',', $user->get_availability()) . '","' .
-            implode(',', $user->get_schedule()) . '","' .
-            implode(',', $user->get_hours()) . '","' .
-            $user->get_notes() . '","' .
             $user->get_password() . '","' .
             $user->is_password_change_required() . '","' .
             '");'
