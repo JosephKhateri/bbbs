@@ -77,12 +77,12 @@
 <html>
     <head>
         <?php require_once('universal.inc') ?>
-        <title>ODHS Medicine Tracker | Log In</title>
+        <title>BBBS Donor Information System Login | Log In</title>
     </head>
     <body>
         <?php require_once('header.php') ?>
         <main class="login">
-            <h1>ODHS MedTracker Login</h1>
+            <h1>BBBS Donor Information System Login</h1>
             <?php if (isset($_GET['registerSuccess'])): ?>
                 <div class="happy-toast">
                     Your registration was successful! Please log in below.
@@ -103,8 +103,6 @@
                 <input type="submit" name="login" value="Log in">
 
             </form>
-            <p></p>
-            <p>Looking for <a href="https://www.olddominionhumanesociety.org">Old Dominion Humane Society</a>?</p>
         </main>
     </body>
 </html>
