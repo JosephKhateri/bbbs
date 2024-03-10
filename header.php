@@ -92,9 +92,11 @@
 
         //Check if they're at a valid page for their access level.
         $current_page = strtolower(substr($_SERVER['PHP_SELF'], strrpos($_SERVER['PHP_SELF'], '/') + 1));
-        $current_page = substr($current_page, strpos($current_page,"/"));
+        //error debugging. commented out line 96 and replaced with line 97.
+        //$current_page = substr($current_page, strpos($current_page,"/"));
+        $current_page = strtolower(basename($_SERVER['PHP_SELF']));
         
-        if($permission_array[$current_page]>$_SESSION['access_level']){
+        if (!isset($permission_array[$current_page]) > $_SESSION['access_level']) {
             //in this case, the user doesn't have permission to view this page.
             //we redirect them to the index page.
             echo "<script type=\"text/javascript\">window.location = \"index.php\";</script>";
