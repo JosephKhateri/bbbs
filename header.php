@@ -105,13 +105,14 @@
         //This line gives us the path to the html pages in question, useful if the server isn't installed @ root.
         $path = strrev(substr(strrev($_SERVER['SCRIPT_NAME']), strpos(strrev($_SERVER['SCRIPT_NAME']), '/')));
 		$venues = array("portland"=>"RMH Portland");
-        
+
+        // This is commented out for now. I'm not sure what "venue" means, but it doesn't seem to be needed for now
         //they're logged in and session variables are set.
-        if ($_SESSION['venue'] =="") { 
+        /*if ($_SESSION['venue'] =="") {
         	echo(' <a href="' . $path . 'personEdit.php?id=' . 'new' . '">Apply</a>');
         	echo(' | <a href="' . $path . 'logout.php">Logout</a><br>');
         }
-        else {
+        else {*/
             echo('<nav>');
             echo('<span id="nav-top"><span class="logo"><a class="navbar-brand" href="' . $path . 'index.php"><img src="images/bbbsLogo.png"></a>');
             echo('<a class="navbar-brand" id="vms-logo"> MedTracker </a></span><img id="menu-toggle" src="images/menu.png"></span>');
@@ -183,7 +184,7 @@
             //echo('<span class="nav-divider">|</span>');
 	        echo('<li><a class="nav-link active" aria-current="page" href="' . $path . 'logout.php">Log out</a></li>');
             echo '</ul></nav>';
-        }
+        //}
         
     }
     ?>

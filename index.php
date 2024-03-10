@@ -13,19 +13,21 @@
         die();
     }
         
-    include_once('database/dbPersons.php');
-    include_once('domain/Person.php');
+    include_once('database/dbUsers.php');
+    include_once('domain/User.php');
     // Get date?
     if (isset($_SESSION['_id'])) {
-        $person = retrieve_person($_SESSION['_id']);
+        //$person = retrieve_person($_SESSION['_id']);
+        $user = retrieve_user($_SESSION['_id']);
     }
-    $notRoot = $person->get_id() != 'vmsroot';
+    //$notRoot = $person->get_id() != 'vmsroot';
+    $notRoot = $user->get_id() != 'vmsroot';
 ?>
 <!DOCTYPE html>
 <html>
     <head>
         <?php require('universal.inc'); ?>
-        <title>ODHS Medicine Tracker | Dashboard</title>
+        <title>BBBS Donor Information System | Dashboard</title>
     </head>
     <body>
         <?php require('header.php'); ?>
@@ -46,12 +48,12 @@
             <?php elseif (isset($_GET['registerSuccess'])): ?>
                 <div class="happy-toast">Volunteer registered successfully!</div>
             <?php endif ?>
-            <p>Welcome back, <?php echo $person->get_first_name() ?>!</p>
+            <p>Welcome back, <?php echo $user->get_first_name() ?>!</p>
             <p>Today is <?php echo date('l, F j, Y'); ?>.</p>
             <div id="dashboard">
                 <?php
                     require_once('database/dbMessages.php');
-                    $unreadMessageCount = get_user_unread_count($person->get_id());
+                    $unreadMessageCount = get_user_unread_count($user->get_id());
                     $inboxIcon = 'inbox.svg';
                     if ($unreadMessageCount) {
                         $inboxIcon = 'inbox-unread.svg';
