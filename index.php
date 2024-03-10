@@ -91,6 +91,12 @@
                         <img src="images/person-search.svg">
                         <span>Find Animal</span>
                 </div>
+                <!--***added User Registration button ?***-->
+                <div class="dashboard-item" data-link="registerUserForm.php">
+                    <img src="images/settings.png">
+                    <span>Add User</span>
+                </div>
+
                 <!-- Commenting out because volunteers won't be searching events
                 <div class="dashboard-item" data-link="eventSearch.php">
                     <img src="images/search.svg">
