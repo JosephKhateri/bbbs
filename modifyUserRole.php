@@ -33,7 +33,7 @@
         require_once('database/dbPersons.php');
         $post = sanitize($_POST);
         $new_role = $post['s_role'];
-        if (!valueConstrainedTo($new_role, ['admin', 'superadmin'])) {
+        if (!valueConstrainedTo($new_role, ['Admin', 'Superadmin'])) {
             die();
         }
         if (empty($new_role)){
@@ -85,7 +85,7 @@
 <html>
     <head>
         <?php require_once('universal.inc') ?>
-        <title>ODHS Medicine Tracker | Modify User Access</title>
+        <title>BBBS Donor Information System | Modify User Access</title>
         <style>
             .modUser{
                 display: flex;

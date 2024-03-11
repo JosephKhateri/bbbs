@@ -21,24 +21,31 @@
         $args = sanitize($_POST, $ignoreList);
         $required = array('username', 'password');
         if (wereRequiredFieldsSubmitted($args, $required)) {
-            require_once('domain/Person.php');
-            require_once('database/dbPersons.php');
+            //require_once('domain/Person.php');
+            //require_once('database/dbPersons.php');
+            require_once('domain/User.php');
+            require_once('database/dbUsers.php');
             require_once('database/dbMessages.php');
             dateChecker();
             $username = strtolower($args['username']);
             $password = $args['password'];
-            $user = retrieve_person($username);
+            //$user = retrieve_person($username);
+            $user = retrieve_user($username);
             if (!$user) {
                 $badLogin = true;
             } else if (password_verify($password, $user->get_password())) {
+                //file_put_contents('output.txt', $user->get_password());
+                //$2y$10$.3p8xvmUqmxNztEzMJQRBesLDwdiRU3xnt/HOcJtsglwsbUk88VTO
                 $changePassword = false;
-                if ($user->is_password_change_required()) {
+                /*if ($user->is_password_change_required()) {
                     $changePassword = true;
                     $_SESSION['logged_in'] = false;
                 } else {
                     $_SESSION['logged_in'] = true;
-                }
-                $types = $user->get_type();
+                }*/
+                $_SESSION['logged_in'] = true;
+                //$types = $user->get_type();
+                $types = $user->get_access_level();
                 if (in_array('superadmin', $types)) {
                     $_SESSION['access_level'] = 3;
                 } else if (in_array('admin', $types)) {
@@ -48,8 +55,8 @@
                 }
                 $_SESSION['f_name'] = $user->get_first_name();
                 $_SESSION['l_name'] = $user->get_last_name();
-                $_SESSION['venue'] = $user->get_venue();
-                $_SESSION['type'] = $user->get_type();
+                //$_SESSION['venue'] = $user->get_venue();
+                //$_SESSION['type'] = $user->get_type();
                 $_SESSION['_id'] = $user->get_id();
                 // hard code root privileges
                 if ($user->get_id() == 'vmsroot') {
@@ -66,6 +73,8 @@
                 }
                 die();
             } else {
+                $error = 'other';
+                file_put_contents('output.txt', $error);
                 $badLogin = true;
             }
         }
@@ -77,7 +86,7 @@
 <html>
     <head>
         <?php require_once('universal.inc') ?>
-        <title>BBBS Donor Information System Login | Log In</title>
+        <title>BBBS Donor Information System | Log In</title>
     </head>
     <body>
         <?php require_once('header.php') ?>

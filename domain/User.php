@@ -15,44 +15,45 @@
  */
 
 $accessLevelsByRole = [
-    'User' => 1,
-    'Admin' => 2,
-    'Superadmin' => 3
+    'user' => 1,
+    'admin' => 2,
+    'Super Admin' => 3
 ];
 
 class User {
     private $id;         // id (unique key) = email
     private $first_name; // first name as a string
     private $last_name;  // last name as a string
-    private $phone;   // primary phone -- home, cell, or work
     private $email;
     private $role; // Executive Director, Fund Development Assistant, or Office Assistant
     private $access_level;
+    private $type;
     private $password;     // password for calendar and database access: default = $id
-    private $mustChangePassword;
+    private $mustChangePassword; //seems to be used to require users to change password every X days for security purposes
 
-    function __construct($f, $l, $p, $e, $r, $a, $pass, $mcp) {
+    function __construct($e, $pass, $f, $l, $r, $t) {
         global $accessLevelsByRole;
         $this->id = $e;
         $this->first_name = $f;
         $this->last_name = $l;
-        $this->phone = $p;
         $this->email = $e;
         $this->role = $r;
-        $this->mustChangePassword = $mcp;
-        //$this->access_level = 2;
+        //$this->mustChangePassword = $mcp;
+        //$this->access_level = $t !== "" ? explode(',', $t) : array();
         //if ($t !== "") {
         //$this->type = explode(',', $t);
         //global $accessLevelsByRole;
-        $this->access_level = $accessLevelsByRole[$a];
+        $this->access_level = $accessLevelsByRole[$t] !== "" ? explode(',', $t) : array();
         //} else {
         //$this->type = array();
         //$this->access_level = 0;
         //}
-        if ($pass == "")
+        /*if ($pass == "")
             $this->password = password_hash($this->id, PASSWORD_BCRYPT); // default password
         else
-            $this->password = $pass;
+            $this->password = $pass;*/
+        //$this->password = $pass; // need to work on the above stuff with password hashing
+        $this->password = password_hash($pass, PASSWORD_BCRYPT);
     }
 
     function get_id() {
@@ -65,10 +66,6 @@ class User {
 
     function get_last_name() {
         return $this->last_name;
-    }
-
-    function get_phone() {
-        return $this->phone;
     }
 
     function get_email() {
@@ -87,7 +84,7 @@ class User {
         return $this->access_level;
     }
 
-    function is_password_change_required() {
+    /*function is_password_change_required() {
         return $this->mustChangePassword;
-    }
+    }*/
 }

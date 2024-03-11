@@ -35,7 +35,9 @@ function add_user($user) {
             $user->get_last_name() . '","' .
             $user->get_email() . '","' .
             $user->get_password() . '","' .
-            $user->is_password_change_required() . '","' .
+            $user->get_role() . '","' .
+            $user->get_access_level() . '","' .
+            //$user->is_password_change_required() . '","' .
             '");'
         );							
         mysqli_close($con);
@@ -77,6 +79,7 @@ function retrieve_user($id) {
         return false;
     }
     $result_row = mysqli_fetch_assoc($result);
+    //file_put_contents('output.txt', $result_row['access_level']);
     // var_dump($result_row);
     $theUser = make_a_user($result_row);
 //    mysqli_close($con);
@@ -146,7 +149,7 @@ function getall_dbUsers($name_from, $name_to, $venue) {
   @return all rows from dbUsers
 
 */
-function getall_Users() {
+function getall_users() {
     $con=connect();
     $query = 'SELECT * FROM dbUsers WHERE id != "vmsroot"';
     $result = mysqli_query($con,$query);
@@ -184,19 +187,20 @@ function getall_user_names() {
 }
 
 function make_a_user($result_row) {
-	/*
-	 ($f, $l, $v, $a, $c, $s, $z, $p1, $p1t, $p2, $p2t, $e, $ts, $comp, $cam, $tran, $cn, $cpn, $rel,
-			$ct, $t, $st, $cntm, $pos, $credithours, $comm, $mot, $spe,
-			$convictions, $av, $sch, $hrs, $bd, $sd, $hdyh, $notes, $pass)
-	 */
     $theUser = new User(
-                    $result_row['first_name'],
-                    $result_row['last_name'],
-                    $result_row['venue'],
-                    $result_row['email'],
-                    $result_row['type'],
-                    $result_row['password'],
-                    $result_row['force_password_change'],
-                );   
+        /*$result_row['first_name'],
+        $result_row['last_name'],
+        $result_row['email'],
+        $result_row['type'],
+        $result_row['password'],
+        $result_row['force_password_change'],*/
+
+        $result_row['email'],
+        $result_row['password'],
+        $result_row['first_name'],
+        $result_row['last_name'],
+        $result_row['role'],
+        $result_row['role'], //access level isn't working here, but role does. I need to get access level working so that other users dont get an error message
+    );
     return $theUser;
 }
