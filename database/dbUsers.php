@@ -199,8 +199,9 @@ function make_a_user($result_row) {
         $result_row['password'],
         $result_row['first_name'],
         $result_row['last_name'],
+        $result_row['account_type'],
         $result_row['role'],
-        $result_row['access_level'], //access level isn't working here, but role does. I need to get access level working so that other users dont get an error message
     );
+    file_put_contents('output.txt', $result_row);
     return $theUser;
 }
