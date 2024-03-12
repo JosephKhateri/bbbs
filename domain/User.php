@@ -16,9 +16,9 @@
 
 // Since these are getting capitalized, may need to edit other instances of this in other files
 $accessLevelsByRole = [
-    'User' => 1,
-    'Admin' => 2,
-    'Super Admin' => 3
+    'user' => 1,
+    'admin' => 2,
+    'super admin' => 3
 ];
 
 class User {
@@ -31,23 +31,30 @@ class User {
     private $password;     // password for calendar and database access
     private $mustChangePassword; //seems to be used to require users to change password every X days for security purposes
 
-    function __construct($e, $pass, $f, $l, $r, $t) {
+    /*
+     * Parameters: $email, $password, $first, $last, $role, $access
+     * This function constructs a new User object with the given parameters
+     * Return type: User
+     * Pre-condition: $email, $password, $first, $last, $role, $access are all strings
+     * Post-condition: a new User object is created
+     */
+    function __construct($email, $password, $first, $last, $role, $access) {
         global $accessLevelsByRole;
-        $this->id = $e;
-        $this->first_name = $f;
-        $this->last_name = $l;
-        $this->email = $e;
-        $this->role = $r;
+        $this->id = $email;
+        $this->first_name = $first;
+        $this->last_name = $last;
+        $this->email = $email;
+        $this->role = $role;
         //$this->mustChangePassword = $mcp;
         //$this->access_level = $t !== "" ? explode(',', $t) : array(); // Other option for getting access level, keeping for now
-        $this->access_level = $accessLevelsByRole[$t] !== "" ? explode(',', $t) : array();
+        $this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
         // Create a default password if none is provided, which shouldn't normally happen
         /*if ($pass == "")
             $this->password = password_hash($this->id, PASSWORD_BCRYPT); // default password
         else
             $this->password = $pass;*/
         //$this->password = $pass; // need to work on the above stuff with password hashing
-        $this->password = password_hash($pass, PASSWORD_BCRYPT);
+        $this->password = password_hash($password, PASSWORD_BCRYPT);
     }
 
     function get_id() {
