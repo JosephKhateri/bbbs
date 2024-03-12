@@ -66,10 +66,12 @@ function remove_user($id) {
 }
 
 /*
- * @return a User from dbUsers table matching a particular id.
- * if not in table, return false
+ * Parameters: $id = a string that represents the identifying email of a User
+ * This function retrieves a User from the dbUsers table that matches the given id
+ * Return type: User
+ * Pre-condition: $id is a string
+ * Post-condition: a User object is returned
  */
-
 function retrieve_user($id) {
     $con=connect();
     $query = "SELECT * FROM dbUsers WHERE id = '" . $id . "'";
@@ -183,6 +185,13 @@ function getall_user_names() {
     return $names;   	
 }
 
+/*
+ * Parameters: $result_row = a row from the dbUsers table
+ * This function constructs a new User object with the row from the dbUsers table
+ * Return type: User
+ * Pre-condition: $result_row is an associative array
+ * Post-condition: a new User object is created
+ */
 function make_a_user($result_row) {
     $theUser = new User(
         /*$result_row['first_name'],
