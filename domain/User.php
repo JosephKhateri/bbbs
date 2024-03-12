@@ -14,9 +14,10 @@
  * @version 3/28/2008, revised 7/1/2015
  */
 
+// Since these are getting capitalized, may need to edit other instances of this in other files
 $accessLevelsByRole = [
-    'user' => 1,
-    'admin' => 2,
+    'User' => 1,
+    'Admin' => 2,
     'Super Admin' => 3
 ];
 
@@ -26,7 +27,7 @@ class User {
     private $last_name;  // last name as a string
     private $email;
     private $role; // Executive Director, Fund Development Assistant, or Office Assistant
-    private $access_level;
+    private $access_level; // User, Admin, or Super Admin
     private $password;     // password for calendar and database access
     private $mustChangePassword; //seems to be used to require users to change password every X days for security purposes
 
@@ -38,15 +39,9 @@ class User {
         $this->email = $e;
         $this->role = $r;
         //$this->mustChangePassword = $mcp;
-        $this->access_level = $t !== "" ? explode(',', $t) : array();
-        //if ($t !== "") {
-        //$this->type = explode(',', $t);
-        //global $accessLevelsByRole;
-        //$this->type = $accessLevelsByRole[$t] !== "" ? explode(',', $t) : array();
-        //} else {
-        //$this->type = array();
-        //$this->access_level = 0;
-        //}
+        //$this->access_level = $t !== "" ? explode(',', $t) : array(); // Other option for getting access level, keeping for now
+        $this->access_level = $accessLevelsByRole[$t] !== "" ? explode(',', $t) : array();
+        // Create a default password if none is provided, which shouldn't normally happen
         /*if ($pass == "")
             $this->password = password_hash($this->id, PASSWORD_BCRYPT); // default password
         else
@@ -83,6 +78,7 @@ class User {
         return $this->access_level;
     }
 
+    // Commented out for now, will reinstate later if we want to implement forced password changes
     /*function is_password_change_required() {
         return $this->mustChangePassword;
     }*/

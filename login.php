@@ -21,22 +21,19 @@
         $args = sanitize($_POST, $ignoreList);
         $required = array('username', 'password');
         if (wereRequiredFieldsSubmitted($args, $required)) {
-            //require_once('domain/Person.php');
-            //require_once('database/dbPersons.php');
             require_once('domain/User.php');
             require_once('database/dbUsers.php');
             require_once('database/dbMessages.php');
             dateChecker();
             $username = strtolower($args['username']);
             $password = $args['password'];
-            //$user = retrieve_person($username);
             $user = retrieve_user($username);
             if (!$user) {
+                // User doesn't exist
                 $badLogin = true;
             } else if (password_verify($password, $user->get_password())) {
-                //file_put_contents('output.txt', $user->get_password());
-                //$2y$10$.3p8xvmUqmxNztEzMJQRBesLDwdiRU3xnt/HOcJtsglwsbUk88VTO
                 $changePassword = false;
+                // Commented out for now, will reinstate later if we want to implement forced password changes
                 /*if ($user->is_password_change_required()) {
                     $changePassword = true;
                     $_SESSION['logged_in'] = false;
@@ -44,7 +41,6 @@
                     $_SESSION['logged_in'] = true;
                 }*/
                 $_SESSION['logged_in'] = true;
-                //$types = $user->get_type();
                 $types = $user->get_access_level();
                 if (in_array('superadmin', $types)) {
                     $_SESSION['access_level'] = 3;
@@ -55,8 +51,8 @@
                 }
                 $_SESSION['f_name'] = $user->get_first_name();
                 $_SESSION['l_name'] = $user->get_last_name();
-                //$_SESSION['venue'] = $user->get_venue();
-                //$_SESSION['type'] = $user->get_type();
+                //$_SESSION['venue'] = $user->get_venue(); // Not sure what this is for, keeping this here
+                //$_SESSION['type'] = $user->get_type(); // Not sure what this is for, kleeping this here
                 $_SESSION['_id'] = $user->get_id();
                 // hard code root privileges
                 if ($user->get_id() == 'vmsroot') {
@@ -73,8 +69,7 @@
                 }
                 die();
             } else {
-                $error = 'other';
-                file_put_contents('output.txt', $error);
+                // The user's password was incorrect
                 $badLogin = true;
             }
         }
