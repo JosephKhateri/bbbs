@@ -47,7 +47,7 @@ class User {
         $this->role = $role;
         //$this->mustChangePassword = $mcp;
         //$this->access_level = $t !== "" ? explode(',', $t) : array(); // Other option for getting access level, keeping for now
-        $this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $t) : array();
+        $this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
         // Create a default password if none is provided, which shouldn't normally happen
         /*if ($pass == "")
             $this->password = password_hash($this->id, PASSWORD_BCRYPT); // default password
