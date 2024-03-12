@@ -26,7 +26,7 @@
         require_once('include/input-validation.php');
         require_once('database/dbUsers.php');
         $args = sanitize($_POST, null);
-        $required = array(
+        $required = array( // I have a feeling that needing an ID to create a user is causing problems here.. May need to have code automatically create ID variable and set its value to that of email
 			"id", "email", "password", "first_name", "last_name", "account_type", "role"
 		);
         if (!wereRequiredFieldsSubmitted($args, $required)) {
@@ -61,8 +61,8 @@
         <main class="date">
             <h2>User Registration</h2>
             <form id="new-animal-form" method="post">
-                <label for="name">User ID *</label>
-                <input type="text" id="id" name="id" required placeholder="Enter User's ID">
+                <!--<label for="name">User ID *</label>
+                <input type="text" id="id" name="id" required placeholder="Enter User's ID">-->
                 <label for="name">Email *</label>
                 <input type="email" id="email" name="email" required placeholder="Enter Email"> 
                 <label for="name">Password *</label>

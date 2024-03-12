@@ -79,8 +79,6 @@ function retrieve_user($id) {
         return false;
     }
     $result_row = mysqli_fetch_assoc($result);
-    //file_put_contents('output.txt', $result_row['access_level']);
-    // var_dump($result_row);
     $theUser = make_a_user($result_row);
 //    mysqli_close($con);
     return $theUser;
@@ -167,7 +165,6 @@ function getall_users() {
     return $theUsers;
 }
 
-
 function getall_user_names() {
 	$con=connect();
     $type = "volunteer";
@@ -200,7 +197,7 @@ function make_a_user($result_row) {
         $result_row['first_name'],
         $result_row['last_name'],
         $result_row['role'],
-        $result_row['access_level'], //access level isn't working here, but role does. I need to get access level working so that other users dont get an error message
+        $result_row['account_type'],
     );
     return $theUser;
 }

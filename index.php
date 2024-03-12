@@ -67,17 +67,17 @@
                         }
                     ?></span>
                 </div>
-                <div class="dashboard-item" data-link="calendar.php">
+                <!--<div class="dashboard-item" data-link="calendar.php">
                     <img src="images/view-calendar.svg">
                     <span>View Calendar</span>
-                </div>
+                </div>-->
                 <?php if ($_SESSION['access_level'] >= 2): ?>
-                    <div class="dashboard-item" data-link="addEvent.php">
+                    <!--<div class="dashboard-item" data-link="addEvent.php">
                         <img src="images/new-event.svg">
                         <span>Add Appointment</span>
-                    </div>
+                    </div>-->
                 <?php endif ?>
-				<div class="dashboard-item" data-link="addAnimal.php">
+				<!--<div class="dashboard-item" data-link="addAnimal.php">
                     <img src="images/settings.png">
                     <span>Add Animal</span>
                 </div>
@@ -92,7 +92,7 @@
                 <div class="dashboard-item" data-link="findAnimal.php">
                         <img src="images/person-search.svg">
                         <span>Find Animal</span>
-                </div>
+                </div>-->
                 <!--***added User Registration button ?***-->
                 <div class="dashboard-item" data-link="registerUserForm.php">
                     <img src="images/settings.png">
@@ -105,7 +105,7 @@
                     <span>Find Event</span>
                 </div>
                 -->
-                <?php if ($_SESSION['access_level'] >= 2): ?>
+                <!--<?php if ($_SESSION['access_level'] >= 2): ?>
                     <div class="dashboard-item" data-link="personSearch.php">
                         <img src="images/person-search.svg">
                         <span>Find Volunteer</span>
@@ -117,8 +117,12 @@
                     <div class="dashboard-item" data-link="viewArchived.php">
                         <img src="images/person-search.svg">
                         <span>Archived Animals</span>
-                    </div>
-                    <div class="dashboard-item" data-link="report.php">
+                    </div>-->
+                <div class="dashboard-item" data-link="UploadForm.php">
+                    <!--<img src="images/logout.svg"> -->
+                    <span>Upload File</span>
+                </div>
+                <div class="dashboard-item" data-link="report.php">
                         <img src="images/create-report.svg">
                         <span>Create Report</span>
                     </div>
@@ -134,10 +138,10 @@
                     </div>
                 <?php endif ?>
                 <?php if ($notRoot) : ?>
-                    <div class="dashboard-item" data-link="volunteerReport.php">
+                    <!--<div class="dashboard-item" data-link="volunteerReport.php">
                         <img src="images/volunteer-history.svg">
                         <span>View My Hours</span>
-                    </div>
+                    </div>-->
                 <?php endif ?>
                 <div class="dashboard-item" data-link="changePassword.php">
                     <img src="images/change-password.svg">
@@ -146,10 +150,6 @@
                 <div class="dashboard-item" data-link="logout.php">
                     <img src="images/logout.svg">
                     <span>Log out</span>
-                </div>
-                <div class="dashboard-item" data-link="UploadForm.php">
-                    <!--<img src="images/logout.svg"> -->
-                    <span>Upload File</span>
                 </div>
             </div>
         </main>
