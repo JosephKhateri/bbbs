@@ -16,11 +16,11 @@
         // Get the temporary file path
         $tmpFilePath = $_FILES['file']['tmp_name'];
         $fileType = mime_content_type($tmpFilePath);
-        if ($fileType !== 'csv') {
+        echo $tmpFilePath;
+        if ($fileType !== 'text/csv') {
             echo 'Only CSV files are allowed.';
         } else {
-
-            require 'upload.php'; // Make sure the path is correct
+            require 'upload.php';
             parseCSV($tmpFilePath);
         }
     }
@@ -35,6 +35,7 @@
 <body>
     <?php require('header.php'); ?>
     <h1>CSV File Upload</h1>
+    <p>Please select a CSV file to upload </p>
     <form method="POST" enctype="multipart/form-data">
         <input type="file" name="file" accept=".csv">
         <input type="submit" value="Upload">

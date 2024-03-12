@@ -1,10 +1,6 @@
 <?php
 
-// Assuming the CSV filename is known and static for demonstration; adjust as needed
-//$csvFileName = 'example.csv'; 
-//$csvFilePath = '/Users/josephkhateri/Downloads/CPSC430CSVTEST/' . $csvFileName;
-
-public static function parseCSV($csvFilePath){
+static function parseCSV($csvFilePath){
     // Open the CSV file
     $file = fopen($csvFilePath, 'r');
 
@@ -23,11 +19,6 @@ public static function parseCSV($csvFilePath){
 
         // Convert the data array to a string
         $parsedCSV = var_export($data, true);
-
-        /*
-        // Put it into donor.php
-        file_put_contents('donor.php', "<?php \$parsedCSV = " . $parsedCSV . "; ?>");
-        */
         
         echo 'CSV file parsed and saved successfully.';
     } else {

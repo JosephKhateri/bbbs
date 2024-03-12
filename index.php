@@ -119,7 +119,7 @@
                         <span>Archived Animals</span>
                     </div>-->
                 <div class="dashboard-item" data-link="UploadForm.php">
-                    <!--<img src="images/logout.svg"> -->
+                    <img src="images/add-person.svg">
                     <span>Upload File</span>
                 </div>
                 <div class="dashboard-item" data-link="report.php">
