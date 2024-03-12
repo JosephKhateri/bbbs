@@ -27,8 +27,7 @@ class User {
     private $email;
     private $role; // Executive Director, Fund Development Assistant, or Office Assistant
     private $access_level;
-    private $type;
-    private $password;     // password for calendar and database access: default = $id
+    private $password;     // password for calendar and database access
     private $mustChangePassword; //seems to be used to require users to change password every X days for security purposes
 
     function __construct($e, $pass, $f, $l, $r, $t) {
@@ -39,11 +38,11 @@ class User {
         $this->email = $e;
         $this->role = $r;
         //$this->mustChangePassword = $mcp;
-        //$this->access_level = $t !== "" ? explode(',', $t) : array();
+        $this->access_level = $t !== "" ? explode(',', $t) : array();
         //if ($t !== "") {
         //$this->type = explode(',', $t);
         //global $accessLevelsByRole;
-        $this->access_level = $accessLevelsByRole[$t] !== "" ? explode(',', $t) : array();
+        //$this->type = $accessLevelsByRole[$t] !== "" ? explode(',', $t) : array();
         //} else {
         //$this->type = array();
         //$this->access_level = 0;

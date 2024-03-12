@@ -68,7 +68,7 @@ table, td, tr, th, form, fieldset, em, button, a {
     /* BBBS Colors */
     --main-color: #97999B;
     --accent-color: #000000;
-    --secondary-accent-color: #00FC87;
+    --secondary-accent-color: #000000;
 
     --calendar-event-color: #808080;
     --calendar-event-color-hover: var(--main-color);
