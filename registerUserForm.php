@@ -61,8 +61,8 @@
         <main class="date">
             <h2>User Registration</h2>
             <form id="new-animal-form" method="post">
-                <label for="name">User ID *</label>
-                <input type="text" id="id" name="id" required placeholder="Enter User's ID">
+                <!--<label for="name">User ID *</label>
+                <input type="text" id="id" name="id" required placeholder="Enter User's ID">-->
                 <label for="name">Email *</label>
                 <input type="email" id="email" name="email" required placeholder="Enter Email"> 
                 <label for="name">Password *</label>
