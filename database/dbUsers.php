@@ -200,7 +200,7 @@ function make_a_user($result_row) {
         $result_row['first_name'],
         $result_row['last_name'],
         $result_row['role'],
-        $result_row['role'], //access level isn't working here, but role does. I need to get access level working so that other users dont get an error message
+        $result_row['type'], //access level isn't working here, but role does. I need to get access level working so that other users dont get an error message
     );
     return $theUser;
 }

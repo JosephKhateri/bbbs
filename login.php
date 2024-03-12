@@ -44,8 +44,8 @@
                     $_SESSION['logged_in'] = true;
                 }*/
                 $_SESSION['logged_in'] = true;
-                //$types = $user->get_type();
-                $types = $user->get_access_level();
+                $types = $user->get_type();
+                //$types = $user->get_access_level();
                 if (in_array('superadmin', $types)) {
                     $_SESSION['access_level'] = 3;
                 } else if (in_array('admin', $types)) {

@@ -41,9 +41,9 @@ class User {
         //$this->mustChangePassword = $mcp;
         //$this->access_level = $t !== "" ? explode(',', $t) : array();
         //if ($t !== "") {
-        //$this->type = explode(',', $t);
+        $this->type = explode(',', $t);
         //global $accessLevelsByRole;
-        $this->access_level = $accessLevelsByRole[$t] !== "" ? explode(',', $t) : array();
+        //$this->type = $accessLevelsByRole[$t] !== "" ? explode(',', $t) : array();
         //} else {
         //$this->type = array();
         //$this->access_level = 0;
@@ -78,6 +78,10 @@ class User {
 
     function get_role() {
         return $this->role;
+    }
+
+    function get_type() {
+        return $this->type;
     }
 
     function get_access_level() {
