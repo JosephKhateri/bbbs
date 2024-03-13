@@ -26,16 +26,17 @@
   require_once('database/dbinfo.php');
   
   
-
+  $connection = connect();
+  /*
   if(isset($_GET['animal'])){
     $selected_animal_name = $_GET['animal'];
-    $connection = connect();
+    
     $query = "select * from dbAnimals where name = '$selected_animal_name'";
     $result = mysqli_query($connection, $query);
     $animal_info = mysqli_fetch_assoc($result);
-} else {
-    echo "No animal selected!";
-}
+    } else {
+        echo "No animal selected!";
+    }*/
   
   // Is user authorized to view this page?
   if ($accessLevel < 2) {
@@ -43,13 +44,18 @@
       die();
   }
   
-
+  $donorsOver10K = [];
+  $donationQuery = "SELECT Email, SUM(AmountGiven) as TotalDonation FROM dbdonations GROUP BY Email HAVING TotalDonation > 10000";
+  $donationResult = mysqli_query($connection, $donationQuery);
+  while($row = mysqli_fetch_assoc($donationResult)) {
+      $donorsOver10K[] = $row;
+  }
 ?>
 <!DOCTYPE html>
 <html>
     <head>
         <?php require_once('universal.inc') ?>
-        <title>ODHS Medicine Tracker | Report Result</title>
+        <title>BigBrotherBigSister | Report Result</title>
         <style>
             table {
                 margin-top: 1rem;
@@ -109,8 +115,8 @@
                 font-size: 15px;
             }
 	        .center_a {
-                margin-top: 0;
-		        margin-bottom: 3rem;
+                margin-top: 3rem; /* Adjusted from 0 or a smaller value to 3rem */
+                margin-bottom: 3rem;
                 margin-left:auto;
                 margin-right:auto;
                 display: flex;
@@ -158,110 +164,48 @@
     </head>
     <body>
   	<?php require_once('header.php') ?>
-    <?php
-        $animal_name = $animal_info['name'];
-        $animal_breed = $animal_info['breed'];
-        $animal_age = $animal_info['age'];
-        $animal_id = $animal_info['odhs_id'];
-        $animal_gender = $animal_info['gender'];
-        $animal_spay_neuter = $animal_info['spay_neuter_done'];
-        $animal_microchip = $animal_info['microchip_done'];
-        $animal_rabies = (($animal_info['rabies_given_date'] != "0000-00-00") ? date('F j, Y', strtotime($animal_info['rabies_given_date'])) : "");            
-        $animal_rabies_due = (($animal_info['rabies_due_date'] != "0000-00-00") ? date('F j, Y', strtotime($animal_info['rabies_due_date'])) : "");            
-        $animal_heartworm = (($animal_info['heartworm_given_date'] != "0000-00-00") ? date('F j, Y', strtotime($animal_info['heartworm_given_date'])) : "");            
-        $animal_heartworm_due = (($animal_info['heartworm_due_date'] != "0000-00-00") ? date('F j, Y', strtotime($animal_info['heartworm_due_date'])) : "");            
-        $animal_distemper1 = (($animal_info['distemper1_given_date'] != "0000-00-00") ? date('F j, Y', strtotime($animal_info['distemper1_given_date'])) : "");
-        $animal_distemper1_due = (($animal_info['distemper1_due_date'] != "0000-00-00") ? date('F j, Y', strtotime($animal_info['distemper1_due_date'])) : "");
-        $animal_distemper2 = (($animal_info['distemper2_given_date'] != "0000-00-00") ? date('F j, Y', strtotime($animal_info['distemper2_given_date'])) : "");
-        $animal_distemper2_due = (($animal_info['distemper2_due_date'] != "0000-00-00") ? date('F j, Y', strtotime($animal_info['distemper2_due_date'])) : "");
-        $animal_distemper3 = (($animal_info['distemper3_given_date'] != "0000-00-00") ? date('F j, Y', strtotime($animal_info['distemper3_given_date'])) : "");
-        $animal_distemper3_due = (($animal_info['distemper3_due_date'] != "0000-00-00") ? date('F j, Y', strtotime($animal_info['distemper3_due_date'])) : "");
-        $animal_notes = $animal_info['notes'];
-            ?> 
-        <h1>Report Result</h1>
-        <main class="report">
-	   <div class="intro">
-        <div>
-            <label>Animal Name:</label>
-            <span>
-            <?php echo $animal_name; ?>
-            </span>
-            <label>Animal Age:</label>
-            <span>
-            <?php echo $animal_age; ?>
-            </span>
-            <label>Animal Breed:</label>
-            <span>
-            <?php echo $animal_breed; ?>
-            </span>
-            <label>Animal Gender:</label>
-            <span>
-            <?php echo $animal_gender; ?>
-            </span>
-            <label>Animal Notes:</label>
-            <span>
-            <?php echo $animal_notes; ?>
-            </span>
-        </div>
+    
+        
+    <section>
+            <?php
+        // Check if the 'report' GET parameter is set to 'report1'
+        if (isset($_GET['report']) && $_GET['report'] == 'report1') {
+            // Modified SQL query to join Donations with Donors table and fetch required details
+            $query = "SELECT d.Email, SUM(d.AmountGiven) AS TotalDonation, p.FirstName, p.LastName, p.PhoneNumber 
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    GROUP BY d.Email
+                    HAVING TotalDonation > 10000";
+            $result = mysqli_query($connection, $query);
 
-	<div>
-             <label>Medical:</label>
-             <span>
-             <table align = 'left'>
-             <tbody>
-                    <tr>	
-                        <td class="label">Spayed/Neutered </td>
-                        <td><?php echo $animal_spay_neuter?></td>     		
-                    </tr>
-                    <tr>	
-                        <td class="label">Microchipped </td>
-                        <td><?php echo $animal_microchip?></td>
-                    </tr>
-                    <tr>	
-                        <td class="label">Rabies given </td>
-                        <td><?php echo $animal_rabies?></td>
-                    </tr>
-                    <tr>
-                    <td class="label">Rabies due </td>
-                    <td><?php echo $animal_rabies_due?></td>
-                    </tr>
-                    <tr>	
-                        <td class="label">Heartworm test given</td>
-                        <td><?php echo $animal_heartworm?></td>
-                    </tr>
-                    <tr>
-                        <td class="label">Heartworm due</td>
-                        <td><?php echo $animal_heartworm_due?></td>
-                    </tr>
-                    <tr>	
-                        <td class="label">Distemper 1 given </td>
-                        <td><?php echo $animal_distemper1?></td>
-                    </tr>
-                    <tr>
-                        <td class="label">Distemper 1 due </td>
-                        <td><?php echo $animal_distemper1_due?></td>
-                    </tr>
-                    <tr>	
-                        <td class="label">Distemper 2 given </td>
-                        <td><?php echo $animal_distemper2?></td>
-                    </tr>
-                    <tr>
-                        <td class="label">Distemper 2 due </td>
-                        <td><?php echo $animal_distemper2_due?></td>
-                    </tr>
-                    <tr>	
-                        <td class="label">Distemper 3 given </td>
-                        <td><?php echo $animal_distemper3?></td>
-                    </tr>
-                    <tr>
-                        <td class="label">Distemper 3 due </td>
-                        <td><?php echo $animal_distemper3_due?></td>
-                    </tr>
-                    </tbody>
-            </table>   
-             </span>
-         </div>
+            // Check if we have results
+            if (mysqli_num_rows($result) > 0) {
+                echo "<h2>List of Donors Who Donated Over $10,000</h2>";
+                echo "<table>";
+                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Total Donation</th></tr>";
+                while ($row = mysqli_fetch_assoc($result)) {
+                    // Format the phone number
+                    $phone = $row['PhoneNumber'];
+                    $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+                
+                    echo "<tr>
+                            <td>" . htmlspecialchars($row['Email']) . "</td>
+                            <td>" . htmlspecialchars($row['FirstName']) . "</td>
+                            <td>" . htmlspecialchars($row['LastName']) . "</td>
+                            <td>" . htmlspecialchars($formattedPhone) . "</td>
+                            <td>$" . number_format($row['TotalDonation'], 2) . "</td>
+                          </tr>";
+                }
+                
+                echo "</table>";
+            } else {
+                echo "<p>No donors have donated over $10,000.</p>";
+            }
+        }
+        ?>
 
+    </section>
+    
 	
     </main>
 	<div class="center_a">
