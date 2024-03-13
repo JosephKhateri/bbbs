@@ -59,7 +59,7 @@ class User {
         else
             $this->password = $pass;*/
         //$this->password = $password; // need to work on the above stuff with password hashing
-        $this->password = password_hash($password, PASSWORD_BCRYPT);
+        $this->password = password_hash($password, PASSWORD_BCRYPT); //using this for now
     }
 
     function get_id() {
