@@ -147,14 +147,14 @@
                 padding: 0 0 0 0;
             }
             .export-btn {
-                padding: 10px 20px; /* Adjust padding as needed */
-                display: inline-block; /* Add this to make the button only as wide as its content plus padding */
-                margin-top: 20px; /* This will add space between the table and the button */
+                padding: 10px 20px; 
+                display: inline-block; 
+                margin-top: 20px; 
                 max-width: 200px;
             }
             .export-form {
                 text-align: center;
-                margin-top: 20px; /* Add top margin to increase space between the table and the form */
+                margin-top: 20px; 
             }
 
 	    @media only screen and (min-width: 1024px) {
@@ -221,10 +221,6 @@
     <input type="submit" value="Export Donors" class="export-btn">
     </form>
 
-
-
-
-	
     </main>
 	<div class="center_a">
                 <a href="report.php">
