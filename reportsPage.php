@@ -178,43 +178,44 @@
     
         
     <section>
-            <?php
-        // Check if the 'report' GET parameter is set to 'report1'
-        if (isset($_GET['report']) && $_GET['report'] == 'report1') {
-            // Modified SQL query to join Donations with Donors table and fetch required details
-            $query = "SELECT d.Email, SUM(d.AmountGiven) AS TotalDonation, p.FirstName, p.LastName, p.PhoneNumber 
-                    FROM dbdonations AS d
-                    JOIN dbdonors AS p ON d.Email = p.Email
-                    GROUP BY d.Email
-                    HAVING TotalDonation > 10000";
-            $result = mysqli_query($connection, $query);
+    <?php
+    // Check if the 'report' GET parameter is set to 'report1'
+    if (isset($_GET['report']) && $_GET['report'] == 'report1') {
+        // Modified SQL query to join Donations with Donors table and fetch required details
+        $query = "SELECT d.Email, SUM(d.AmountGiven) AS TotalDonation, p.FirstName, p.LastName, p.PhoneNumber 
+                FROM dbdonations AS d
+                JOIN dbdonors AS p ON d.Email = p.Email
+                GROUP BY d.Email
+                HAVING TotalDonation > 10000";
+        $result = mysqli_query($connection, $query);
 
-            // Check if we have results
-            if (mysqli_num_rows($result) > 0) {
-                echo "<h2 style='text-align: center;'>List of Donors Who Donated Over $10,000</h2>";
-                echo "<table>";
-                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Total Donation</th></tr>";
-                while ($row = mysqli_fetch_assoc($result)) {
-                    // Format the phone number
-                    $phone = $row['PhoneNumber'];
-                    $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
-                
-                    echo "<tr>
-                            <td>" . htmlspecialchars($row['Email']) . "</td>
-                            <td>" . htmlspecialchars($row['FirstName']) . "</td>
-                            <td>" . htmlspecialchars($row['LastName']) . "</td>
-                            <td>" . htmlspecialchars($formattedPhone) . "</td>
-                            <td>$" . number_format($row['TotalDonation'], 2) . "</td>
-                          </tr>";
-                }
-                
-                echo "</table>";
-            } else {
-                echo "<p>No donors have donated over $10,000.</p>";
+        // Check if we have results
+        if (mysqli_num_rows($result) > 0) {
+            echo "<h2 style='text-align: center;'>List of Donors Who Donated Over $10,000</h2>";
+            echo "<table>";
+            echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Total Donation</th></tr>";
+            while ($row = mysqli_fetch_assoc($result)) {
+                // Format the phone number
+                $phone = $row['PhoneNumber'];
+                $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+            
+                echo "<tr>
+                        <td>" . htmlspecialchars($row['Email']) . "</td>
+                        <td>" . htmlspecialchars($row['FirstName']) . "</td>
+                        <td>" . htmlspecialchars($row['LastName']) . "</td>
+                        <td>" . htmlspecialchars($formattedPhone) . "</td>
+                        <td>$" . number_format($row['TotalDonation'], 2) . "</td>
+                      </tr>";
             }
+            
+            echo "</table>";
+        } else {
+            // Display a message if no donors have donated over $10,000
+            echo "<h2 style='text-align: center;'>No Donors Have Donated Over $10,000</h2>";
+            echo "<p style='text-align: center;'>We appreciate all contributions from our donors. Every bit helps us make a difference.</p>";
         }
-        ?>
-
+    }
+    ?>
     </section>
     <form action="reportsExport.php" method="post" class="export-form">
     <input type="hidden" name="action" value="export_donors_over_10000">
