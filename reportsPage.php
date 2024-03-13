@@ -140,12 +140,23 @@
             .back-to-top {
                 color: white; /* sets the color of the link when visited */  
             }
-	    .intro {
+	        .intro {
                 display: flex;
                 flex-direction: column;
                 gap: .5rem;
                 padding: 0 0 0 0;
             }
+            .export-btn {
+                padding: 10px 20px; /* Adjust padding as needed */
+                display: inline-block; /* Add this to make the button only as wide as its content plus padding */
+                margin-top: 20px; /* This will add space between the table and the button */
+                max-width: 200px;
+            }
+            .export-form {
+                text-align: center;
+                margin-top: 20px; /* Add top margin to increase space between the table and the form */
+            }
+
 	    @media only screen and (min-width: 1024px) {
                 .intro{
                     width: 80%;
@@ -180,7 +191,7 @@
 
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
-                echo "<h2>List of Donors Who Donated Over $10,000</h2>";
+                echo "<h2 style='text-align: center;'>List of Donors Who Donated Over $10,000</h2>";
                 echo "<table>";
                 echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Total Donation</th></tr>";
                 while ($row = mysqli_fetch_assoc($result)) {
@@ -205,7 +216,14 @@
         ?>
 
     </section>
-    
+    <form action="reportsExport.php" method="post" class="export-form">
+    <input type="hidden" name="action" value="export_donors_over_10000">
+    <input type="submit" value="Export Donors" class="export-btn">
+    </form>
+
+
+
+
 	
     </main>
 	<div class="center_a">
