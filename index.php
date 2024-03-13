@@ -46,7 +46,7 @@
             <?php elseif (isset($_GET['deleteLocation'])): ?>
                 <div class="happy-toast">Location successfully removed!</div>
             <?php elseif (isset($_GET['registerSuccess'])): ?>
-                <div class="happy-toast">Volunteer registered successfully!</div>
+                <div class="happy-toast">User registered successfully!</div>
             <?php endif ?>
             <p>Welcome back, <?php echo $user->get_first_name() ?>!</p>
             <p>Today is <?php echo date('l, F j, Y'); ?>.</p>
@@ -93,18 +93,20 @@
                         <img src="images/person-search.svg">
                         <span>Find Animal</span>
                 </div>-->
-                <!--***added User Registration button ?***-->
-                <div class="dashboard-item" data-link="registerUserForm.php">
-                    <img src="images/settings.png">
-                    <span>Add User</span>
-                </div>
-
                 <!-- Commenting out because volunteers won't be searching events
                 <div class="dashboard-item" data-link="eventSearch.php">
                     <img src="images/search.svg">
                     <span>Find Event</span>
                 </div>
                 -->
+                <div class="dashboard-item" data-link="UploadForm.php">
+                    <!--<img src="images/logout.svg"> -->
+                    <span>Upload File</span>
+                </div>
+                <div class="dashboard-item" data-link="report.php">
+                    <img src="images/create-report.svg">
+                    <span>Create Report</span>
+                </div>
                 <!--<?php if ($_SESSION['access_level'] >= 2): ?>
                     <div class="dashboard-item" data-link="personSearch.php">
                         <img src="images/person-search.svg">
@@ -118,14 +120,12 @@
                         <img src="images/person-search.svg">
                         <span>Archived Animals</span>
                     </div>-->
-                <div class="dashboard-item" data-link="UploadForm.php">
-                    <!--<img src="images/logout.svg"> -->
-                    <span>Upload File</span>
-                </div>
-                <div class="dashboard-item" data-link="report.php">
-                        <img src="images/create-report.svg">
-                        <span>Create Report</span>
+                    <!--***added User Registration button ?***-->
+                    <div class="dashboard-item" data-link="registerUserForm.php">
+                        <img src="images/settings.png">
+                        <span>Add User</span>
                     </div>
+
                 <?php endif ?>
                 <?php if ($notRoot) : ?>
                     <div class="dashboard-item" data-link="viewProfile.php">

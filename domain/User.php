@@ -38,23 +38,28 @@ class User {
      * Pre-condition: $email, $password, $first, $last, $role, $access are all strings
      * Post-condition: a new User object is created
      */
-    function __construct($email, $password, $first, $last, $role, $access) {
+    function __construct($email, $password, $first, $last, $role, $access, $calltype) {
         global $accessLevelsByRole;
         $this->id = $email;
+        $this->email = $email;
         $this->first_name = $first;
         $this->last_name = $last;
-        $this->email = $email;
         $this->role = $role;
         //$this->mustChangePassword = $mcp;
-        //$this->access_level = $t !== "" ? explode(',', $t) : array(); // Other option for getting access level, keeping for now
-        $this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
+        //$this->access_level = $access !== "" ? explode(',', $access) : array(); // Other option for getting access level, keeping for now
+        if ($calltype == "login") {
+            $this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
+        } else {
+            $this->access_level = $access;
+        }
+        //$this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
         // Create a default password if none is provided, which shouldn't normally happen
         /*if ($pass == "")
             $this->password = password_hash($this->id, PASSWORD_BCRYPT); // default password
         else
             $this->password = $pass;*/
-        //$this->password = $pass; // need to work on the above stuff with password hashing
-        $this->password = password_hash($password, PASSWORD_BCRYPT);
+        //$this->password = $password; // need to work on the above stuff with password hashing
+        $this->password = password_hash($password, PASSWORD_BCRYPT); //using this for now
     }
 
     function get_id() {
