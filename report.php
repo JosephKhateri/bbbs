@@ -1,4 +1,5 @@
 <?php 
+//Test commit
   session_cache_expire(30);
   session_start();
   ini_set("display_errors",1);
@@ -84,19 +85,16 @@
 	<br>
 
     <form class="report_select" method="get" action="reportsPage.php">
-    <div>
-        <label for="name">Select Animal For Report</label>
-        <select for="name" id="animal" name="animal" required>
-            <?php 
-                while ($animal = mysqli_fetch_array($all_animals, MYSQLI_ASSOC)):; 
-            ?>
-            <option value="<?php echo $animal['name'];?>">
-                <?php echo $animal['name'];?>
-            </option>
-            <?php endwhile; ?>
-        </select><br/>
-    </div>
-    <input type="submit" name="submit_click">
+                <div>
+                    <label for="report">Select Report</label>
+                    <select id="report" name="report" required>
+                        <option value="report1">Donors who have donated over $10,000</option>
+                        <option value="report2">Report 2</option>
+                        <option value="report3">Report 3</option>
+                    </select><br/>
+                </div>
+                <input type="submit" name="submit_click" value="Submit">
+            </form>
     </main>
 
     </body>

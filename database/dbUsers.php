@@ -31,14 +31,12 @@ function add_user($user) {
     if ($result == null || mysqli_num_rows($result) == 0) {
         mysqli_query($con,'INSERT INTO dbUsers VALUES("' .
             $user->get_id() . '","' .
-            $user->get_first_name() . '","' .
-            $user->get_last_name() . '","' .
             $user->get_email() . '","' .
             $user->get_password() . '","' .
-            $user->get_role() . '","' .
+            $user->get_first_name() . '","' .
+            $user->get_last_name() . '","' .
             $user->get_access_level() . '","' .
-            //$user->is_password_change_required() . '","' .
-            '");'
+            $user->get_role() . '");'
         );							
         mysqli_close($con);
         return true;
@@ -207,6 +205,7 @@ function make_a_user($result_row) {
         $result_row['last_name'],
         $result_row['role'],
         $result_row['account_type'],
+        "login"
     );
     return $theUser;
 }

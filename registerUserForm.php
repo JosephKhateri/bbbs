@@ -15,35 +15,56 @@
         // 0 = not logged in, 1 = standard user, 2 = manager (Admin), 3 super admin (TBI)
         $accessLevel = $_SESSION['access_level'];
         $userID = $_SESSION['_id'];
-    } 
+    }
     // Require admin privileges
     if ($accessLevel < 2) {
         header('Location: login.php');
-        echo 'bad access level';
         die();
     }
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         require_once('include/input-validation.php');
         require_once('database/dbUsers.php');
+        require_once('domain/User.php');
         $args = sanitize($_POST, null);
-        $required = array( // I have a feeling that needing an ID to create a user is causing problems here.. May need to have code automatically create ID variable and set its value to that of email
-			"id", "email", "password", "first_name", "last_name", "account_type", "role"
+        $required = array(
+			"email", "password", "first_name", "last_name", "account_type", "role"
 		);
+        $errors = false;
+
         if (!wereRequiredFieldsSubmitted($args, $required)) {
+            $errors = true;
             echo 'bad form data';
             die();
         } else {
-            $id = add_user($args);
-            if(!$id){
-                echo "Oopsy!";
+            // Create new user with the values from args
+            $email = strtolower($args['email']);
+            $email = validateEmail($email);
+            if(!$email){
+                echo "Invalid Email";
                 die();
             }
-            require_once('include/output.php');
-            
-            $name = htmlspecialchars_decode($args['name']);
-            require_once('database/dbMessages.php');
-            header("Location: registerUser.php?id=$id&createSuccess");
-            die();
+            $id = $email;
+            $password = password_hash($args['password'], PASSWORD_BCRYPT);
+            //$password = $args['password'];
+            $first_name = $args['first_name'];
+            $last_name = $args['last_name'];
+            $role = $args['role'];
+            $account_type = $args['account_type'];
+
+            // If there are any errors, stop the script and alert the user
+            if ($errors) {
+                echo '<p>Your form submission contained unexpected input.</p>';
+                die();
+            }
+
+            // Create a new User object and add it to the database
+            $newUser = new User($email, $password, $first_name, $last_name, $role, $account_type, "add user");
+            $result = add_user($newUser);
+            if (!$result) { // If a user with the same email already exists
+                echo '<p>That e-mail address is already in use.</p>';
+            } else {
+                echo '<script>document.location = "index.php?registerSuccess";</script>';
+            }
         }
     }
     $date = null;
@@ -61,10 +82,8 @@
         <main class="date">
             <h2>User Registration</h2>
             <form id="new-animal-form" method="post">
-                <!--<label for="name">User ID *</label>
-                <input type="text" id="id" name="id" required placeholder="Enter User's ID">-->
                 <label for="name">Email *</label>
-                <input type="email" id="email" name="email" required placeholder="Enter Email"> 
+                <input type="email" id="email" name="email" required placeholder="Enter Email">
                 <label for="name">Password *</label>
                 <input type="password" id="password" name="password" required placeholder="Enter Password">
                 <label for="name">First Name *</label>
@@ -72,30 +91,20 @@
                 <label for="name">Last Name *</label>
                 <input type="text" id="last_name" name="last_name" required placeholder="Enter Last Name">
 
-
                 <label for="name">Account Type *</label>
-                <select id="text" name="account_type" required>
+                <select id="text" name="account_type">
                     <option value=""></option>
-                    <option value="Admin">Admin</option>
-                    <option value="User">User</option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
                 </select>
-
 
                 <label for="name">Role *</label>
-                <select id="text" name="role" required>
-                    <option value=""></option>
-                    <option value="Executive Director">Executive Director</option>
-                    <option value="Fund Development Assistant">Fund Development Assistant</option>
-                    <option value="Office Assistant">Office Assistant</option>
-                </select>
+                <input type="text" id="role" name="role" required placeholder="Enter the User's Organizational Role">
                 
                 <input type="submit" value="Create New User">
             </form>
-                <?php if ($date): ?>
-                    <a class="button cancel" href="calendar.php?month=<?php echo substr($date, 0, 7) ?>" style="margin-top: -.5rem">Return to Calendar</a>
-                <?php else: ?>
-                    <a class="button cancel" href="index.php" style="margin-top: -.5rem">Return to Dashboard</a>
-                <?php endif ?>
+
+            <a class="button cancel" href="index.php" style="margin-top: -.5rem">Return to Dashboard</a>
         </main>
     </body>
 </html>

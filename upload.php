@@ -1,6 +1,6 @@
 <?php
 
-static function parseCSV($csvFilePath){
+function parseCSV($csvFilePath){
     // Open the CSV file
     $file = fopen($csvFilePath, 'r');
 

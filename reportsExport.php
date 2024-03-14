@@ -15,8 +15,19 @@
  * @author Johnny Coster
  * @version April 2, 2012
  */
-session_start();
-session_cache_expire(30);
+// Disable error display, log errors instead
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+ini_set('log_errors', 1);
+ini_set('error_log', 'path/to/error.log'); // Specify the error log file
+
+ob_start(); // Start output buffering
+if (session_status() == PHP_SESSION_NONE) {
+    session_cache_expire(30); // Optional: Set session cache expire time if needed
+    session_start();
+}
+//session_start();
+//session_cache_expire(30);
 ?>
 <html>
 <head>
@@ -34,6 +45,11 @@ include_once('database/dbPersons.php');
 if ($_POST['_form_submit'] != 1 && $_POST['_form_submit'] != 2 && $_POST['_form_submit'] != 3)
 include('dataSearch.inc.php'); // the form has not been submitted, so show it
 
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_over_10000') {
+	ob_end_clean();
+    exportDonorsOver10000();
+	exit();
+}
 process_form();
 //pull_shift_data();
 include('footer.inc');
@@ -146,9 +162,44 @@ function process_form() {
 		date_default_timezone_set('America/New_York');
         $current_time = array("Export date: " . date("F j, Y, g:i a"));
 		export_data($current_time, array_merge(array("id"),$_POST['export_attr']), $export_data);
+	} else if (isset($_POST['action']) && $_POST['action'] == 'export_donors_over_10000') {
+		exportDonorsOver10000();
 	}
 }
+// Define the function to handle the export
+function exportDonorsOver10000() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, SUM(d.AmountGiven) AS TotalDonation
+              FROM dbdonations AS d
+              JOIN dbdonors AS p ON d.Email = p.Email
+              GROUP BY d.Email
+              HAVING TotalDonation > 10000";
 
+    $result = mysqli_query($connection, $query);
+	
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_over_10000.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Total Donation'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+		// Format the total donation to include a dollar sign and commas
+		$formattedTotalDonation = '$' . number_format($row['TotalDonation'], 2, '.', ',');
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $formattedTotalDonation));
+	}
+	
+    
+    fclose($output);
+    //exit();
+}
 function export_data($current_time, $search_attr, $export_data) {
 	$filename = "dataexport.csv";
 	$handle = fopen($filename, "w");
@@ -164,7 +215,7 @@ function export_data($current_time, $search_attr, $export_data) {
 	}
 	fclose($handle);
 }
-
+ob_end_flush();
 ?></div>
 </div>
         <?PHP include('footer.inc'); ?>
