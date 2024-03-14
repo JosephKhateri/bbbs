@@ -213,14 +213,75 @@
                 echo "<p>No donors have donated over $10,000.</p>";
             }
         }
+        // Check if the 'report' GET parameter is set to 'report2'
+        if (isset($_GET['report']) && $_GET['report'] == 'report2') {
+            // Modified SQL query to join Donations with Donors table and fetch required details
+            $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
+                             DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    GROUP BY d.Email";
+            $result = mysqli_query($connection, $query);
+
+            // Check if we have results
+            if (mysqli_num_rows($result) > 0) {
+                echo "<h2 style='text-align: center;'>List of Donor's Frequency of Giving</h2>";
+                echo "<table>";
+                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Frequency of Giving</th>
+                      <th>Days from Earliest Donation</th></tr>";
+                while ($row = mysqli_fetch_assoc($result)) {
+                    // Format the phone number
+                    $phone = $row['PhoneNumber'];
+                    $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+                    
+                    //Frequency of Giving
+                    $FOG="";
+                    $ratio=$row['Number_Of_Donations']/($row['DateDiff']/365);
+                    if($ratio<1){
+                        $FOG="Less Than Yearly";
+                    }elseif($ratio<6 && $ratio>=1){
+                        $FOG="Yearly";
+                    }elseif($ratio>=6 && $ratio<12){
+                        $FOG="Bi-Monthly";
+                    }elseif($ratio>=12){
+                        $FOG="Monthly";
+                    }
+
+                    echo "<tr>
+                            <td>" . htmlspecialchars($row['Email']) . "</td>
+                            <td>" . htmlspecialchars($row['FirstName']) . "</td>
+                            <td>" . htmlspecialchars($row['LastName']) . "</td>
+                            <td>" . htmlspecialchars($formattedPhone) . "</td>
+                            <td>" . htmlspecialchars($FOG) . "</td>
+                            <td>" . number_format($row['DateDiff']) . "</td>
+                            
+                          </tr>";
+                }
+                
+                echo "</table>";
+            } else {
+                echo "<p>Not enough Donors are available to make the report.</p>";
+            }
+        }
+        if (isset($_GET['report']) && $_GET['report'] == 'report1'){
+            echo "<form action='reportsExport.php' method='post' class='export-form'>
+            <input type='hidden' name='action' value='export_donors_over_10000'>
+            <input type='submit' value='Export Donors' class='export-btn'>
+            </form>";
+        }
+        if (isset($_GET['report']) && $_GET['report'] == 'report2'){
+            echo "<form action='reportsExport.php' method='post' class='export-form'>
+            <input type='hidden' name='action' value='export_donors_FOG'>
+            <input type='submit' value='Export Donors' class='export-btn'>
+            </form>";
+        }
+        //<form action="reportsExport.php" method="post" class="export-form">
+        //<input type="hidden" name="action" value="export_donors_over_10000">
+        //<input type="submit" value="Export Donors" class="export-btn">
+        //</form>
         ?>
 
     </section>
-    <form action="reportsExport.php" method="post" class="export-form">
-    <input type="hidden" name="action" value="export_donors_over_10000">
-    <input type="submit" value="Export Donors" class="export-btn">
-    </form>
-
 
 
 
