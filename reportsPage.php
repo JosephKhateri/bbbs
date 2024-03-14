@@ -188,29 +188,32 @@
                     GROUP BY d.Email
                     HAVING TotalDonation > 10000";
             $result = mysqli_query($connection, $query);
-
+    
+            // Initialize a flag to track if there are any donors over 10k
+            $hasDonorsOver10k = false;
+    
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
+                $hasDonorsOver10k = true; // Set flag to true as we have qualifying donors
                 echo "<h2 style='text-align: center;'>List of Donors Who Donated Over $10,000</h2>";
                 echo "<table>";
                 echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Total Donation</th></tr>";
                 while ($row = mysqli_fetch_assoc($result)) {
-                    // Format the phone number
-                    $phone = $row['PhoneNumber'];
-                    $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
-                
+                    // Format the phone number and other details
                     echo "<tr>
                             <td>" . htmlspecialchars($row['Email']) . "</td>
                             <td>" . htmlspecialchars($row['FirstName']) . "</td>
                             <td>" . htmlspecialchars($row['LastName']) . "</td>
-                            <td>" . htmlspecialchars($formattedPhone) . "</td>
+                            <td>" . htmlspecialchars('(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6)) . "</td>
                             <td>$" . number_format($row['TotalDonation'], 2) . "</td>
                           </tr>";
                 }
                 
                 echo "</table>";
             } else {
-                echo "<p>No donors have donated over $10,000.</p>";
+                // Display a message if no donors have donated over $10,000
+                echo "<h2 style='text-align: center;'>No Donors Have Donated Over $10,000</h2>";
+                echo "<p style='text-align: center;'>We appreciate all contributions from our donors. Every bit helps us make a difference.</p>";
             }
         }
         // Check if the 'report' GET parameter is set to 'report2'
@@ -263,7 +266,7 @@
                 echo "<p>Not enough Donors are available to make the report.</p>";
             }
         }
-        if (isset($_GET['report']) && $_GET['report'] == 'report1'){
+        if ($hasDonorsOver10k && isset($_GET['report']) && $_GET['report'] == 'report1'){
             echo "<form action='reportsExport.php' method='post' class='export-form'>
             <input type='hidden' name='action' value='export_donors_over_10000'>
             <input type='submit' value='Export Donors' class='export-btn'>
