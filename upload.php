@@ -1,6 +1,12 @@
 <?php
 
 function parseCSV($csvFilePath){
+
+    require_once('include/input-validation.php');
+    require_once('database/dbPersons.php'); //Replace with dbDonors
+    include_once('database/dbinfo.php'); //Replace with dbDonations
+    $con=connect(); 
+
     // Open the CSV file
     $file = fopen($csvFilePath, 'r');
 
@@ -19,6 +25,12 @@ function parseCSV($csvFilePath){
 
         // Convert the data array to a string
         $parsedCSV = var_export($data, true);
+        foreach($data as $line){
+            foreach($line as $var){
+                echo $var . "<br>";
+            }
+        }
+
         
         echo 'CSV file parsed and saved successfully.';
     } else {
