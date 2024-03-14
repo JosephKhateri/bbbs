@@ -34,10 +34,12 @@ function parseCSV($csvFilePath){
         }
         */
         
-        //
-        echo 'CSV file parsed and saved successfully.';
+        //echo 'CSV file parsed and saved successfully.';
+        header('Location: index.php?fileSuccess');
+        die();
     } else {
-        echo 'Failed to open the CSV file.';
+        header('Location: index.php?fileFail');
+        die();
     }
 }
 ?>
