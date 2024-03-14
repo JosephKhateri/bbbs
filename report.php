@@ -1,5 +1,4 @@
 <?php 
-//Test commit
   session_cache_expire(30);
   session_start();
   ini_set("display_errors",1);
@@ -89,7 +88,7 @@
                     <label for="report">Select Report</label>
                     <select id="report" name="report" required>
                         <option value="report1">Donors who have donated over $10,000</option>
-                        <option value="report2">Report 2</option>
+                        <option value="report2">Every Donor's Frequency of Giving</option>
                         <option value="report3">Report 3</option>
                     </select><br/>
                 </div>

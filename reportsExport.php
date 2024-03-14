@@ -26,8 +26,6 @@ if (session_status() == PHP_SESSION_NONE) {
     session_cache_expire(30); // Optional: Set session cache expire time if needed
     session_start();
 }
-//session_start();
-//session_cache_expire(30);
 ?>
 <html>
 <head>
@@ -48,6 +46,11 @@ include('dataSearch.inc.php'); // the form has not been submitted, so show it
 if (isset($_POST['action']) && $_POST['action'] == 'export_donors_over_10000') {
 	ob_end_clean();
     exportDonorsOver10000();
+	exit();
+}
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG') {
+	ob_end_clean();
+    exportDonorsFOG();
 	exit();
 }
 process_form();
@@ -168,10 +171,9 @@ function process_form() {
 }
 // Define the function to handle the export
 function exportDonorsOver10000() {
-    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
-    $connection = connect();  // This should be your function to establish a database connection
+    include_once('database/dbinfo.php');
+    $connection = connect();  
     
-    // Your SQL query to fetch the required data
     $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, SUM(d.AmountGiven) AS TotalDonation
               FROM dbdonations AS d
               JOIN dbdonors AS p ON d.Email = p.Email
@@ -194,6 +196,48 @@ function exportDonorsOver10000() {
 		// Format the total donation to include a dollar sign and commas
 		$formattedTotalDonation = '$' . number_format($row['TotalDonation'], 2, '.', ',');
 		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $formattedTotalDonation));
+	}
+    fclose($output);
+}
+
+// Define the function to handle the export
+function exportDonorsFOG() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
+                             DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    GROUP BY d.Email";
+    $result = mysqli_query($connection, $query);
+	
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Frequency of Giving', 'Days From Earliest Donation'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+		
+		//Calculate the FOG by taking the days and determing the ratio 
+		$FOG="";
+        $ratio=$row['Number_Of_Donations']/($row['DateDiff']/365);
+        if($ratio<1){
+            $FOG="Less Than Yearly";
+        }elseif($ratio<6 && $ratio>=1){
+            $FOG="Yearly";
+        }elseif($ratio>=6 && $ratio<12){
+            $FOG="Bi-Monthly";
+        }elseif($ratio>=12){
+           $FOG="Monthly";
+        }
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone,$FOG,$row['DateDiff']));
 	}
 	
     

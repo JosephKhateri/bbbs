@@ -147,14 +147,14 @@
                 padding: 0 0 0 0;
             }
             .export-btn {
-                padding: 10px 20px; /* Adjust padding as needed */
-                display: inline-block; /* Add this to make the button only as wide as its content plus padding */
-                margin-top: 20px; /* This will add space between the table and the button */
+                padding: 10px 20px; 
+                display: inline-block; 
+                margin-top: 20px; 
                 max-width: 200px;
             }
             .export-form {
                 text-align: center;
-                margin-top: 20px; /* Add top margin to increase space between the table and the form */
+                margin-top: 20px; 
             }
 
 	    @media only screen and (min-width: 1024px) {
@@ -178,16 +178,16 @@
     
         
     <section>
-            <?php
-        // Check if the 'report' GET parameter is set to 'report1'
-        if (isset($_GET['report']) && $_GET['report'] == 'report1') {
-            // Modified SQL query to join Donations with Donors table and fetch required details
-            $query = "SELECT d.Email, SUM(d.AmountGiven) AS TotalDonation, p.FirstName, p.LastName, p.PhoneNumber 
-                    FROM dbdonations AS d
-                    JOIN dbdonors AS p ON d.Email = p.Email
-                    GROUP BY d.Email
-                    HAVING TotalDonation > 10000";
-            $result = mysqli_query($connection, $query);
+    <?php
+    // Check if the 'report' GET parameter is set to 'report1'
+    if (isset($_GET['report']) && $_GET['report'] == 'report1') {
+        // Modified SQL query to join Donations with Donors table and fetch required details
+        $query = "SELECT d.Email, SUM(d.AmountGiven) AS TotalDonation, p.FirstName, p.LastName, p.PhoneNumber 
+                FROM dbdonations AS d
+                JOIN dbdonors AS p ON d.Email = p.Email
+                GROUP BY d.Email
+                HAVING TotalDonation > 10000";
+        $result = mysqli_query($connection, $query);
 
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
