@@ -32,9 +32,9 @@ class User {
     private $mustChangePassword; //seems to be used to require users to change password every X days for security purposes
 
     /*
-     * Parameters: $email, $password, $first, $last, $role, $access
+     * Parameters: $email, $password, $first, $last, $role, $access, $calltype -> the type of call that is being made (login or add user)
      * This function constructs a new User object with the given parameters
-     * Return type: User
+     * Return type: A User object
      * Pre-condition: $email, $password, $first, $last, $role, $access are all strings
      * Post-condition: a new User object is created
      */
@@ -47,19 +47,24 @@ class User {
         $this->role = $role;
         //$this->mustChangePassword = $mcp;
         //$this->access_level = $access !== "" ? explode(',', $access) : array(); // Other option for getting access level, keeping for now
+
+        // Due to having issues with call type when constructing a User during login vs add_user, I'm using this if statement to set the access level
+        // This may be modified in the future to either include more call types or rewrite the code to not need this at all and it handles the functionality on its own
         if ($calltype == "login") {
+            // If the call type is login, we need to set the access level to the correct value based on user data in the db
             $this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
-        } else {
+        } else if ($calltype == "add user"){
+            // If the call type is add user, we need to set the access level to the correct value based on the form data before storing it in the db
             $this->access_level = $access;
         }
-        //$this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
-        // Create a default password if none is provided, which shouldn't normally happen
+        $this->password = $password;
+
+        // This creates a default password if one isn't provided. This isn't in use, but I'm keeping it here for now
         /*if ($pass == "")
             $this->password = password_hash($this->id, PASSWORD_BCRYPT); // default password
         else
             $this->password = $pass;*/
-        //$this->password = $password; // need to work on the above stuff with password hashing
-        $this->password = password_hash($password, PASSWORD_BCRYPT); //using this for now
+
     }
 
     function get_id() {

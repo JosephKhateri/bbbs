@@ -18,9 +18,12 @@ include_once('dbinfo.php');
 include_once(dirname(__FILE__).'/../domain/User.php');
 
 /*
- * add a user to dbUsers table: if already there, return false
+ * Parameters: $user = A User object
+ * This function adds a User to the dbUsers table
+ * Return type: A boolean value that represents if the User was added to the dbUsers table
+ * Pre-condition: $user is a User object
+ * Post-condition: A User is added to the dbUsers table if it doesn't already exist, otherwise nothing happens
  */
-
 function add_user($user) {
     if (!$user instanceof User)
         die("Error: add_user type mismatch");
@@ -64,11 +67,11 @@ function remove_user($id) {
 }
 
 /*
- * Parameters: $id = a string that represents the identifying email of a User
+ * Parameters: $id = A string that represents the identifying email of a User
  * This function retrieves a User from the dbUsers table that matches the given id
- * Return type: User
+ * Return type: A User object or a boolean value of "false"
  * Pre-condition: $id is a string
- * Post-condition: a User object is returned
+ * Post-condition: A User object is returned or the boolean "false" is returned if no user exists with the given id
  */
 function retrieve_user($id) {
     $con=connect();
@@ -79,7 +82,8 @@ function retrieve_user($id) {
         return false;
     }
     $result_row = mysqli_fetch_assoc($result);
-    $theUser = make_a_user($result_row);
+    $calltype = "login";
+    $theUser = make_a_user($result_row, $calltype);
 //    mysqli_close($con);
     return $theUser;
 }
@@ -184,13 +188,13 @@ function getall_user_names() {
 }
 
 /*
- * Parameters: $result_row = a row from the dbUsers table
+ * Parameters: $result_row = a row from the dbUsers table, $calltype = a string that represents the type of call being made
  * This function constructs a new User object with the row from the dbUsers table
  * Return type: User
  * Pre-condition: $result_row is an associative array
  * Post-condition: a new User object is created
  */
-function make_a_user($result_row) {
+function make_a_user($result_row, $calltype) {
     $theUser = new User(
         /*$result_row['first_name'],
         $result_row['last_name'],
@@ -205,7 +209,7 @@ function make_a_user($result_row) {
         $result_row['last_name'],
         $result_row['role'],
         $result_row['account_type'],
-        "login"
+        $calltype
     );
     return $theUser;
 }

@@ -43,9 +43,8 @@
                 echo "Invalid Email";
                 die();
             }
-            $id = $email;
+            $id = $email; // ID and email have the same value
             $password = password_hash($args['password'], PASSWORD_BCRYPT);
-            //$password = $args['password'];
             $first_name = $args['first_name'];
             $last_name = $args['last_name'];
             $role = $args['role'];
@@ -58,7 +57,8 @@
             }
 
             // Create a new User object and add it to the database
-            $newUser = new User($email, $password, $first_name, $last_name, $role, $account_type, "add user");
+            $calltype = "add user";
+            $newUser = new User($email, $password, $first_name, $last_name, $role, $account_type, $calltype);
             $result = add_user($newUser);
             if (!$result) { // If a user with the same email already exists
                 echo '<p>That e-mail address is already in use.</p>';
