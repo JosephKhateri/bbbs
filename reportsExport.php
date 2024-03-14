@@ -50,6 +50,11 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_over_10000') {
     exportDonorsOver10000();
 	exit();
 }
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG') {
+	ob_end_clean();
+    exportDonorsFOG();
+	exit();
+}
 process_form();
 //pull_shift_data();
 include('footer.inc');
@@ -194,6 +199,51 @@ function exportDonorsOver10000() {
 		// Format the total donation to include a dollar sign and commas
 		$formattedTotalDonation = '$' . number_format($row['TotalDonation'], 2, '.', ',');
 		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $formattedTotalDonation));
+	}
+	
+    
+    fclose($output);
+    //exit();
+}
+
+// Define the function to handle the export
+function exportDonorsFOG() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
+                             DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    GROUP BY d.Email";
+    $result = mysqli_query($connection, $query);
+	
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Frequency of Giving', 'Days From Earliest Donation'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+		
+		//Calculate the FOG by taking the days and determing the ratio 
+		$FOG="";
+        $ratio=$row['Number_Of_Donations']/($row['DateDiff']/365);
+        if($ratio<1){
+            $FOG="Less Than Yearly";
+        }elseif($ratio<6 && $ratio>=1){
+            $FOG="Yearly";
+        }elseif($ratio>=6 && $ratio<12){
+            $FOG="Bi-Monthly";
+        }elseif($ratio>=12){
+           $FOG="Monthly";
+        }
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone,$FOG,$row['DateDiff']));
 	}
 	
     
