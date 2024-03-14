@@ -26,6 +26,8 @@ if (session_status() == PHP_SESSION_NONE) {
     session_cache_expire(30); // Optional: Set session cache expire time if needed
     session_start();
 }
+//session_start();
+//session_cache_expire(30);
 ?>
 <html>
 <head>
@@ -171,9 +173,10 @@ function process_form() {
 }
 // Define the function to handle the export
 function exportDonorsOver10000() {
-    include_once('database/dbinfo.php');
-    $connection = connect();  
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
     
+    // Your SQL query to fetch the required data
     $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, SUM(d.AmountGiven) AS TotalDonation
               FROM dbdonations AS d
               JOIN dbdonors AS p ON d.Email = p.Email
@@ -197,7 +200,10 @@ function exportDonorsOver10000() {
 		$formattedTotalDonation = '$' . number_format($row['TotalDonation'], 2, '.', ',');
 		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $formattedTotalDonation));
 	}
+	
+    
     fclose($output);
+    //exit();
 }
 
 // Define the function to handle the export
