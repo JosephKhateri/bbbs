@@ -32,6 +32,7 @@
                 // User doesn't exist
                 $badLogin = true;
             } else if (password_verify($password, $user->get_password())) {
+                // User exists and password is correct
                 $changePassword = false;
                 // Commented out for now, will reinstate later if we want to implement forced password changes
                 /*if ($user->is_password_change_required()) {
@@ -105,7 +106,6 @@
         		<label for="password">Password</label>
                 <input type="password" name="password" placeholder="Enter your password" required>
                 <input type="submit" name="login" value="Log in">
-
             </form>
         </main>
     </body>
