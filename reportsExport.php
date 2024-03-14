@@ -55,6 +55,13 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG') {
     exportDonorsFOG();
 	exit();
 }
+
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_less_2_years') {
+	ob_end_clean();
+    exportDonorsLessThanTwoYears();
+	exit();
+}
+
 process_form();
 //pull_shift_data();
 include('footer.inc');
@@ -250,6 +257,45 @@ function exportDonorsFOG() {
     fclose($output);
     //exit();
 }
+
+//Export report for donations less than 2 years
+// Define the function to handle the export
+function exportDonorsLessThanTwoYears() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.FirstName, d.LastName, d.Email, dd.DateOfContribution, dd.AmountGiven
+						FROM DbDonors d
+						LEFT JOIN DbDonations dd ON d.Email = dd.Email
+						WHERE dd.DateOfContribution IS NULL 
+						  OR dd.DateOfContribution < '$thresholdDate'
+						GROUP BY d.Email
+						ORDER BY d.LastName";
+
+    $result = mysqli_query($connection, $query);
+	
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_less_than_two_years.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'DateOfContribution', 'AmountGiven'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+		 // Format the total donation to include a dollar sign and commas
+		$formattedTotalDonation = '$' . number_format($row['AmountGiven'], 2, '.', ',');
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $row['DateOfContribution'], $formattedTotalDonation));
+	}
+	
+    
+    fclose($output);
+    //exit();
+}
+
+//End of export
 function export_data($current_time, $search_attr, $export_data) {
 	$filename = "dataexport.csv";
 	$handle = fopen($filename, "w");
