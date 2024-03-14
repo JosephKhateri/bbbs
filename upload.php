@@ -25,13 +25,16 @@ function parseCSV($csvFilePath){
 
         // Convert the data array to a string
         $parsedCSV = var_export($data, true);
+        /*
+        //For seeing contents of csv before uploading to db
         foreach($data as $line){
             foreach($line as $var){
                 echo $var . "<br>";
             }
         }
-
+        */
         
+        //
         echo 'CSV file parsed and saved successfully.';
     } else {
         echo 'Failed to open the CSV file.';

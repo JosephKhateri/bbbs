@@ -37,14 +37,44 @@
 <head>
     <?php require('universal.inc'); ?>
     <title>CSV File Upload</title>
+    <style>
+            .fileSelect{
+                display: flex;
+                flex-direction: column;
+                gap: .5rem;
+                padding: 0 0 4rem 0;
+            }
+            @media only screen and (min-width: 1024px) {
+                .fileSelect {
+                    /* width: 40%; */
+                    width: 35rem;
+            }
+            main.upload {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+	    .column {
+		padding: 0 4rem 0 0;
+		width: 50%;
+	    }
+	    .row{
+          	display: flex;
+            }
+	    }
+    </style>
 </head>
 <body>
     <?php require('header.php'); ?>
-    <h1>CSV File Upload</h1>
-    <p>Please select a CSV file to upload </p>
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".csv">
-        <input type="submit" value="Upload">
-    </form>
+    <h1>Upload File</h1>
+    <main class="upload"> 
+    <h2>Please select a CSV file to upload </h2>
+        
+        <form method="POST" name="uploadFile" class="fileSelect" enctype="multipart/form-data">
+            <label for="uploadFile">Select File</label>
+            <input type="file" name="file" accept=".csv">
+            <input type="submit" value="Upload">
+        </form>
+    </main>
 </body>
 </html>
