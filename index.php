@@ -47,6 +47,10 @@
                 <div class="happy-toast">Location successfully removed!</div>
             <?php elseif (isset($_GET['registerSuccess'])): ?>
                 <div class="happy-toast">User registered successfully!</div>
+            <?php elseif(isset($_GET['fileSuccess'])): ?>
+                <div class="happy-toast">File uploaded sucessfully!</div>
+            <?php elseif (isset($_GET['fileFail'])): ?>
+                <div class="error-toast">File not uploaded correctly!</div>
             <?php endif ?>
             <p>Welcome back, <?php echo $user->get_first_name() ?>!</p>
             <p>Today is <?php echo date('l, F j, Y'); ?>.</p>
@@ -100,7 +104,7 @@
                 </div>
                 -->
                 <div class="dashboard-item" data-link="UploadForm.php">
-                    <!--<img src="images/logout.svg"> -->
+                    <img src="images/volunteer-history.svg">
                     <span>Upload File</span>
                 </div>
                 <div class="dashboard-item" data-link="report.php">
