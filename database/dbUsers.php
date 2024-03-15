@@ -73,20 +73,21 @@ function remove_user($id) {
  * Pre-condition: $id is a string
  * Post-condition: A User object is returned or the boolean "false" is returned if no user exists with the given id
  */
-function retrieve_user($id) {
+function retrieve_user($id, $action_performed) {
     $con=connect();
     $query = "SELECT * FROM dbUsers WHERE id = '" . $id . "'";
     $result = mysqli_query($con,$query);
     if (mysqli_num_rows($result) !== 1) {
         mysqli_close($con);
-        return false;
+        return false; // need to handle this properly in any code that calls this function
     }
     $result_row = mysqli_fetch_assoc($result);
-    $calltype = "login";
+    $calltype = $action_performed;
     $theUser = make_a_user($result_row, $calltype);
 //    mysqli_close($con);
     return $theUser;
 }
+
 // Name is first concat with last name. Example 'James Jones'
 // return array of Users.
 function retrieve_users_by_name ($name) {
@@ -105,9 +106,16 @@ function retrieve_users_by_name ($name) {
     return $users;	
 }
 
+/*
+ * Parameters: $id = A string that represents the identifying email of a User, $newPass = A string that represents the new password
+ * This function changes the password of a User in the dbUsers table that matches the given id
+ * Return type: A boolean value of "true" or "false"
+ * Pre-condition: $id and $newPass are strings
+ * Post-condition: The password of a User is changed in the dbUsers table if the User exists with the given id
+ */
 function change_password($id, $newPass) {
     $con=connect();
-    $query = 'UPDATE dbUsers SET password = "' . $newPass . '", force_password_change="0" WHERE id = "' . $id . '"';
+    $query = 'UPDATE dbUsers SET password = "' . $newPass . '" WHERE id = "' . $id . '"';
     $result = mysqli_query($con,$query);
     mysqli_close($con);
     return $result;
@@ -115,7 +123,7 @@ function change_password($id, $newPass) {
 
 function reset_password($id, $newPass) {
     $con=connect();
-    $query = 'UPDATE dbUsers SET password = "' . $newPass . '", force_password_change="1" WHERE id = "' . $id . '"';
+    $query = 'UPDATE dbUsers SET password = "' . $newPass . '" WHERE id = "' . $id . '"';
     $result = mysqli_query($con,$query);
     mysqli_close($con);
     return $result;

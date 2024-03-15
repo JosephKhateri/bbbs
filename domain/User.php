@@ -53,8 +53,7 @@ class User {
         if ($calltype == "login") {
             // If the call type is login, we need to set the access level to the correct value based on user data in the db
             $this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
-        } else if ($calltype == "add user"){
-            // If the call type is add user, we need to set the access level to the correct value based on the form data before storing it in the db
+        } else {
             $this->access_level = $access;
         }
         $this->password = $password;

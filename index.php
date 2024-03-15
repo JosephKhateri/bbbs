@@ -48,9 +48,11 @@
             <?php elseif (isset($_GET['registerSuccess'])): ?>
                 <div class="happy-toast">User registered successfully!</div>
             <?php elseif(isset($_GET['fileSuccess'])): ?>
-                <div class="happy-toast">File uploaded sucessfully!</div>
+                <div class="happy-toast">File uploaded successfully!</div>
             <?php elseif (isset($_GET['fileFail'])): ?>
                 <div class="error-toast">File not uploaded correctly!</div>
+            <?php elseif (isset($_GET['userNotFound'])): ?>
+                <div class="happy-toast">User doesn't exist! Try again later!</div>
             <?php endif ?>
             <p>Welcome back, <?php echo $user->get_first_name() ?>!</p>
             <p>Today is <?php echo date('l, F j, Y'); ?>.</p>

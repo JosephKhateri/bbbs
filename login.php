@@ -27,7 +27,8 @@
             dateChecker();
             $username = strtolower($args['username']);
             $password = $args['password'];
-            $user = retrieve_user($username);
+            $calltype = "login";
+            $user = retrieve_user($username, $calltype);
             if (!$user) {
                 // User doesn't exist
                 $badLogin = true;
@@ -43,7 +44,7 @@
                 }*/
                 $_SESSION['logged_in'] = true;
                 $types = $user->get_access_level();
-                if (in_array('superadmin', $types)) {
+                if (in_array('super admin', $types)) {
                     $_SESSION['access_level'] = 3;
                 } else if (in_array('admin', $types)) {
                     $_SESSION['access_level'] = 2;
