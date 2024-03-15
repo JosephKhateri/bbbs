@@ -18,7 +18,7 @@
     // Get date?
     if (isset($_SESSION['_id'])) {
         //$person = retrieve_person($_SESSION['_id']);
-        $user = retrieve_user($_SESSION['_id']);
+        $user = retrieve_user($_SESSION['_id'], "dashboard");
     }
     //$notRoot = $person->get_id() != 'vmsroot';
     $notRoot = $user->get_id() != 'vmsroot';
@@ -134,6 +134,10 @@
 
                 <?php endif ?>
                 <?php if ($notRoot) : ?>
+                    <div class="dashboard-item" data-link="changePassword.php"> <!-- root user can't change password -->
+                        <img src="images/change-password.svg">
+                        <span>Change Password</span>
+                    </div>
                     <div class="dashboard-item" data-link="viewProfile.php">
                         <img src="images/view-profile.svg">
                         <span>View Profile</span>
@@ -149,10 +153,6 @@
                         <span>View My Hours</span>
                     </div>-->
                 <?php endif ?>
-                <div class="dashboard-item" data-link="changePassword.php">
-                    <img src="images/change-password.svg">
-                    <span>Change Password</span>
-                </div>
                 <div class="dashboard-item" data-link="logout.php">
                     <img src="images/logout.svg">
                     <span>Log out</span>
