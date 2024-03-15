@@ -309,7 +309,7 @@
         if (isset($_GET['report']) && $_GET['report'] == 'report4') {
             // Modified SQL query to join Donations with Donors table and fetch required details
             $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
-                             DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
+                    DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
                     FROM dbdonations AS d
                     JOIN dbdonors AS p ON d.Email = p.Email
                     GROUP BY d.Email";
@@ -327,23 +327,23 @@
                     $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
                     
                     //Frequency of Giving
-                    $FOG="";
-                    $Rate=0;
-                    $ratio=$row['Number_Of_Donations']/($row['DateDiff']/365);
-                    if($ratio<1){
+                    $FOG = "";
+                    $Rate = 0;
+                    $ratio = $row['Number_Of_Donations'] / ($row['DateDiff'] / 365);
+                    if ($ratio<1){
                         $FOG="Less Than Yearly";
-                    }elseif($ratio<6 && $ratio>=1){
-                        $FOG="Yearly";
-                    }elseif($ratio>=6 && $ratio<12){
-                        $FOG="Bi-Monthly";
-                        $Rate=1;
-                    }elseif($ratio>=12){
-                        $FOG="Monthly";
-                        $Rate=1;
+                    } elseif($ratio < 6 && $ratio >= 1){
+                        $FOG = "Yearly";
+                    } elseif($ratio >= 6 && $ratio < 12){ // Either comment this out for now or remove it since bi-monthly isn't needed
+                        $FOG = "Bi-Monthly";
+                        $Rate = 1;
+                    } elseif($ratio >= 12){
+                        $FOG = "Monthly";
+                        $Rate = 1;
                     }
                     //Checks if the current ratio of the Donor is more than yearly if it isn't then their row
                     //won't appear in the generated table
-                    if($Rate==1){
+                    if($Rate == 1){
                     echo "<tr>
                             <td>" . htmlspecialchars($row['Email']) . "</td>
                             <td>" . htmlspecialchars($row['FirstName']) . "</td>

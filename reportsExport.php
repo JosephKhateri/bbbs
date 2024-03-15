@@ -307,7 +307,7 @@ function exportDonorsFOGGTY() {
     
     // Your SQL query to fetch the required data
     $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
-                             DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
+                    DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
                     FROM dbdonations AS d
                     JOIN dbdonors AS p ON d.Email = p.Email
                     GROUP BY d.Email";
@@ -325,27 +325,25 @@ function exportDonorsFOGGTY() {
     while ($row = mysqli_fetch_assoc($result)) {
 		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
 		
-		//Frequency of Giving
-		$FOG="";
-		$Rate=0;
-		$ratio=$row['Number_Of_Donations']/($row['DateDiff']/365);
-		if($ratio<1){
+		// Frequency of Giving
+		$FOG = "";
+		$Rate = 0;
+		$ratio = $row['Number_Of_Donations'] / ($row['DateDiff'] / 365);
+		if ($ratio < 1){
 			$FOG="Less Than Yearly";
-		}elseif($ratio<6 && $ratio>=1){
-			$FOG="Yearly";
-		}elseif($ratio>=6 && $ratio<12){
-			$FOG="Bi-Monthly";
-			$Rate=1;
-		}elseif($ratio>=12){
-			$FOG="Monthly";
-			$Rate=1;
+		} elseif ($ratio <6 && $ratio >= 1){
+			$FOG = "Yearly";
+		} elseif ($ratio >= 6 && $ratio < 12){ // Either comment this out for now or remove it since bimonthly isn't needed
+			$FOG = "Bi-Monthly";
+			$Rate = 1;
+		} elseif ($ratio >= 12){
+			$FOG = "Monthly";
+			$Rate = 1;
 		}
-		if($Rate==1){
-		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone,$FOG,$row['DateDiff']));
+		if ($Rate == 1){
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $FOG, $row['DateDiff']));
 		}
 	}
-	
-    
     fclose($output);
     //exit();
 }
