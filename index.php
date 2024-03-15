@@ -35,6 +35,8 @@
         <main class='dashboard'>
             <?php if (isset($_GET['pcSuccess'])): ?>
                 <div class="happy-toast">Password changed successfully!</div>
+            <?php elseif (isset($_GET['pcFail'])): ?>
+                <div class="happy-toast">Password change failed! Try again later!</div>
             <?php elseif (isset($_GET['deleteService'])): ?>
                 <div class="happy-toast">Service successfully removed!</div>
             <?php elseif (isset($_GET['serviceAdded'])): ?>
