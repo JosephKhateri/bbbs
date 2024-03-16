@@ -14,11 +14,11 @@
  * @version 3/28/2008, revised 7/1/2015
  */
 
-// Since these are getting capitalized, may need to edit other instances of this in other files
+
 $accessLevelsByRole = [
     'user' => 1,
     'admin' => 2,
-    'super admin' => 3
+    'super admin' => 3 //works fine when this doesnt have a space
 ];
 
 class User {
@@ -49,9 +49,16 @@ class User {
         //$this->access_level = $access !== "" ? explode(',', $access) : array(); // Other option for getting access level, keeping for now
 
         // If the constructor is called during login, the access level is set to the correct value based on user data in the db
-        // Also checks that the access level provided in the constructor call is a valid value
         if ($login) {
-            $this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
+            if ($access == "user") {
+                $this->access_level = 1;
+            } else if ($access == "admin") {
+                $this->access_level = 2;
+            } else if ($access == "super admin") {
+                $this->access_level = 3;
+            }
+            // The below line is commented out for now since I wasn't able to get it working properly
+            //$this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
         } else {
             // If the constructor is called without the optional login argument, the access level is set to the value passed in
             $this->access_level = $access;
