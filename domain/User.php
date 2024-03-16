@@ -48,12 +48,11 @@ class User {
         //$this->mustChangePassword = $mcp;
         //$this->access_level = $access !== "" ? explode(',', $access) : array(); // Other option for getting access level, keeping for now
 
-        // Due to having issues with call type when constructing a User during login vs add_user, I'm using this if statement to set the access level
-        // This may be modified in the future to either include more call types or rewrite the code to not need this at all and it handles the functionality on its own
+        // If the constructor is called during login, the access level is set to the correct value based on user data in the db
         if ($login) {
-            // If the call type is login, we need to set the access level to the correct value based on user data in the db
             $this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
         } else {
+            // If the constructor is called without the optional login argument, the access level is set to the value passed in
             $this->access_level = $access;
         }
         $this->password = $password;
