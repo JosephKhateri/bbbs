@@ -50,7 +50,7 @@ class User {
 
         // If the constructor is called during login, the access level is set to the correct value based on user data in the db
         // Also checks that the access level provided in the constructor call is a valid value
-        if ($login && array_key_exists($access, $accessLevelsByRole)) {
+        if ($login) {
             $this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
         } else {
             // If the constructor is called without the optional login argument, the access level is set to the value passed in
