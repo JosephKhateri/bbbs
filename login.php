@@ -27,8 +27,8 @@
             dateChecker();
             $username = strtolower($args['username']);
             $password = $args['password'];
-            $calltype = "login";
-            $user = retrieve_user($username, $calltype);
+            $login = true; // value to signify a login attempt that the User constructor will evaluate
+            $user = retrieve_user($username, $login);
             if (!$user) {
                 // User doesn't exist
                 $badLogin = true;
@@ -69,7 +69,6 @@
                     header('Location: index.php');
                     die();
                 }
-                die();
             } else {
                 // The user's password was incorrect
                 $badLogin = true;

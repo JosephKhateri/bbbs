@@ -32,13 +32,13 @@ class User {
     private $mustChangePassword; //seems to be used to require users to change password every X days for security purposes
 
     /*
-     * Parameters: $email, $password, $first, $last, $role, $access, $calltype -> the type of call that is being made (login or add user)
+     * Parameters: $email, $password, $first, $last, $role, $access, $login = boolean value that signifies if the User object is being created during a login attempt; is an optional argument
      * This function constructs a new User object with the given parameters
      * Return type: A User object
-     * Pre-condition: $email, $password, $first, $last, $role, $access are all strings
+     * Pre-condition: $email, $password, $first, $last, $role, $access are all strings and $login is a boolean value if passed
      * Post-condition: a new User object is created
      */
-    function __construct($email, $password, $first, $last, $role, $access, $calltype) {
+    function __construct($email, $password, $first, $last, $role, $access, $login = null) {
         global $accessLevelsByRole;
         $this->id = $email;
         $this->email = $email;
@@ -50,7 +50,7 @@ class User {
 
         // Due to having issues with call type when constructing a User during login vs add_user, I'm using this if statement to set the access level
         // This may be modified in the future to either include more call types or rewrite the code to not need this at all and it handles the functionality on its own
-        if ($calltype == "login") {
+        if ($login) {
             // If the call type is login, we need to set the access level to the correct value based on user data in the db
             $this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
         } else {

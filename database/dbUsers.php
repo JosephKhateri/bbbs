@@ -67,13 +67,13 @@ function remove_user($id) {
 }
 
 /*
- * Parameters: $id = A string that represents the identifying email of a User
+ * Parameters: $id = A string that represents the identifying email of a User, $login = boolean value that signifies if the User object is being created during a login attempt; is an optional argument
  * This function retrieves a User from the dbUsers table that matches the given id
  * Return type: A User object or a boolean value of "false"
- * Pre-condition: $id is a string
+ * Pre-condition: $id is a string and $login is a boolean value if passed
  * Post-condition: A User object is returned or the boolean "false" is returned if no user exists with the given id
  */
-function retrieve_user($id, $action_performed) {
+function retrieve_user($id, $login = null) {
     $con=connect();
     $query = "SELECT * FROM dbUsers WHERE id = '" . $id . "'";
     $result = mysqli_query($con,$query);
@@ -82,8 +82,7 @@ function retrieve_user($id, $action_performed) {
         return false; // need to handle this properly in any code that calls this function
     }
     $result_row = mysqli_fetch_assoc($result);
-    $calltype = $action_performed;
-    $theUser = make_a_user($result_row, $calltype);
+    $theUser = make_a_user($result_row, $login);
 //    mysqli_close($con);
     return $theUser;
 }
@@ -116,7 +115,7 @@ function retrieve_users_by_name ($name) {
 function change_password($id, $newPass) {
     $con=connect();
     $query = 'UPDATE dbUsers SET password = "' . $newPass . '" WHERE id = "' . $id . '"';
-    $result = mysqli_query($con,$query);
+    $result = mysqli_query($con, $query);
     mysqli_close($con);
     return $result;
 }
@@ -124,7 +123,7 @@ function change_password($id, $newPass) {
 function reset_password($id, $newPass) {
     $con=connect();
     $query = 'UPDATE dbUsers SET password = "' . $newPass . '" WHERE id = "' . $id . '"';
-    $result = mysqli_query($con,$query);
+    $result = mysqli_query($con, $query);
     mysqli_close($con);
     return $result;
 }
@@ -196,13 +195,13 @@ function getall_user_names() {
 }
 
 /*
- * Parameters: $result_row = a row from the dbUsers table, $calltype = a string that represents the type of call being made
+ * Parameters: $result_row = a row from the dbUsers table, $login = boolean value that signifies if the User object is being created during a login attempt; is an optional argument
  * This function constructs a new User object with the row from the dbUsers table
  * Return type: User
- * Pre-condition: $result_row is an associative array
+ * Pre-condition: $result_row is an associative array and $login is a boolean value if passed
  * Post-condition: a new User object is created
  */
-function make_a_user($result_row, $calltype) {
+function make_a_user($result_row, $login = null) {
     $theUser = new User(
         /*$result_row['first_name'],
         $result_row['last_name'],
@@ -217,7 +216,7 @@ function make_a_user($result_row, $calltype) {
         $result_row['last_name'],
         $result_row['role'],
         $result_row['account_type'],
-        $calltype
+        $login
     );
     return $theUser;
 }

@@ -56,7 +56,7 @@
         $password = $_POST['password'];
         $newPassword = $_POST['new-password'];
         $calltype = "reset password";
-        $user = retrieve_user($userID, $calltype);
+        $user = retrieve_user($userID);
 
         if (!$user) { // user doesn't exist
             header('Location: index.php?userNotFound');
@@ -70,12 +70,11 @@
             $change_password_result = change_password($userID, $hash);
             if ($change_password_result === false) { // password change failed
                 header('Location: index.php?pcFail');
-                die();
             }
             else { // password change succeeded
                 header('Location: index.php?pcSuccess');
-                die();
             }
+            die();
         }
         //}
     }

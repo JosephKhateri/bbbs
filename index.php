@@ -18,7 +18,7 @@
     // Get date?
     if (isset($_SESSION['_id'])) {
         //$person = retrieve_person($_SESSION['_id']);
-        $user = retrieve_user($_SESSION['_id'], "dashboard");
+        $user = retrieve_user($_SESSION['_id']);
     }
     //$notRoot = $person->get_id() != 'vmsroot';
     $notRoot = $user->get_id() != 'vmsroot';
@@ -115,6 +115,7 @@
                     <img src="images/create-report.svg">
                     <span>Create Report</span>
                 </div>
+
                 <!--<?php if ($_SESSION['access_level'] >= 2): ?>
                     <div class="dashboard-item" data-link="personSearch.php">
                         <img src="images/person-search.svg">
@@ -134,12 +135,9 @@
                         <span>Add User</span>
                     </div>
 
+
                 <?php endif ?>
                 <?php if ($notRoot) : ?>
-                    <div class="dashboard-item" data-link="changePassword.php"> <!-- root user can't change password -->
-                        <img src="images/change-password.svg">
-                        <span>Change Password</span>
-                    </div>
                     <div class="dashboard-item" data-link="viewProfile.php">
                         <img src="images/view-profile.svg">
                         <span>View Profile</span>
@@ -154,6 +152,10 @@
                         <img src="images/volunteer-history.svg">
                         <span>View My Hours</span>
                     </div>-->
+                    <div class="dashboard-item" data-link="changePassword.php"> <!-- root user can't change password -->
+                        <img src="images/change-password.svg">
+                        <span>Change Password</span>
+                    </div>
                 <?php endif ?>
                 <div class="dashboard-item" data-link="logout.php">
                     <img src="images/logout.svg">
