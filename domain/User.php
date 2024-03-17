@@ -50,15 +50,9 @@ class User {
 
         // If the constructor is called during login, the access level is set to the correct value based on user data in the db
         if ($login) {
-            if ($access == "user") {
-                $this->access_level = 1;
-            } else if ($access == "admin") {
-                $this->access_level = 2;
-            } else if ($access == "super admin") {
-                $this->access_level = 3;
-            }
             // The below line is commented out for now since I wasn't able to get it working properly
             //$this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
+            $this->access_level = $access !== "" ? explode(',', $access) : array();
         } else {
             // If the constructor is called without the optional login argument, the access level is set to the value passed in
             $this->access_level = $access;
