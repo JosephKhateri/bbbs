@@ -13,6 +13,7 @@
 /**
  * @version March 1, 2012
  * @author Oliver Radwan and Allen Tucker
+ * Edited by Megan and Noor for BBBS in Spring 2024
  */
 include_once('dbinfo.php');
 include_once(dirname(__FILE__).'/../domain/User.php');

@@ -1,6 +1,7 @@
 <?php
     // Template for new VMS pages. Base your new page on this one
 
+    // Edited by Megan and Noor for BBBS in Spring 2024
     // Purpose: Allows users to change their password
     session_cache_expire(30);
     session_start();
@@ -16,6 +17,7 @@
         $accessLevel = $_SESSION['access_level']; // need to test this out to see if it returns string (user, admin) or int (1, 2_
         $userID = $_SESSION['_id'];
     }
+
     $forced = false;
     if (isset($_SESSION['change-password']) && $_SESSION['change-password']) {
         $forced = true; // User must change password due to password expiration
@@ -89,11 +91,14 @@
         <?php require_once('header.php') ?>
         <h1>Change Password</h1>
         <main class="login">
+            <!-- Error messages -->
             <?php if (isset($error1)): ?>
                 <p class="error-toast">Your entry for Current Password was incorrect.</p>
             <?php elseif (isset($error2)): ?>
                 <p class="error-toast">New password must be different from current password.</p>
             <?php endif ?>
+
+            <!-- Form for user to change their password -->
             <form id="password-change" method="post">
                 <?php if (!$forced): ?>
                     <label for="password">Current Password</label>

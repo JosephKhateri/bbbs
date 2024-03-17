@@ -1,4 +1,7 @@
 <?php
+    // Edited by Megan and Noor for BBBS in Spring 2024
+    // Purpose: Allows admins to reset a user's password
+
     // Make session information accessible, allowing us to associate
     // data with the logged-in user.
     session_cache_expire(30);
@@ -40,7 +43,7 @@
         require_once('domain/User.php');
         $args = sanitize($_POST, null);
         $required = array(
-            "user_dropdown", "new_password"
+            "user_dropdown", "new_password" // Required fields for the form
         );
         $error1 = false;
 
@@ -81,19 +84,19 @@
 <?php require_once('header.php') ?>
 <h1>Reset User Password</h1>
 <main class="date">
+    <!-- Error messages -->
     <?php if (isset($error1)): ?>
         <p class="error-toast">Your form submission contained unexpected input.</p>
     <?php elseif (isset($error2)): ?>
         <p class="error-toast">New password must be different from current password.</p>
     <?php endif ?>
 
+    <!-- Form for admin to reset a user's password -->
     <h2>Reset Password</h2>
     <form id="new-animal-form" method="post">
-
         <label for="user_dropdown">Select a User:</label>
         <select name="user_dropdown" id="user_dropdown">
-            <?php
-            $users = get_all_users();
+            <?php // Populate dropdown menu with all users except for vmsroot
             foreach ($users as $user) {
                 echo "<option value='" . $user->get_id() . "'>" . $user->get_id() . " " . "</option>";
             }
