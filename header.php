@@ -81,8 +81,9 @@
         $permission_array['editevent.php'] = 2;
         $permission_array['roster.php'] = 2;
         $permission_array['reportspage.php'] = 2;
-        $permission_array['resetpassword.php'] = 2;
+        $permission_array['resetPassword.php'] = 2;
         $permission_array['registerUserForm.php'] = 2;
+        $permission_array['adminResetPassword.php'] = 2;
         //$permission_array['addappointment.php'] = 2;
         //$permission_array['addanimal.php'] = 2;
         //$permission_array['addservice.php'] = 2;

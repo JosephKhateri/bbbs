@@ -155,10 +155,13 @@ function getall_dbUsers($name_from, $name_to, $venue) {
 }
 
 /*
-  @return all rows from dbUsers
-
-*/
-function getall_users() {
+ * Parameters: None
+ * This function retrieves all Users from the dbUsers table except vmsroot
+ * Return type: An array of User objects or a boolean value of "false" in the event that no Users exist in the dbUsers table
+ * Pre-condition: None
+ * Post-condition: An array of User objects is returned or the boolean "false" is returned if no Users exist in the dbUsers table
+ */
+function get_all_users() {
     $con=connect();
     $query = 'SELECT * FROM dbUsers WHERE id != "vmsroot"';
     $result = mysqli_query($con,$query);

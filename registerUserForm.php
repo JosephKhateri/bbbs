@@ -73,7 +73,7 @@
 <html>
     <head>
         <?php require_once('universal.inc') ?>
-        <title>Register User</title>
+        <title>BBBS | Register User</title>
     </head>
     <body>
         <?php require_once('header.php') ?>

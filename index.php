@@ -55,6 +55,8 @@
                 <div class="error-toast">File not uploaded correctly!</div>
             <?php elseif (isset($_GET['userNotFound'])): ?>
                 <div class="happy-toast">User doesn't exist! Try again later!</div>
+            <?php elseif (isset($_GET['noUsers'])): ?>
+                <div class="happy-toast">No users exist for this application!</div> <!-- In the event that the database is empty -->
             <?php endif ?>
             <p>Welcome back, <?php echo $user->get_first_name() ?>!</p>
             <p>Today is <?php echo date('l, F j, Y'); ?>.</p>
@@ -70,9 +72,9 @@
                 <!--<div class="dashboard-item" data-link="inbox.php">
                     <img src="images/<?php echo $inboxIcon ?>">
                     <span>Notifications<?php 
-                        if ($unreadMessageCount > 0) {
+                        /*if ($unreadMessageCount > 0) {
                             echo ' (' . $unreadMessageCount . ')';
-                        }
+                        }*/
                     ?></span>
                 </div>-->
                 <!--<div class="dashboard-item" data-link="calendar.php">
@@ -133,6 +135,10 @@
                     <div class="dashboard-item" data-link="registerUserForm.php">
                         <img src="images/settings.png">
                         <span>Add User</span>
+                    </div>
+                    <div class="dashboard-item" data-link="adminResetPassword.php">
+                        <img src="images/settings.png">
+                        <span>Reset User Password</span>
                     </div>
 
 
