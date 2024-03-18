@@ -1,4 +1,7 @@
 <?php
+    // Purpose: Allows admins to reset a user's password
+    // This file does not seem to be in use, will need to add it to index.php and limit permissions to 2 or higher
+
     session_cache_expire(30);
     session_start();
     ini_set("display_errors",1);
