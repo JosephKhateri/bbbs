@@ -45,18 +45,19 @@
         $required = array(
             "user_dropdown", "new_password" // Required fields for the form
         );
-        $error1 = false;
 
         if (!wereRequiredFieldsSubmitted($args, $required)) {
             $error1 = true; // Form submission contained unexpected input; alert user and stay on this page
+        } else if (!validatePassword($args['new_password'])) {
+            $error2 = true; // New password doesn't meet requirements; alert user and stay on this page
         } else {
-            // Create new user with the values from args
+            // Set user ID to the value of the user_dropdown dropdown menu and retrieve the user from dbUsers
             $id = $args['user_dropdown'];
+            $user = retrieve_user($id);
 
             // Check that new password is different from current password
-            $user = retrieve_user($id);
             if (password_verify($args['new_password'], $user->get_password())) {
-                $error2 = true; // new and old passwords are the same
+                $error3 = true; // new and old passwords are the same
             } else {
                 // Change the user's password and redirect admin to the dashboard
                 $newPassword = password_hash($args['new_password'], PASSWORD_BCRYPT);
@@ -88,6 +89,8 @@
     <?php if (isset($error1)): ?>
         <p class="error-toast">Your form submission contained unexpected input.</p>
     <?php elseif (isset($error2)): ?>
+        <p class="error-toast">Password must meet requirements.</p>
+    <?php elseif (isset($error3)): ?>
         <p class="error-toast">New password must be different from current password.</p>
     <?php endif ?>
 
@@ -105,7 +108,22 @@
         <br><br> <!-- Add line break before New Password input -->
 
         <label for="new_password">New Password *</label>
-        <input type="text" id="new_password" name="new_password" required placeholder="Enter New Password">
+        <input type="password" id="new_password" name="new_password" required placeholder="Enter New Password">
+
+        <!-- Display password requirements list -->
+        <style>
+            p1 {
+                font-size: small;
+                line-height: 1em
+            }
+        </style>
+        <p1 style="text-align: left">Password must meet the following requirements:</p1><br>
+        <p1 style="text-align: left">- Minimum length: 8 characters</p1><br>
+        <p1 style="text-align: left">- At least one uppercase letter</p1><br>
+        <p1 style="text-align: left">- At least one lowercase letter</p1><br>
+        <p1 style="text-align: left">- At least one digit</p1><br>
+        <p1 style="text-align: left">- At least 1 special character (@$!%*?&)</p1>
+
 
         <br><br> <!-- Add line break before Submit button -->
 
