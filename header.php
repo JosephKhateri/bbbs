@@ -45,15 +45,15 @@
          * can view it. If someone logged into the system attempts to access a page above their
          * permission level, they will be sent back to the home page.
          */
-        //pages guests are allowed to view
-        $permission_array['index.php'] = 0;
-        $permission_array['about.php'] = 0;
-        $permission_array['apply.php'] = 0;
+        // Pages guests are allowed to view
+        //$permission_array['index.php'] = 0;
+        //$permission_array['about.php'] = 0;
+        //$permission_array['apply.php'] = 0;
         $permission_array['logout.php'] = 0;
         $permission_array['register.php'] = 0;
         //pages volunteers can view
         $permission_array['dashboard.php'] = 1;
-        $permission_array['calendar.php'] = 1;
+        //$permission_array['calendar.php'] = 1;
         $permission_array['eventsearch.php'] = 1;
         $permission_array['changepassword.php'] = 1;
         $permission_array['editprofile.php'] = 1;

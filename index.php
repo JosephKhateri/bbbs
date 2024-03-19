@@ -35,7 +35,9 @@
         <main class='dashboard'>
             <?php if (isset($_GET['pcSuccess'])): ?>
                 <div class="happy-toast">Password changed successfully!</div>
-            <?php elseif (isset($_GET['deleteService'])): ?>
+            <?php elseif (isset($_GET['pcFail'])): ?>
+                <div class="happy-toast">Password change failed! Try again later!</div>
+            <!--<?php elseif (isset($_GET['deleteService'])): ?>
                 <div class="happy-toast">Service successfully removed!</div>
             <?php elseif (isset($_GET['serviceAdded'])): ?>
                 <div class="happy-toast">Service successfully added!</div>
@@ -44,13 +46,17 @@
             <?php elseif (isset($_GET['locationAdded'])): ?>
                 <div class="happy-toast">Location successfully added!</div>
             <?php elseif (isset($_GET['deleteLocation'])): ?>
-                <div class="happy-toast">Location successfully removed!</div>
+                <div class="happy-toast">Location successfully removed!</div>-->
             <?php elseif (isset($_GET['registerSuccess'])): ?>
                 <div class="happy-toast">User registered successfully!</div>
             <?php elseif(isset($_GET['fileSuccess'])): ?>
-                <div class="happy-toast">File uploaded sucessfully!</div>
+                <div class="happy-toast">File uploaded successfully!</div>
             <?php elseif (isset($_GET['fileFail'])): ?>
                 <div class="error-toast">File not uploaded correctly!</div>
+            <?php elseif (isset($_GET['userNotFound'])): ?>
+                <div class="happy-toast">User doesn't exist! Try again later!</div>
+            <?php elseif (isset($_GET['noUsers'])): ?>
+                <div class="happy-toast">No users exist for this application!</div> <!-- In the event that the database is empty -->
             <?php endif ?>
             <p>Welcome back, <?php echo $user->get_first_name() ?>!</p>
             <p>Today is <?php echo date('l, F j, Y'); ?>.</p>
@@ -63,12 +69,12 @@
                         $inboxIcon = 'inbox-unread.svg';
                     }
                 ?>
-                <div class="dashboard-item" data-link="inbox.php">
+                <!--<div class="dashboard-item" data-link="inbox.php">
                     <img src="images/<?php echo $inboxIcon ?>">
                     <span>Notifications<?php 
-                        if ($unreadMessageCount > 0) {
+                        /*if ($unreadMessageCount > 0) {
                             echo ' (' . $unreadMessageCount . ')';
-                        }
+                        }*/
                     ?></span>
                 </div>
 

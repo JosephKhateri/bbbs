@@ -13,10 +13,6 @@
         $userID = $_SESSION['_id'];
     }
 
-    if ($accessLevel < 2) {
-        header('Location: index.php');
-        die();
-      }
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Get the temporary file path
         $tmpFilePath = $_FILES['file']['tmp_name'];
@@ -36,7 +32,7 @@
 <html>
 <head>
     <?php require('universal.inc'); ?>
-    <title>CSV File Upload</title>
+    <title>BBBS | Upload CSV File</title>
     <style>
             .fileSelect{
                 display: flex;

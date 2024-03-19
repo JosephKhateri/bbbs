@@ -1,4 +1,7 @@
 <?php
+    // Edited by Megan and Noor for BBBS in Spring 2024
+    // Purpose: Allows admins to register a new user
+
     // Make session information accessible, allowing us to associate
     // data with the logged-in user.
     session_cache_expire(30);
@@ -16,6 +19,7 @@
         $accessLevel = $_SESSION['access_level'];
         $userID = $_SESSION['_id'];
     }
+
     // Require admin privileges
     if ($accessLevel < 2) {
         header('Location: login.php');
@@ -27,7 +31,7 @@
         require_once('domain/User.php');
         $args = sanitize($_POST, null);
         $required = array(
-			"email", "password", "first_name", "last_name", "account_type", "role"
+			"email", "password", "first_name", "last_name", "account_type", "role" // Required fields for the form
 		);
         $errors = false;
 
@@ -57,11 +61,10 @@
             }
 
             // Create a new User object and add it to the database
-            $calltype = "add user";
-            $newUser = new User($email, $password, $first_name, $last_name, $role, $account_type, $calltype);
+            $newUser = new User($email, $password, $first_name, $last_name, $role, $account_type);
             $result = add_user($newUser);
             if (!$result) { // If a user with the same email already exists
-                echo '<p>That e-mail address is already in use.</p>';
+                $userExistsError = true;
             } else {
                 echo '<script>document.location = "index.php?registerSuccess";</script>';
             }
@@ -74,12 +77,20 @@
 <html>
     <head>
         <?php require_once('universal.inc') ?>
-        <title>Register User</title>
+        <title>BBBS | Register User</title>
     </head>
     <body>
         <?php require_once('header.php') ?>
         <h1>Register User</h1>
         <main class="date">
+            <!-- Error messages -->
+            <?php if (isset($userExistsError)): ?>
+                <p class="error-toast">A user with that email is already in use</p>
+            <?php elseif (isset($error)): ?>
+                <p class="error-toast">Your form submission contained unexpected input.</p>
+            <?php endif ?>
+
+            <!-- Form for registering a new user -->
             <h2>User Registration</h2>
             <form id="new-animal-form" method="post">
                 <label for="name">Email *</label>

@@ -12,13 +12,14 @@
  * Created on Mar 28, 2008
  * @author Oliver Radwan <oradwan@bowdoin.edu>, Sam Roberts, Allen Tucker
  * @version 3/28/2008, revised 7/1/2015
+ * Edited by Megan and Noor for BBBS in Spring 2024
  */
 
-// Since these are getting capitalized, may need to edit other instances of this in other files
+
 $accessLevelsByRole = [
     'user' => 1,
     'admin' => 2,
-    'super admin' => 3
+    'super admin' => 3 //works fine when this doesnt have a space
 ];
 
 class User {
@@ -32,13 +33,13 @@ class User {
     private $mustChangePassword; //seems to be used to require users to change password every X days for security purposes
 
     /*
-     * Parameters: $email, $password, $first, $last, $role, $access, $calltype -> the type of call that is being made (login or add user)
+     * Parameters: $email, $password, $first, $last, $role, $access, $login = boolean value that signifies if the User object is being created during a login attempt; is an optional argument
      * This function constructs a new User object with the given parameters
      * Return type: A User object
-     * Pre-condition: $email, $password, $first, $last, $role, $access are all strings
+     * Pre-condition: $email, $password, $first, $last, $role, $access are all strings and $login is a boolean value if passed
      * Post-condition: a new User object is created
      */
-    function __construct($email, $password, $first, $last, $role, $access, $calltype) {
+    function __construct($email, $password, $first, $last, $role, $access, $login = null) {
         global $accessLevelsByRole;
         $this->id = $email;
         $this->email = $email;
@@ -48,13 +49,13 @@ class User {
         //$this->mustChangePassword = $mcp;
         //$this->access_level = $access !== "" ? explode(',', $access) : array(); // Other option for getting access level, keeping for now
 
-        // Due to having issues with call type when constructing a User during login vs add_user, I'm using this if statement to set the access level
-        // This may be modified in the future to either include more call types or rewrite the code to not need this at all and it handles the functionality on its own
-        if ($calltype == "login") {
-            // If the call type is login, we need to set the access level to the correct value based on user data in the db
-            $this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
-        } else if ($calltype == "add user"){
-            // If the call type is add user, we need to set the access level to the correct value based on the form data before storing it in the db
+        // If the constructor is called during login, the access level is set to the correct value based on user data in the db
+        if ($login) {
+            // The below line is commented out for now since I wasn't able to get it working properly
+            //$this->access_level = $accessLevelsByRole[$access] != "" ? explode(',', $access) : array();
+            $this->access_level = $access !== "" ? explode(',', $access) : array();
+        } else {
+            // If the constructor is called without the optional login argument, the access level is set to the value passed in
             $this->access_level = $access;
         }
         $this->password = $password;

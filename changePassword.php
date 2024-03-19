@@ -1,8 +1,8 @@
 <?php
     // Template for new VMS pages. Base your new page on this one
 
-    // Make session information accessible, allowing us to associate
-    // data with the logged-in user.
+    // Edited by Megan and Noor for BBBS in Spring 2024
+    // Purpose: Allows users to change their password
     session_cache_expire(30);
     session_start();
     require_once('include/api.php');
@@ -14,21 +14,25 @@
     if (isset($_SESSION['_id'])) {
         $loggedIn = true;
         // 0 = not logged in, 1 = standard user, 2 = manager (Admin), 3 super admin (TBI)
-        $accessLevel = $_SESSION['access_level'];
+        $accessLevel = $_SESSION['access_level']; // need to test this out to see if it returns string (user, admin) or int (1, 2_
         $userID = $_SESSION['_id'];
     }
+
     $forced = false;
     if (isset($_SESSION['change-password']) && $_SESSION['change-password']) {
-        $forced = true;
+        $forced = true; // User must change password due to password expiration
     } else if (!$loggedIn) {
         header('Location: login.php');
         die();
     }
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         require_once('include/input-validation.php');
-        require_once('domain/Person.php');
-        require_once('database/dbPersons.php');
-        if ($forced) {
+        //require_once('domain/Person.php');
+        //require_once('database/dbPersons.php');
+
+        require_once('domain/User.php');
+        require_once('database/dbUsers.php');
+        /*if ($forced) { // User must change password due to password expiration
             if (!wereRequiredFieldsSubmitted($_POST, array('new-password'))) {
                 echo "Args missing";
                 die();
@@ -39,49 +43,62 @@
             if ($userID == 'vmsroot') {
                 $_SESSION['access_level'] = 3;
             } else {
-                $user = retrieve_person($userID);
+                $user = retrieve_person($userID); //  if this returns false, we should redirect to index.php and tell the user that the password failed to be changed for any reason
                 $_SESSION['access_level'] = $user->get_access_level();
             }
             $_SESSION['logged_in'] = true;
             unset($_SESSION['change-password']);
             header('Location: index.php?pcSuccess');
             die();
-        } else {
-            if (!wereRequiredFieldsSubmitted($_POST, array('password', 'new-password'))) {
-                echo "Args missing";
-                die();
-            }
-            $password = $_POST['password'];
-            $newPassword = $_POST['new-password'];
-            $user = retrieve_person($userID);
-            if (!password_verify($password, $user->get_password())) {
-                $error1 = true;
-            } else if($password == $newPassword) {     // old password is same as new one
-                $error2 = true;
-            } else {
-                $hash = password_hash($newPassword, PASSWORD_BCRYPT);
-                change_password($userID, $hash);
-                header('Location: index.php?pcSuccess');
-                die();
-            }
+        } else { // User is changing password voluntarily*/
+        if (!wereRequiredFieldsSubmitted($_POST, array('password', 'new-password'))) {
+            echo "Args missing";
+            die();
         }
+        $password = $_POST['password'];
+        $newPassword = $_POST['new-password'];
+        $calltype = "reset password";
+        $user = retrieve_user($userID);
+
+        if (!$user) { // user doesn't exist
+            header('Location: index.php?userNotFound');
+            die();
+        } else if (!password_verify($password, $user->get_password())) {
+            $error1 = true; // old password provided is incorrect
+        } else if($password == $newPassword) { // old password is same as new one
+            $error2 = true; // old password is same as new one
+        } else {
+            $hash = password_hash($newPassword, PASSWORD_BCRYPT);
+            $change_password_result = change_password($userID, $hash);
+            if ($change_password_result === false) { // password change failed
+                header('Location: index.php?pcFail');
+            }
+            else { // password change succeeded
+                header('Location: index.php?pcSuccess');
+            }
+            die();
+        }
+        //}
     }
 ?>
 <!DOCTYPE html>
 <html>
     <head>
         <?php require_once('universal.inc') ?>
-        <title>ODHS Medicine Tracker | Change Password</title>
+        <title>BBBS Donor Information System | Change Password</title>
     </head>
     <body>
         <?php require_once('header.php') ?>
         <h1>Change Password</h1>
         <main class="login">
+            <!-- Error messages -->
             <?php if (isset($error1)): ?>
                 <p class="error-toast">Your entry for Current Password was incorrect.</p>
             <?php elseif (isset($error2)): ?>
                 <p class="error-toast">New password must be different from current password.</p>
             <?php endif ?>
+
+            <!-- Form for user to change their password -->
             <form id="password-change" method="post">
                 <?php if (!$forced): ?>
                     <label for="password">Current Password</label>

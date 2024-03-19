@@ -15,10 +15,6 @@
   require_once('include/input-validation.php');
   require_once('database/dbPersons.php');
 
-  if ($accessLevel < 2) {
-    header('Location: index.php');
-    die();
-  }
     // get animal data from database for form
     // Connect to database
     include_once('database/dbinfo.php'); 
@@ -31,7 +27,7 @@
 <html>
     <head>
         <?php require_once('universal.inc') ?>
-        <title>ODHS Medicine Tracker | Reports</title>
+        <title>BBBS | Reports</title>
         <style>
             .report_select{
                 display: flex;
