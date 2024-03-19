@@ -65,7 +65,7 @@
             }
             th {
                 background-color: var(--main-color);
-                color: var(--button-font-color);
+                color: black;
                 border: 1px solid #333333;
                 text-align: left;
                 padding: 8px;
@@ -73,7 +73,7 @@
             }
           
             tr:nth-child(even) {
-                background-color: #f0f0f0;
+                background-color: black;
                 /* color:var(--button-font-color); */
 		
             }

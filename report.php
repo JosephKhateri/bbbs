@@ -61,6 +61,14 @@
 		display: block;
   		color: red;
 	    }
+        select, option {
+        color: white; /* This sets the font color to white */
+        }
+
+        /* To ensure the background color of the dropdown is not white and provides enough contrast to see the white text */
+        select {
+            background-color: #333; /* A darker background for contrast */
+        }
         </style>
     </head>
     <body>
