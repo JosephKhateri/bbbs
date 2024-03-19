@@ -38,12 +38,6 @@
         echo "No animal selected!";
     }*/
   
-  // Is user authorized to view this page?
-  if ($accessLevel < 2) {
-      header('Location: index.php');
-      die();
-  }
-  
   $donorsOver10K = [];
   $donationQuery = "SELECT Email, SUM(AmountGiven) as TotalDonation FROM dbdonations GROUP BY Email HAVING TotalDonation > 10000";
   $donationResult = mysqli_query($connection, $donationQuery);
