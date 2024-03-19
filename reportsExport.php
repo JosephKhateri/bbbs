@@ -67,6 +67,11 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG_GTY') {
     exportDonorsFOGGTY();
 	exit();
 }
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_L3Y') {
+	ob_end_clean();
+    exportDonorsL3Y();
+	exit();
+}
 process_form();
 //pull_shift_data();
 include('footer.inc');
@@ -343,6 +348,40 @@ function exportDonorsFOGGTY() {
 		if ($Rate == 1){
 		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $FOG, $row['DateDiff']));
 		}
+	}
+    fclose($output);
+    //exit();
+}
+// Define the function to handle the export
+function exportDonorsL3Y() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    //Get current date
+	$currentDate = date("Y-m-d");
+	//Define the threshold date (two years ago from current date)
+	$thresholdDate = date('Y-m-d', strtotime('-3 years', strtotime($currentDate)));
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
+                      MIN(DateOfContribution) AS EarliestDonation
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    WHERE d.DateOfContribution IS NULL 
+						  OR d.DateOfContribution > '$thresholdDate'
+                    GROUP BY d.Email";
+    $result = mysqli_query($connection, $query);
+	
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Earliest Donation'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $row['EarliestDonation']));
 	}
     fclose($output);
     //exit();

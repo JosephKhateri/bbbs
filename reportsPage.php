@@ -311,7 +311,7 @@
 
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
-                echo "<h2 style='text-align: center;'>List of Donor's Frequency of Giving</h2>";
+                echo "<h2 style='text-align: center;'>List of Donors whose Frequency of Giving is greater than yearly</h2>";
                 echo "<table>";
                 echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Frequency of Giving</th>
                       <th>Days from Earliest Donation</th></tr>";
@@ -355,6 +355,50 @@
                 echo "<p>Not enough Donors are available to make the report.</p>";
             }
         }
+        // Check if the 'report' GET parameter is set to 'report5'
+        if (isset($_GET['report']) && $_GET['report'] == 'report5') {
+            // Modified SQL query to join Donations with Donors table and fetch required details
+            //Get current date
+            $currentDate = date("Y-m-d");
+            //Define the threshold date (two years ago from current date)
+			$thresholdDate = date('Y-m-d', strtotime('-3 years', strtotime($currentDate)));
+
+            $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
+                      MIN(DateOfContribution) AS EarliestDonation
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    WHERE d.DateOfContribution IS NULL 
+						  OR d.DateOfContribution > '$thresholdDate'
+                    GROUP BY d.Email";
+            $result = mysqli_query($connection, $query);
+
+            // Check if we have results
+            if (mysqli_num_rows($result) > 0) {
+                echo "<h2 style='text-align: center;'>List of Donors who have donated in the past three Years</h2>";
+                echo "<table>";
+                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Earliest Donation</th></tr>";
+                while ($row = mysqli_fetch_assoc($result)) {
+                    // Format the phone number
+                    $phone = $row['PhoneNumber'];
+                    $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+                    
+                    //Checks if the current donor has donated in the past three years if they have then
+                    //print. If not then print nothing.
+                    echo "<tr>
+                            <td>" . htmlspecialchars($row['Email']) . "</td>
+                            <td>" . htmlspecialchars($row['FirstName']) . "</td>
+                            <td>" . htmlspecialchars($row['LastName']) . "</td>
+                            <td>" . htmlspecialchars($formattedPhone) . "</td>
+                            <td>" . htmlspecialchars($row['EarliestDonation']) . "</td>      
+                          </tr>";
+                        
+                }
+                
+                echo "</table>";
+            } else {
+                echo "<p>Not enough Donors are available to make the report.</p>";
+            }
+        }
 		//End of report 
         if (isset($_GET['report']) && $_GET['report'] == 'report1'){
             echo "<form action='reportsExport.php' method='post' class='export-form'>
@@ -377,6 +421,12 @@
         if (isset($_GET['report']) && $_GET['report'] == 'report4'){
             echo "<form action='reportsExport.php' method='post' class='export-form'>
             <input type='hidden' name='action' value='export_donors_FOG_GTY'>
+            <input type='submit' value='Export Donors' class='export-btn'>
+            </form>";
+        }
+        if (isset($_GET['report']) && $_GET['report'] == 'report5'){
+            echo "<form action='reportsExport.php' method='post' class='export-form'>
+            <input type='hidden' name='action' value='export_donors_L3Y'>
             <input type='submit' value='Export Donors' class='export-btn'>
             </form>";
         }
