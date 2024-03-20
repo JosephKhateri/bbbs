@@ -330,7 +330,7 @@
             }
             // Pass the PHP array to JavaScript
             echo "<script>var categoryData = " . json_encode($categories) . ";</script>";
-        
+            echo "<h2 style='text-align: center;margin-top: 30px;margin-bottom: 20px'>Events Donors Have Contributed To</h2>";
             // Include the Google Charts loader and the pie chart drawing script
             echo '<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>';
             echo '<script type="text/javascript">
@@ -356,7 +356,7 @@
                   </script>';
         
             // Output the container for the pie chart
-            echo '<div id="piechart" style="width: 900px; height: 500px; margin: auto;"></div>';
+            echo '<div id="piechart" style="width: 1200px; height: 700px; margin: auto;"></div>';
 
         }
         
