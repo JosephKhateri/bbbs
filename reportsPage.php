@@ -356,7 +356,8 @@
                   </script>';
         
             // Output the container for the pie chart
-            echo '<div id="piechart" style="width: 900px; height: 500px;"></div>';
+            echo '<div id="piechart" style="width: 900px; height: 500px; margin: auto;"></div>';
+
         }
         
         //<form action="reportsExport.php" method="post" class="export-form">
