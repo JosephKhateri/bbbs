@@ -224,3 +224,28 @@ function make_a_user($result_row, $login = null) {
     );
     return $theUser;
 }
+
+/*
+ * Parameters: None
+ * This function retrieves all standard users from the dbUsers table (role = "user")
+ * Return type: An array of user objects or it's "false" if there's no standard users that get retrieved
+ * Pre-condition: None
+ * Post-condition: An array of user objects is returned or it's "false" if no standard users exist
+ */
+function get_all_standard_users() {
+    $con = connect();
+    $query = 'SELECT * FROM dbUsers WHERE account_type = "user"';
+    $result = mysqli_query($con,$query);
+    if ($result == null || mysqli_num_rows($result) == 0) {
+        mysqli_close($con);
+        return false;
+    }
+    $theUsers = array();
+    while ($result_row = mysqli_fetch_assoc($result)) {
+        // Create user object and add to the array
+        $theUser = make_a_user($result_row);
+        $theUsers[] = $theUser;
+    }
+    mysqli_close($con);
+    return $theUsers;
+}
