@@ -29,7 +29,8 @@
     // This list of users will be used to populate the dropdown menu in the HTML form
     require_once('database/dbUsers.php');
     require_once('domain/User.php');
-    $users = get_all_users();
+    //$users = get_all_users();
+    $users = get_all_standard_users(); //just get user objects for admin to be able to change their passwords
 
     // if users is equal to false (meaning no users were retrieved from the database), redirect to the dashboard
     if (!$users) {
