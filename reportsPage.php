@@ -65,7 +65,7 @@
             }
             th {
                 background-color: var(--main-color);
-                color: var(--button-font-color);
+                color: black;
                 border: 1px solid #333333;
                 text-align: left;
                 padding: 8px;
@@ -73,7 +73,7 @@
             }
           
             tr:nth-child(even) {
-                background-color: #f0f0f0;
+                background-color: black;
                 /* color:var(--button-font-color); */
 		
             }
@@ -165,6 +165,7 @@
             margin-bottom: 2rem;
         }
     </style>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     </head>
     <body>
@@ -319,6 +320,46 @@
             <input type='submit' value='Export Donors' class='export-btn'>
             </form>";
         }
+        if (isset($_GET['report']) && $_GET['report'] == 'report4') {
+            // Fetch your data for the pie chart here
+            $categoryQuery = "SELECT ContributionCategory, SUM(AmountGiven) AS TotalAmount FROM dbdonations GROUP BY ContributionCategory";
+            $categoryResult = mysqli_query($connection, $categoryQuery);
+            $categories = [];
+            while($row = mysqli_fetch_assoc($categoryResult)) {
+                $categories[] = $row;
+            }
+            // Pass the PHP array to JavaScript
+            echo "<script>var categoryData = " . json_encode($categories) . ";</script>";
+            echo "<h2 style='text-align: center;margin-top: 30px;margin-bottom: 20px'>Events Donors Have Contributed To</h2>";
+            // Include the Google Charts loader and the pie chart drawing script
+            echo '<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>';
+            echo '<script type="text/javascript">
+                    google.charts.load("current", {"packages":["corechart"]});
+                    google.charts.setOnLoadCallback(drawChart);
+                    
+                    function drawChart() {
+                        var data = new google.visualization.DataTable();
+                        data.addColumn("string", "Category");
+                        data.addColumn("number", "Amount");
+                        categoryData.forEach(function(category) {
+                            data.addRow([category.ContributionCategory, parseFloat(category.TotalAmount)]);
+                        });
+        
+                        var options = {
+                            title: "Donation Contribution Categories",
+                            is3D: true,
+                        };
+        
+                        var chart = new google.visualization.PieChart(document.getElementById("piechart"));
+                        chart.draw(data, options);
+                    }
+                  </script>';
+        
+            // Output the container for the pie chart
+            echo '<div id="piechart" style="width: 1200px; height: 700px; margin: auto;"></div>';
+
+        }
+        
         //<form action="reportsExport.php" method="post" class="export-form">
         //<input type="hidden" name="action" value="export_donors_over_10000">
         //<input type="submit" value="Export Donors" class="export-btn">

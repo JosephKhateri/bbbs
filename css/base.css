@@ -43,8 +43,8 @@ table, td, tr, th, form, fieldset, em, button, a {
 
 :root {
     /* CSS variables that will be used across the page */
-    --page-background-color: #ffffff;
-    --page-font-color: #333333;
+    --page-background-color: #000000;
+    --page-font-color: #ffffff;
     --inactive-font-color: #d0d0d0;
     --inactive-background-color: #f0f0f0;
     --standout-background: #fafafa;
@@ -58,7 +58,7 @@ table, td, tr, th, form, fieldset, em, button, a {
     --error-toast-background-color: #701a1a;
     --error-toast-font-color: white;
 
-    --shadow-and-border-color: #e8e8e8;
+    --shadow-and-border-color: #000000;
 
     /* ODHS Colors
     --main-color: #FF289A;
@@ -67,7 +67,7 @@ table, td, tr, th, form, fieldset, em, button, a {
 
     /* BBBS Colors */
     --main-color: #00FC87;
-    --accent-color: #000000;
+    --accent-color: #808080;
     --secondary-accent-color: #000000;
 
     --calendar-event-color: #808080;
@@ -102,8 +102,8 @@ header {
 }
 
 body {
-    background-color: var(--page-background-color);
-    color: var(--page-font-color);
+    background-color: var(--page-background-color) !important;
+    color: var(--page-font-color) !important;
     font-family: Montserrat;
 }
 
@@ -292,6 +292,7 @@ main.login > form {
     width: 24rem;
     max-width: calc(100vw - 2rem);
     gap: 0.5rem;
+    color: white;
 }
 
 main.login > form > p {
