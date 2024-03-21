@@ -23,10 +23,7 @@ function updateDonationInfo($donationData, $con) {
 }
 
 function updateLifetime($email, $con) {
-    // The lifetime update logic goes here; it was not included in the SQL dump
-    // Placeholder for updating the lifetime donation amount
-    // Replace with the actual logic when the lifetime field is available
-    // Assuming 'LifetimeDonation' as a column in the 'dbdonors' table
+    // Assuming 'LifetimeDonation' as a column in the 'dbdonors' table -- ONCE AGAIN, BIG ASSUMPTION!!
     $query = $con->prepare("UPDATE dbdonors SET LifetimeDonation = (SELECT SUM(AmountGiven) FROM dbdonations WHERE Email = ?) WHERE Email = ?");
     $query->bind_param("ss", $email, $email);
     $query->execute();

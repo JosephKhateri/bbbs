@@ -1,7 +1,7 @@
 <?php
 
 require_once('database/dbinfo.php');
-include_once(dirname(__FILE__).'/../domain/donor.php');
+require_once(dirname(__FILE__).'/../donor.php');
 
 function checkDonorExists($email, $con) {
     $query = $con->prepare("SELECT Email FROM dbdonors WHERE Email = ?");
@@ -12,6 +12,12 @@ function checkDonorExists($email, $con) {
 }
 
 function addDonor($donorData, $con) {
+    $email = isset($donorData[7]) ? trim($donorData[7]) : '';
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        // Log error or handle the case where the email is invalid or missing
+        error_log("Attempted to add donor with invalid or missing email.");
+        return; // Exit the function to avoid database errors
+    }
     // Insert query with all the columns present in the dbdonors table
     $query = $con->prepare("INSERT INTO dbdonors (Email, Company, FirstName, LastName, PhoneNumber, Address, City, State, Zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $query->bind_param("ssssissss", $donorData['Email'], $donorData['Company'], $donorData['First Name'], $donorData['Last Name'], $donorData['Phone Number'], $donorData['Address'], $donorData['City'], $donorData['State'], $donorData['Zip']);
