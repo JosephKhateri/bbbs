@@ -9,10 +9,22 @@ function checkDonationExists($email, $con) {
 }
 
 function addDonation($donationData, $con) {
+    $email = trim($donationData[7]);
+    $dateOfContribution = $donationData[0];
+    $amountGiven = $donationData[3]; // Ensure this is captured correctly from our CSV
+    if (empty($email) || empty($dateOfContribution) || empty($amountGiven)) {
+        error_log("Missing essential donation information: " . implode(", ", $donationData));
+        return;
+    }
     // Prepare the SQL query to insert a new donation
     $query = $con->prepare("INSERT INTO dbdonations (Email, DateOfContribution, ContributedSupportType, ContributionCategory, AmountGiven, PaymentMethod, Memo) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $query->bind_param("ssssdss", $donationData['Email'], $donationData['Date of Contribution'], $donationData['Contributed Support'], $donationData['Contribution Category'], $donationData['Amount Given'], $donationData['Payment Method'], $donationData['Memo']);
-    $query->execute();
+    if (!$query->execute()) {
+        error_log("Failed to insert donation: " . $query->error);
+    } else {
+        // Optionally, call updateLifetime here if it's not automatically triggered elsewhere
+        updateLifetime($email, $con);
+    }
 }
 
 function updateDonationInfo($donationData, $con) {
@@ -23,10 +35,13 @@ function updateDonationInfo($donationData, $con) {
 }
 
 function updateLifetime($email, $con) {
-    // Assuming 'LifetimeDonation' as a column in the 'dbdonors' table -- ONCE AGAIN, BIG ASSUMPTION!!
-    $query = $con->prepare("UPDATE dbdonors SET LifetimeDonation = (SELECT SUM(AmountGiven) FROM dbdonations WHERE Email = ?) WHERE Email = ?");
+    $query = $con->prepare("UPDATE dbdonors SET LifetimeDonation = COALESCE((SELECT SUM(AmountGiven) FROM dbdonations WHERE Email = ?), 0) WHERE Email = ?");
     $query->bind_param("ss", $email, $email);
-    $query->execute();
+    if (!$query->execute()) {
+        error_log("Failed to update lifetime donation: " . $query->error);
+    }
 }
+
+
 
 ?>
