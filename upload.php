@@ -10,6 +10,16 @@
 // 4. Documentation: Adequate - Add some documentation about what each section of code does
 // 5. Assigned Task: Good - Mostly performs the task correctly, but still has some errors with doing so
 
+//code review - Joel
+//Readability - 
+//the code is well organised and structured making it easy to understand.
+//uses proper variable naming, proper identation
+//Documentation 
+//The code could benefit from more comments 
+//the code doesnt have the header comment
+//code efficiency
+//the code is not bulky 
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
