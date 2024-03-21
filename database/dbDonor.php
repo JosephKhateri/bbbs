@@ -12,17 +12,18 @@ function checkDonorExists($email, $con) {
 }
 
 function addDonor($donorData, $con) {
-    $email = isset($donorData[7]) ? trim($donorData[7]) : '';
-    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        // Log error or handle the case where the email is invalid or missing
-        error_log("Attempted to add donor with invalid or missing email.");
-        return; // Exit the function to avoid database errors
-    }
-    // Insert query with all the columns present in the dbdonors table
+    // Ensure email validation has already been done
+    $email = trim($donorData[7]); // Already validated in upload.php
+    
+    // Ensure the order of `$donorData` elements matches the CSV columns order exactly (please work im begging)
     $query = $con->prepare("INSERT INTO dbdonors (Email, Company, FirstName, LastName, PhoneNumber, Address, City, State, Zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $query->bind_param("ssssissss", $donorData['Email'], $donorData['Company'], $donorData['First Name'], $donorData['Last Name'], $donorData['Phone Number'], $donorData['Address'], $donorData['City'], $donorData['State'], $donorData['Zip']);
-    $query->execute();
+    $query->bind_param("ssssissss", $email, $donorData[4], $donorData[5], $donorData[6], $donorData[8], $donorData[9], $donorData[10], $donorData[11], $donorData[12]);
+    
+    if (!$query->execute()) {
+        error_log("Failed to add donor: " . $query->error);
+    }
 }
+
 
 function combineDonor($donorData, $con) {
     // Prepare the SQL query to update an existing donor
