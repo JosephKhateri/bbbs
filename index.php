@@ -92,6 +92,10 @@
                         <img src="images/settings.png">
                         <span>Add User</span>
                     </div>
+                    <div class="dashboard-item" data-link="adminResetPassword.php">
+                        <img src="images/settings.png">
+                        <span>Reset User Password</span>
+                    </div>
                 <?php endif ?>
                 <?php if ($notRoot) : ?>
                     <div class="dashboard-item" data-link="viewProfile.php">
@@ -102,11 +106,11 @@
                         <img src="images/manage-account.svg">
                         <span>Edit Profile</span>
                     </div>
+                    <div class="dashboard-item" data-link="changePassword.php">
+                        <img src="images/change-password.svg">
+                        <span>Change Password</span>
+                    </div>
                 <?php endif ?>
-                <div class="dashboard-item" data-link="changePassword.php">
-                    <img src="images/change-password.svg">
-                    <span>Change Password</span>
-                </div>
                 <div class="dashboard-item" data-link="logout.php">
                     <img src="images/logout.svg">
                     <span>Log out</span>

@@ -18,6 +18,12 @@
         $userID = $_SESSION['_id'];
     }
 
+    // Prohibit vmsroot from accessing this page
+    if ($accessLevel > 2) {
+        header('Location: login.php');
+        die();
+    }
+
     $forced = false;
     if (isset($_SESSION['change-password']) && $_SESSION['change-password']) {
         $forced = true; // User must change password due to password expiration
