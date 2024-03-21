@@ -45,11 +45,14 @@ include_once('database/dbPersons.php');
 if ($_POST['_form_submit'] != 1 && $_POST['_form_submit'] != 2 && $_POST['_form_submit'] != 3)
 include('dataSearch.inc.php'); // the form has not been submitted, so show it
 
+//User has decided to export a Report and now all these if statements are checking
+//which report it is and using the appropiate method for the specific report.
 if (isset($_POST['action']) && $_POST['action'] == 'export_donors_over_10000') {
 	ob_end_clean();
     exportDonorsOver10000();
 	exit();
 }
+//FOG=Frequency of Giving
 if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG') {
 	ob_end_clean();
     exportDonorsFOG();
@@ -61,7 +64,18 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_less_2_years')
     exportDonorsLessThanTwoYears();
 	exit();
 }
-
+//FOG_GTY=Frequncy of Giving Greater Than Yearly
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG_GTY') {
+	ob_end_clean();
+    exportDonorsFOGGTY();
+	exit();
+}
+//L3Y=Less Than 3 Years
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_L3Y') {
+	ob_end_clean();
+    exportDonorsL3Y();
+	exit();
+}
 process_form();
 //pull_shift_data();
 include('footer.inc');
@@ -213,7 +227,7 @@ function exportDonorsOver10000() {
     //exit();
 }
 
-// Define the function to handle the export
+// Export Function for the Frequency of Giving Report
 function exportDonorsFOG() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
     $connection = connect();  // This should be your function to establish a database connection
@@ -253,9 +267,7 @@ function exportDonorsFOG() {
 		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone,$FOG,$row['DateDiff']));
 	}
 	
-    
     fclose($output);
-    //exit();
 }
 
 //Export report for donations less than 2 years
@@ -295,6 +307,86 @@ function exportDonorsLessThanTwoYears() {
     //exit();
 }
 
+// Export Function for the Report on Donor's who's Frequncy of Giving is Greater than Yearly
+function exportDonorsFOGGTY() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
+                    DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    GROUP BY d.Email";
+    $result = mysqli_query($connection, $query);
+	
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Frequency of Giving', 'Days From Earliest Donation'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+		
+		// Frequency of Giving
+		$FOG = "";
+		$Rate = 0;
+		$ratio = $row['Number_Of_Donations'] / ($row['DateDiff'] / 365);
+		if ($ratio < 1){
+			$FOG="Less Than Yearly";
+		} elseif ($ratio <6 && $ratio >= 1){
+			$FOG = "Yearly";
+		} elseif ($ratio >= 6 && $ratio < 12){ // Either comment this out for now or remove it since bimonthly isn't needed
+			$FOG = "Bi-Monthly";
+			$Rate = 1;
+		} elseif ($ratio >= 12){
+			$FOG = "Monthly";
+			$Rate = 1;
+		}
+		if ($Rate == 1){
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $FOG, $row['DateDiff']));
+		}
+	}
+    fclose($output);
+}
+// Export Function for the Report on Donor's in the Past Three Years
+function exportDonorsL3Y() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    //Get current date
+	$currentDate = date("Y-m-d");
+	//Define the threshold date (two years ago from current date)
+	$thresholdDate = date('Y-m-d', strtotime('-3 years', strtotime($currentDate)));
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
+                      MIN(DateOfContribution) AS EarliestDonation
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    WHERE d.DateOfContribution IS NULL 
+						  OR d.DateOfContribution > '$thresholdDate'
+                    GROUP BY d.Email";
+    $result = mysqli_query($connection, $query);
+	
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Earliest Donation'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $row['EarliestDonation']));
+	}
+    fclose($output);
+    //exit();
+}
 //End of export
 function export_data($current_time, $search_attr, $export_data) {
 	$filename = "dataexport.csv";

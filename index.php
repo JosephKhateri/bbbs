@@ -76,7 +76,7 @@
                             echo ' (' . $unreadMessageCount . ')';
                         }*/
                     ?></span>
-                </div>
+                </div> -->
 
                 <div class="dashboard-item" data-link="UploadForm.php">
                     <img src="images/volunteer-history.svg">
