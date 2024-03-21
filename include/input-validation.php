@@ -1,4 +1,14 @@
 <?php
+/* Code Review by Joseph
+Program Specifications/Correctness - Excellent
+Readability - Excellent
+Code Efficiency - Excellent
+Documentation - Excellent
+Assigned Task - Excellent
+
+There was not a lot in this one since only the bottom function was added for this file
+*/
+
 
     require_once(dirname(__FILE__) . '/../database/dbinfo.php');
 
