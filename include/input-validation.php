@@ -214,6 +214,9 @@
 * Pre-condition: $password is a string
 * Post-condition: The password is validated against the requirements
 */
+//Note From Conor: Besides validatePassword there isn't much documentation for other methods.
+//I assume that's because it's from the original code and I didn't see it used anywhere else in
+//the code.
     function validatePassword($password) {
         // Check that the password meets the following requirements:
         $uppercase = preg_match('@[A-Z]@', $password);

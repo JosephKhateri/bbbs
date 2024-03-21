@@ -15,6 +15,15 @@
  * @author Oliver Radwan and Allen Tucker
  * Edited by Megan and Noor for BBBS in Spring 2024
  */
+
+ /**
+  * Review for Noor by Conor Gill
+  * Program Specificness/Correctness: Execellent, I tested adding a user and since I can login into the system I know everything is working correctly
+  * Readbility: Excellent, There was plenty of documentation and there were headers detailing what I needed to know
+  * Code Efficency:Excellent, Didn't see any big errors or ineffecincies in the code
+  * Documentation: Excellent, Didn't see any errors and there was plenty of documentation
+  * Assigned Tasked: Completed all her tasks
+  */
 include_once('dbinfo.php');
 include_once(dirname(__FILE__).'/../domain/User.php');
 
@@ -90,6 +99,7 @@ function retrieve_user($id, $login = null) {
 
 // Name is first concat with last name. Example 'James Jones'
 // return array of Users.
+//Conor: Not a lot of documentation compared to other methods either. 
 function retrieve_users_by_name ($name) {
 	$users = array();
 	if (!isset($name) || $name == "" || $name == null) return $users;
@@ -205,6 +215,9 @@ function getall_user_names() {
  * Pre-condition: $result_row is an associative array and $login is a boolean value if passed
  * Post-condition: a new User object is created
  */
+//Note from Conor: Needed an explanation on the purpose of login. It's not clear from the documentation here
+//the purpose of Login and what it is doing by existing. A further explanation at the end in a comment or in the
+//header would do good.
 function make_a_user($result_row, $login = null) {
     $theUser = new User(
         /*$result_row['first_name'],
@@ -232,6 +245,7 @@ function make_a_user($result_row, $login = null) {
  * Pre-condition: None
  * Post-condition: An array of user objects is returned or it's "false" if no standard users exist
  */
+
 function get_all_standard_users() {
     $con = connect();
     $query = 'SELECT * FROM dbUsers WHERE account_type = "user"';
