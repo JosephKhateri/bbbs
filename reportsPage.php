@@ -258,8 +258,10 @@
                 echo "<p>Not enough Donors are available to make the report.</p>";
             }
         }
-		//If the selected option is report3
-		// Check if the 'report' GET parameter is set to 'report3'
+		// Report: Every Donor's Frequency of Giving
+        // Pre-Condition: User is logged in to be able to access report functionality
+        // Post-Condition: User will be able to look through the report as a generated table and
+        //                 be able to export the data as a CSV file
         if (isset($_GET['report']) && $_GET['report'] == 'report3') {
             // Modified SQL query to join Donations with Donors table and fetch required details
             // Get the current date

@@ -45,11 +45,14 @@ include_once('database/dbPersons.php');
 if ($_POST['_form_submit'] != 1 && $_POST['_form_submit'] != 2 && $_POST['_form_submit'] != 3)
 include('dataSearch.inc.php'); // the form has not been submitted, so show it
 
+//User has decided to export a Report and now all these if statements are checking
+//which report it is and using the appropiate method for the specific report.
 if (isset($_POST['action']) && $_POST['action'] == 'export_donors_over_10000') {
 	ob_end_clean();
     exportDonorsOver10000();
 	exit();
 }
+//FOG=Frequency of Giving
 if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG') {
 	ob_end_clean();
     exportDonorsFOG();
@@ -61,12 +64,13 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_less_2_years')
     exportDonorsLessThanTwoYears();
 	exit();
 }
-
+//FOG_GTY=Frequncy of Giving Greater Than Yearly
 if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG_GTY') {
 	ob_end_clean();
     exportDonorsFOGGTY();
 	exit();
 }
+//L3Y=Less Than 3 Years
 if (isset($_POST['action']) && $_POST['action'] == 'export_donors_L3Y') {
 	ob_end_clean();
     exportDonorsL3Y();
@@ -223,7 +227,7 @@ function exportDonorsOver10000() {
     //exit();
 }
 
-// Define the function to handle the export
+// Export Function for the Frequency of Giving Report
 function exportDonorsFOG() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
     $connection = connect();  // This should be your function to establish a database connection
@@ -263,9 +267,7 @@ function exportDonorsFOG() {
 		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone,$FOG,$row['DateDiff']));
 	}
 	
-    
     fclose($output);
-    //exit();
 }
 
 //Export report for donations less than 2 years
@@ -305,7 +307,7 @@ function exportDonorsLessThanTwoYears() {
     //exit();
 }
 
-// Define the function to handle the export
+// Export Function for the Report on Donor's who's Frequncy of Giving is Greater than Yearly
 function exportDonorsFOGGTY() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
     $connection = connect();  // This should be your function to establish a database connection
@@ -350,9 +352,8 @@ function exportDonorsFOGGTY() {
 		}
 	}
     fclose($output);
-    //exit();
 }
-// Define the function to handle the export
+// Export Function for the Report on Donor's in the Past Three Years
 function exportDonorsL3Y() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
     $connection = connect();  // This should be your function to establish a database connection
