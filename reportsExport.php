@@ -15,6 +15,19 @@
  * @author Johnny Coster
  * @version April 2, 2012
  */
+
+
+/**
+     * Reviewed by Zack 
+     * Program Specifications/Correctness - Excellent
+     * Readability - Good
+     * Code Efficiency - Excellent
+     * Documentation - Adequate
+     * Assigned Task - Excellent
+     */
+
+
+
 // Disable error display, log errors instead
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
