@@ -299,9 +299,51 @@
                 echo "<p>All donors have contributed in the last 2 years.</p>";
             }
         }
-        
-		// Check if the 'report' GET parameter is set to 'report4'
+        //  Report: Events Donor has Sponsered 
         if (isset($_GET['report']) && $_GET['report'] == 'report4') {
+            // Fetch your data for the pie chart here
+            $categoryQuery = "SELECT ContributionCategory, SUM(AmountGiven) AS TotalAmount FROM dbdonations GROUP BY ContributionCategory";
+            $categoryResult = mysqli_query($connection, $categoryQuery);
+            $categories = [];
+            while($row = mysqli_fetch_assoc($categoryResult)) {
+                $categories[] = $row;
+            }
+            // Pass the PHP array to JavaScript
+            echo "<script>var categoryData = " . json_encode($categories) . ";</script>";
+            echo "<h2 style='text-align: center;margin-top: 30px;margin-bottom: 20px'>Events Donors Have Contributed To</h2>";
+            // Include the Google Charts loader and the pie chart drawing script
+            echo '<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>';
+            echo '<script type="text/javascript">
+                    google.charts.load("current", {"packages":["corechart"]});
+                    google.charts.setOnLoadCallback(drawChart);
+                    
+                    function drawChart() {
+                        var data = new google.visualization.DataTable();
+                        data.addColumn("string", "Category");
+                        data.addColumn("number", "Amount");
+                        categoryData.forEach(function(category) {
+                            data.addRow([category.ContributionCategory, parseFloat(category.TotalAmount)]);
+                        });
+        
+                        var options = {
+                            title: "Donation Contribution Categories",
+                            is3D: true,
+                        };
+        
+                        var chart = new google.visualization.PieChart(document.getElementById("piechart"));
+                        chart.draw(data, options);
+                    }
+                  </script>';
+        
+            // Output the container for the pie chart
+            echo '<div id="piechart" style="width: 1200px; height: 700px; margin: auto;"></div>';
+
+        }
+		// Report:Frequncy of Giving Greater than Yearly
+        // Pre-Condition: User is logged in to be able to access report functionality
+        // Post-Condition: User will be able to look through the report as a generated table and
+        //                 be able to export the data as a CSV file
+        if (isset($_GET['report']) && $_GET['report'] == 'report5') {
             // Modified SQL query to join Donations with Donors table and fetch required details
             $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
                     DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
@@ -356,8 +398,11 @@
                 echo "<p>Not enough Donors are available to make the report.</p>";
             }
         }
-        // Check if the 'report' GET parameter is set to 'report5'
-        if (isset($_GET['report']) && $_GET['report'] == 'report5') {
+        // Report:Donors who have donated in the past Three Years
+        // Pre-Condition: User is logged in to be able to access report functionality
+        // Post-Condition: User will be able to look through the report as a generated table and
+        //                 be able to export the data as a CSV file
+        if (isset($_GET['report']) && $_GET['report'] == 'report6') {
             // Modified SQL query to join Donations with Donors table and fetch required details
             //Get current date
             $currentDate = date("Y-m-d");
@@ -418,46 +463,6 @@
             <input type='hidden' name='action' value='export_donors_less_2_years'>
             <input type='submit' value='Export Donors' class='export-btn'>
             </form>";
-        }
-        
-        if (isset($_GET['report']) && $_GET['report'] == 'report4') {
-            // Fetch your data for the pie chart here
-            $categoryQuery = "SELECT ContributionCategory, SUM(AmountGiven) AS TotalAmount FROM dbdonations GROUP BY ContributionCategory";
-            $categoryResult = mysqli_query($connection, $categoryQuery);
-            $categories = [];
-            while($row = mysqli_fetch_assoc($categoryResult)) {
-                $categories[] = $row;
-            }
-            // Pass the PHP array to JavaScript
-            echo "<script>var categoryData = " . json_encode($categories) . ";</script>";
-            echo "<h2 style='text-align: center;margin-top: 30px;margin-bottom: 20px'>Events Donors Have Contributed To</h2>";
-            // Include the Google Charts loader and the pie chart drawing script
-            echo '<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>';
-            echo '<script type="text/javascript">
-                    google.charts.load("current", {"packages":["corechart"]});
-                    google.charts.setOnLoadCallback(drawChart);
-                    
-                    function drawChart() {
-                        var data = new google.visualization.DataTable();
-                        data.addColumn("string", "Category");
-                        data.addColumn("number", "Amount");
-                        categoryData.forEach(function(category) {
-                            data.addRow([category.ContributionCategory, parseFloat(category.TotalAmount)]);
-                        });
-        
-                        var options = {
-                            title: "Donation Contribution Categories",
-                            is3D: true,
-                        };
-        
-                        var chart = new google.visualization.PieChart(document.getElementById("piechart"));
-                        chart.draw(data, options);
-                    }
-                  </script>';
-        
-            // Output the container for the pie chart
-            echo '<div id="piechart" style="width: 1200px; height: 700px; margin: auto;"></div>';
-
         }
         if (isset($_GET['report']) && $_GET['report'] == 'report5'){
             echo "<form action='reportsExport.php' method='post' class='export-form'>
