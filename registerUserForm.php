@@ -48,25 +48,30 @@
                 die();
             }
             $id = $email; // ID and email have the same value
-            $password = password_hash($args['password'], PASSWORD_BCRYPT);
-            $first_name = $args['first_name'];
-            $last_name = $args['last_name'];
-            $role = $args['role'];
-            $account_type = $args['account_type'];
-
-            // If there are any errors, stop the script and alert the user
-            if ($errors) {
-                echo '<p>Your form submission contained unexpected input.</p>';
-                die();
-            }
-
-            // Create a new User object and add it to the database
-            $newUser = new User($email, $password, $first_name, $last_name, $role, $account_type);
-            $result = add_user($newUser);
-            if (!$result) { // If a user with the same email already exists
-                $userExistsError = true;
+            $passwordError = false;
+            if (!validatePassword($args['password'])) {
+                $passwordError = true; // Password doesn't meet requirements
             } else {
-                echo '<script>document.location = "index.php?registerSuccess";</script>';
+                $password = password_hash($args['password'], PASSWORD_BCRYPT);
+                $first_name = $args['first_name'];
+                $last_name = $args['last_name'];
+                $role = $args['role'];
+                $account_type = $args['account_type'];
+
+                // If there are any errors, stop the script and alert the user
+                if ($errors) {
+                    echo '<p>Your form submission contained unexpected input.</p>';
+                    die();
+                }
+
+                // Create a new User object and add it to the database
+                $newUser = new User($email, $password, $first_name, $last_name, $role, $account_type);
+                $result = add_user($newUser);
+                if (!$result) { // If a user with the same email already exists
+                    $userExistsError = true;
+                } else {
+                    echo '<script>document.location = "index.php?registerSuccess";</script>';
+                }
             }
         }
     }
@@ -78,6 +83,28 @@
     <head>
         <?php require_once('universal.inc') ?>
         <title>BBBS | Register User</title>
+        <style>
+        /* Targeting the select element and option elements */
+        select, option, input {
+            color: white; /* Setting the font color to white */
+            background-color: #333; /* A darker background for contrast */
+        }
+
+        select {
+            -webkit-appearance: none; /* For some WebKit browsers */
+            -moz-appearance: none;    /* For Firefox */
+            appearance: none;         /* Standard syntax */
+        }
+
+        /* Optionally, style the select box to include a custom arrow icon */
+        select {
+            background-image: url('path-to-your-custom-arrow-icon');
+            background-repeat: no-repeat;
+            background-position: right .7em top 50%;
+            background-size: .65em auto;
+        }
+    </style>
+
     </head>
     <body>
         <?php require_once('header.php') ?>
@@ -85,9 +112,11 @@
         <main class="date">
             <!-- Error messages -->
             <?php if (isset($userExistsError)): ?>
-                <p class="error-toast">A user with that email is already in use</p>
+                <p class="error-toast">That email is already in use.</p>
             <?php elseif (isset($error)): ?>
                 <p class="error-toast">Your form submission contained unexpected input.</p>
+            <?php elseif (isset($passwordError)): ?>
+                <p class="error-toast">Password must meet requirements.</p>
             <?php endif ?>
 
             <!-- Form for registering a new user -->
@@ -97,6 +126,20 @@
                 <input type="email" id="email" name="email" required placeholder="Enter Email">
                 <label for="name">Password *</label>
                 <input type="password" id="password" name="password" required placeholder="Enter Password">
+                <!-- Display password requirements list -->
+                <style>
+                    p1 {
+                        font-size: small;
+                        line-height: 1em
+                    }
+                </style>
+                <p1 style="text-align: left">Password must meet the following requirements:</p1><br>
+                <p1 style="text-align: left">- Minimum length: 8 characters</p1><br>
+                <p1 style="text-align: left">- At least one uppercase letter</p1><br>
+                <p1 style="text-align: left">- At least one lowercase letter</p1><br>
+                <p1 style="text-align: left">- At least one digit</p1><br>
+                <p1 style="text-align: left">- At least 1 special character (@$!%*?&)</p1><br><br>
+
                 <label for="name">First Name *</label>
                 <input type="text" id="first_name" name="first_name" required placeholder="Enter First Name">
                 <label for="name">Last Name *</label>

@@ -25,7 +25,8 @@
         <nav>
             <span id="nav-top">
                 <span class="logo">
-                    <img src="images/bbbsLogo.png">
+                    <span id="vms-logo"> BBBS Fred </span>
+                    <img src="images/bbbs-black-bg.png">
                 </span>
                 <img id="menu-toggle" src="images/menu.png">
             </span>
@@ -84,8 +85,8 @@
             $path = strrev(substr(strrev($_SERVER['SCRIPT_NAME']), strpos(strrev($_SERVER['SCRIPT_NAME']), '/')));
 
             echo('<nav>');
-            echo('<span id="nav-top"><span class="logo"><a class="navbar-brand" href="' . $path . 'index.php"><img src="images/bbbsLogo.png"></a>');
-            echo('<a class="navbar-brand" id="vms-logo"> MedTracker </a></span><img id="menu-toggle" src="images/menu.png"></span>');
+            echo('<span id="nav-top"><span class="logo"><a class="navbar-brand" href="' . $path . 'index.php"><img src="images/bbbs-black-bg.png"></a>');
+            echo('<a class="navbar-brand" id="vms-logo"> BBBS Fred </a></span><img id="menu-toggle" src="images/menu.png"></span>');
             echo('<ul>');
 
             echo('<li><a class="nav-link active" aria-current="page" href="' . $path . 'index.php">Home</a></li>');
