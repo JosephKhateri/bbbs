@@ -83,6 +83,13 @@
     <head>
         <?php require_once('universal.inc') ?>
         <title>BBBS Donor Information System | Log In</title>
+        <style>
+
+            select, option, input {
+            color: white; /* Setting the font color to white */
+            background-color: #333; /* A darker background for contrast */
+        }
+        </style>
     </head>
     <body>
         <?php require_once('header.php') ?>
