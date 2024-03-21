@@ -1,5 +1,14 @@
 <?php
 
+// dbDonor.php
+// Overall Grading:
+// 1. Program specifications/correctness: Good - Program mostly inserts data into dbDonors properly
+// 2. Readability: Adequate - Need further documentation. Variables are named accordingly. Need to indent everything within <php> tags
+// 3. Code efficiency: Excellent - Code is very efficient, but isn't working properly as mentioned above
+// 4. Documentation: Adequate - Need further documentation for the functions
+// 5. Assigned Task: Good - Program mostly inserts data into dbDonors properly but with 1 small error
+
+
 require_once('database/dbinfo.php');
 require_once(dirname(__FILE__).'/../donor.php');
 

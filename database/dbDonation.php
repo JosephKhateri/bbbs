@@ -1,5 +1,13 @@
 <?php
 
+// dbDonation.php
+// Overall Grading:
+// 1. Program specifications/correctness: Adequate - Program doesn't insert data into dbDonations properly
+// 2. Readability: Adequate - Need further documentation for the functions. Variables are named accordingly.
+    // Need to indent everything within <php> tags
+// 3. Code efficiency: Good - Code is very efficient, but there are some issues with the code actually working properly
+// 4. Documentation: Adequate - Need further documentation for the functions
+// 5. Assigned Task: Adequate - Program doesn't insert data into dbDonations properly
 function checkDonationExists($email, $con) {
     $query = $con->prepare("SELECT Email FROM dbdonations WHERE Email = ?");
     $query->bind_param("s", $email);

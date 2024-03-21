@@ -1,4 +1,15 @@
 <?php
+
+// upload.php
+// Overall Grading:
+// 1. Program specifications/correctness: Good - Only accepts csv files and does so without any errors,
+    // but has errors handling and uploading data properly
+// 2. Readability: Excellent - Has lots of comments throughout the function making it easy to read. Everything
+    // within <php> tags needs to be indented
+// 3. Code efficiency: Good - Code is very efficient and achieves the task almost perfectly, with the caveat of the errors mentioned above
+// 4. Documentation: Adequate - Add some documentation about what each section of code does
+// 5. Assigned Task: Good - Mostly performs the task correctly, but still has some errors with doing so
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
