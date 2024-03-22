@@ -90,6 +90,13 @@
                         <option value="report1">Donors who have donated over $10,000</option>
                         <option value="report2">Every Donor's Frequency of Giving</option>
                         <option value="report3">Donors who have not contributed for the last 2 years</option>
+<<<<<<< Updated upstream
+=======
+                        <option value="report4">Events Contributed</option>
+                        <option value="report5">Donors whose Frequency of Giving is bigger than yearly</option>
+                        <option value="report6">Donors who have donated in the past three Years</option>
+                        <option value="report7">Donor Retention Rate</option>
+>>>>>>> Stashed changes
                     </select><br/>
                 </div>
                 <input type="submit" name="submit_click" value="Submit">
