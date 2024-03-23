@@ -15,10 +15,10 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 function parseCSV($csvFilePath){
-    require_once('database/dbDonor.php');
-    require_once('database/dbDonation.php');
-    require_once('donor.php');
-    require_once('donation.php');
+    require_once('database/dbDonors.php');
+    require_once('database/dbDonations.php');
+    require_once('domain/Donor.php');
+    require_once('domain/Donation.php');
 
     $con = connect(); 
 
