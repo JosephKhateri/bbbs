@@ -46,42 +46,42 @@ class Donation
         $this->memo = $memo;
     }
 
-    function getId()
+    function get_id()
     {
         return $this->id;
     }
 
-    function getEmail()
+    function get_email()
     {
         return $this->email;
     }
 
-    function getContributionDate()
+    function get_contribution_date()
     {
         return $this->contribution_date;
     }
 
-    function getContributionType()
+    function get_contribution_type()
     {
         return $this->contribution_type;
     }
 
-    function getContributionCategory()
+    function get_contribution_category()
     {
         return $this->contribution_category;
     }
 
-    function getAmount()
+    function get_amount()
     {
         return $this->amount;
     }
 
-    function getPaymentMethod()
+    function get_payment_method()
     {
         return $this->payment_method;
     }
 
-    function getMemo()
+    function get_memo()
     {
         return $this->memo;
     }

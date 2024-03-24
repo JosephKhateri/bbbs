@@ -34,14 +34,15 @@ function add_donation($donation) {
     $result = mysqli_query($con,$query);
     //if there's no entry for this id, add it
     if ($result == null || mysqli_num_rows($result) == 0) {
-        mysqli_query($con,'INSERT INTO dbUsers VALUES("' .
+        mysqli_query($con,'INSERT INTO dbDonations VALUES("' .
             $donation->get_id() . '","' .
             $donation->get_email() . '","' .
-            $donation->get_password() . '","' .
-            $donation->get_first_name() . '","' .
-            $donation->get_last_name() . '","' .
-            $donation->get_access_level() . '","' .
-            $donation->get_role() . '");'
+            $donation->get_contribution_date() . '","' .
+            $donation->get_contribution_type() . '","' .
+            $donation->get_contribution_category() . '","' .
+            $donation->get_amount() . '","' .
+            $donation->get_payment_method() . '","' .
+            $donation->get_memo() . '");'
         );
         mysqli_close($con);
         return true;
@@ -78,15 +79,19 @@ function remove_donation($id) {
  * Pre-condition: $id, $email, $date, $type, $category, $amount, $method, $memo are all valid
  * Post-condition: A Donation is updated in the dbDonations table if it exists, otherwise nothing happens
  */
-function update_donation($id, $email, $date, $type, $category, $amount, $method, $memo) {
+function update_donation($id, $donation) {
     $con=connect();
-    $query = 'SELECT * FROM dbDonations WHERE id = "' . $id . '"';
-    $result = mysqli_query($con,$query);
-    if ($result == null || mysqli_num_rows($result) == 0) {
-        mysqli_close($con);
-        return false;
-    }
-    // query is broken up into multiple lines for readability
+
+    // Get the values from the donation object
+    $email = $donation->get_email();
+    $date = $donation->get_date();
+    $type = $donation->get_type();
+    $category = $donation->get_category();
+    $amount = $donation->get_amount();
+    $method = $donation->get_method();
+    $memo = $donation->get_memo();
+
+    // Query is broken up into multiple lines for readability
     $query = "UPDATE dbDonations";
     $query .= " SET ";
     $query .= "Email = '" . $email . "', ";
@@ -134,7 +139,7 @@ function retrieve_donations_by_email ($email) {
     $donations = array();
     if (!isset($email) || $email == "" || $email == null) return $donations;
     $con=connect();
-    $query = "SELECT * FROM dbUsers WHERE email = '" . $email ."'";
+    $query = "SELECT * FROM dbDonations WHERE email = '" . $email ."'";
     $result = mysqli_query($con,$query);
     while ($result_row = mysqli_fetch_assoc($result)) {
         $the_donation = make_a_user($result_row);
