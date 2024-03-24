@@ -73,16 +73,17 @@ function remove_donation($id) {
 }
 
 /*
- * Parameters: $id = A string that represents the ID number of a donation, $email, $date, $type, $category, $amount, $method, $memo
- * This function updates a donation in the dbDonations table using the ID of the donation
+ * Parameters: $donation = A Donation object with updated information
+ * This function updates a donation in the dbDonations table
  * Return type: A boolean value that represents if the Donation was updated in the dbDonations table
- * Pre-condition: $id, $email, $date, $type, $category, $amount, $method, $memo are all valid
- * Post-condition: A Donation is updated in the dbDonations table if it exists, otherwise nothing happens
+ * Pre-condition: $donation is a Donation object
+ * Post-condition: The donation is updated in the dbDonations table if it exists, otherwise nothing happens
  */
-function update_donation($id, $donation) {
+function update_donation($donation) {
     $con=connect();
 
     // Get the values from the donation object
+    $id = $donation->get_id();
     $email = $donation->get_email();
     $date = $donation->get_date();
     $type = $donation->get_type();
