@@ -105,12 +105,12 @@ Assigned Task - Excellent
         }
 
         /* Optionally, style the select box to include a custom arrow icon */
-        select {
+        /*select {
             background-image: url('path-to-your-custom-arrow-icon');
             background-repeat: no-repeat;
             background-position: right .7em top 50%;
             background-size: .65em auto;
-        }
+        }*/
     </style>
 
     </head>
