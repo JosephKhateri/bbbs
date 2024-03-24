@@ -92,8 +92,7 @@ function update_donation($id, $donation) {
     $memo = $donation->get_memo();
 
     // Query is broken up into multiple lines for readability
-    $query = "UPDATE dbDonations";
-    $query .= " SET ";
+    $query = "UPDATE dbDonations SET ";
     $query .= "Email = '" . $email . "', ";
     $query .= "DateOfContribution = '" . $date . "', ";
     $query .= "ContributionSupportType = '" . $type . "', ";
