@@ -1,4 +1,12 @@
 <?php
+/* Code Review by Joseph
+Program Specifications/Correctness - Excellent
+Readability - Good - Might be better to put comments directly in the code instead of before each function
+Code Efficiency - Excellent
+Documentation - Excellent
+Assigned Task - Excellent
+*/
+
 /*
  * Copyright 2013 by Jerrick Hoang, Ivy Xing, Sam Roberts, James Cook, 
  * Johnny Coster, Judy Yang, Jackson Moniaga, Oliver Radwan, 

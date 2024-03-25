@@ -56,7 +56,9 @@
             <?php elseif (isset($_GET['userNotFound'])): ?>
                 <div class="happy-toast">User doesn't exist! Try again later!</div>
             <?php elseif (isset($_GET['noUsers'])): ?>
-                <div class="happy-toast">No users exist for this application!</div> <!-- In the event that the database is empty -->
+                <div class="happy-toast">No users exist for this application!</div> <!-- In the event that the dbUsers database is empty -->
+            <?php elseif (isset($_GET['noDonors'])): ?>
+                <div class="happy-toast">No donors exist in the system!</div> <!-- In the event that the dbDonors database is empty -->
             <?php endif ?>
             <p>Welcome back, <?php echo $user->get_first_name() ?>!</p>
             <p>Today is <?php echo date('l, F j, Y'); ?>.</p>
@@ -78,6 +80,10 @@
                     ?></span>
                 </div> -->
 
+                <div class="dashboard-item" data-link="viewAllDonors.php">
+                    <img src="images/person.svg">
+                    <span>View Donor Info</span>
+                </div>
                 <div class="dashboard-item" data-link="UploadForm.php">
                     <img src="images/volunteer-history.svg">
                     <span>Upload File</span>
@@ -89,7 +95,7 @@
                 <?php if ($_SESSION['access_level'] >= 2): ?>
                     <!--***added User Registration button ?***-->
                     <div class="dashboard-item" data-link="registerUserForm.php">
-                        <img src="images/settings.png">
+                        <img src="images/add-person.svg">
                         <span>Add User</span>
                     </div>
                     <div class="dashboard-item" data-link="adminResetPassword.php">
