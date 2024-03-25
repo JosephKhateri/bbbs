@@ -82,7 +82,7 @@
 
                 <div class="dashboard-item" data-link="viewAllDonors.php">
                     <img src="images/person.svg">
-                    <span>View Donor Information</span>
+                    <span>View Donor Info</span>
                 </div>
                 <div class="dashboard-item" data-link="UploadForm.php">
                     <img src="images/volunteer-history.svg">

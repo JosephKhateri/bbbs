@@ -82,23 +82,53 @@
     <h1>Donors</h1>
     <main class="date">
 
-        <!-- Table of all donors -->
-        <h2>Donors</h2>
-            <!-- Display all donors in a table, displaying their emails and names -->
-            <!-- When a donor is clicked, then will redirect to viewDonor.php with that donor's ID passed as a parameter -->
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                </tr>
-                <?php foreach ($donors as $donor): ?>
-                    <tr>
-                        <td><a href="viewAllDonors.php?page=<?php $donor->get_email() ?>"><?php echo $donor->get_first_name() . ' ' . $donor->get_last_name() ?></a></td>
-                        <td><a href="viewAllDonors.php"><?php echo $donor->email() ?></a></td>
-                    </tr>
-                <?php endforeach ?>
-            </table>
+        <style>
+            table {
+                margin-top: 1rem;
+                margin-left: auto;
+                margin-right: auto;
+                border-collapse: collapse;
+                width: 80%;
+            }
+            td {
+                border: 1px solid #333333;
+                text-align: left;
+                padding: 8px;
+            }
+            th {
+                background-color: var(--main-color);
+                color: black;
+                border: 1px solid #333333;
+                text-align: left;
+                padding: 8px;
+                font-weight: 500;
+            }
+            footer {
+                margin-bottom: 5rem;
+            }
+        </style>
 
+        <!-- Table of all donors -->
+        <!-- Display all donors in a table, displaying their emails and names -->
+        <!-- When a donor is clicked, then will redirect to viewDonor.php with that donor's email passed as a parameter -->
+        <table>
+            <tr>
+                <th>Email</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+            </tr>
+            <?php
+                foreach ($donors as $donor) {
+                    echo "<tr>";
+                    echo "<td><a href='viewDonor.php?page=" . $donor->get_email() . "'>" . $donor->get_email() . "</a></td>";
+                    echo "<td>" . $donor->get_first_name() . "</td>";
+                    echo "<td>" . $donor->get_last_name() . "</td>";
+                    echo "</tr>";
+                }
+            ?>
+        </table>
+
+        <br>
         <a class="button cancel" href="index.php" style="margin-top: -.5rem">Return to Dashboard</a>
     </main>
 </body>

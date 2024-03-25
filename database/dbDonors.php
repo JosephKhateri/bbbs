@@ -114,9 +114,9 @@
      * Pre-condition: $id is a string
      * Post-condition: A Donation object is returned if it exists, otherwise nothing is returned
      */
-    function retrieve_donation($id) {
+    function retrieve_donor($email) {
         $con=connect();
-        $query = "SELECT * FROM dbDonations WHERE id = '" . $id . "'";
+        $query = "SELECT * FROM dbDonors WHERE Email = '" . $email . "'";
         $result = mysqli_query($con,$query);
         if (mysqli_num_rows($result) !== 1) {
             mysqli_close($con);
@@ -129,47 +129,28 @@
     }
 
     /*
-     * Parameters: $email = A string that represents the email a donation is associated with
-     * This function retrieves an array of Donations from the dbDonations table that match the given email
-     * Return type: An array of Donation objects
-     * Pre-condition: $email is a string
-     * Post-condition: An array of Donation objects is returned
-     */
-    function retrieve_donations_by_email ($email) {
-        $donations = array();
-        if (!isset($email) || $email == "" || $email == null) return $donations;
-        $con=connect();
-        $query = "SELECT * FROM dbDonations WHERE email = '" . $email ."'";
-        $result = mysqli_query($con,$query);
-        while ($result_row = mysqli_fetch_assoc($result)) {
-            $the_donation = make_a_donor($result_row);
-            $donations[] = $the_donation;
-        }
-        return $donations;
-    }
-
-    /*
-     * Parameters: None
-     * This function retrieves all donations from the dbDonations table
-     * Return type: An array of Donation objects
-     * Pre-condition: None
-     * Post-condition: An array of Donation objects is returned
-     */
-    function get_all_donations() {
-        $con=connect();
-        $query = 'SELECT * FROM dbDonations';
-        $result = mysqli_query($con,$query);
+    * Parameters: None
+    * This function retrieves all donors from the dbDonors table and returns an array of donor objects
+    * Return type: Array of donors
+    * Pre-condition: None
+    * Post-condition: Array of donors is returned
+    */
+    function get_all_donors() {
+        $con = connect();
+        $query = 'SELECT * FROM dbDonors';
+        $result = mysqli_query($con, $query);
         if ($result == null || mysqli_num_rows($result) == 0) {
             mysqli_close($con);
             return false;
         }
-        $result = mysqli_query($con,$query);
-        $theDonations = array();
+        $theDonors = array();
         while ($result_row = mysqli_fetch_assoc($result)) {
-            $theDonation = make_a_donor($result_row);
-            $theDonations[] = $theDonation;
+            // Create donor object and add to the array
+            $theDonor = make_a_donor($result_row);
+            $theDonors[] = $theDonor;
         }
-        return $theDonations;
+        mysqli_close($con);
+        return $theDonors;
     }
 
     /*
@@ -179,18 +160,20 @@
      * Pre-condition: $result_row is a valid associative array
      * Post-condition: A new Donation object is created
      */
-    function make_a_donation($result_row) {
-        $theDonation = new Donation(
-            $result_row['DonationID'],
+    function make_a_donor($result_row) {
+        $theDonor = new Donor(
             $result_row['Email'],
-            $result_row['DateOfContribution'],
-            $result_row['ContributedSupportType'],
-            $result_row['ContributionCategory'],
-            $result_row['AmountGiven'],
-            $result_row['PaymentMethod'],
-            $result_row['Memo']
+            $result_row['Company'],
+            $result_row['FirstName'],
+            $result_row['LastName'],
+            $result_row['PhoneNumber'],
+            $result_row['Address'],
+            $result_row['City'],
+            $result_row['State'],
+            $result_row['Zip'],
+            $result_row['LifetimeDonation']
         );
-        return $theDonation;
+        return $theDonor;
     }
 
     function checkDonorExists($email, $con) {
@@ -220,31 +203,6 @@
         $query = $con->prepare("UPDATE dbdonors SET Company = ?, FirstName = ?, LastName = ?, PhoneNumber = ?, Address = ?, City = ?, State = ?, Zip = ? WHERE Email = ?");
         $query->bind_param("sssisssss", $donorData['Company'], $donorData['First Name'], $donorData['Last Name'], $donorData['Phone Number'], $donorData['Address'], $donorData['City'], $donorData['State'], $donorData['Zip'], $donorData['Email']);
         $query->execute();
-    }
-    
-    /*
-    * Parameters: None
-    * This function retrieves all donors from the dbDonors table and returns an array of donor objects
-    * Return type: array of donors
-    * Pre-condition: None
-    * Post-condition: array of donors is returned
-    */
-    function get_all_donors() {
-        $con = connect();
-        $query = 'SELECT * FROM dbDonors';
-        $result = mysqli_query($con, $query);
-        if ($result == null || mysqli_num_rows($result) == 0) {
-            mysqli_close($con);
-            return false;
-        }
-        $theDonors = array();
-        while ($result_row = mysqli_fetch_assoc($result)) {
-            // Create donor object and add to the array
-            $theDonor = make_a_donor($result_row);
-            $theDonors[] = $theDonor;
-        }
-        mysqli_close($con);
-        return $theDonors;
     }
 
 ?>
