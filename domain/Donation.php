@@ -16,10 +16,9 @@
  * Edited by Megan and Noor for BBBS in Spring 2024
  */
 
-class Donation
-{
+class Donation {
     private $id;         // id (unique key) = donation number
-    private $email;     // Email of donor
+    private $email;     // Email of donor who made the donation
     private $contribution_date;  // Date of donation
     private $contribution_type; // Individual, Business, or Anonymous
     private $contribution_category; // Annual Giving, Event Sponsorship, Gift, or Other
@@ -34,8 +33,7 @@ class Donation
      * Pre-condition: $id, $email, $contribution_date, $contribution_type, $contribution_category, $amount, $payment_method, $memo are all valid
      * Post-condition: a new Donation object is created
      */
-    function __construct($id, $email, $contribution_date, $contribution_type, $contribution_category, $amount, $payment_method, $memo)
-    {
+    function __construct($id, $email, $contribution_date, $contribution_type, $contribution_category, $amount, $payment_method, $memo) {
         $this->id = $id;
         $this->email = $email;
         $this->contribution_date = $contribution_date;
@@ -46,43 +44,35 @@ class Donation
         $this->memo = $memo;
     }
 
-    function get_id()
-    {
+    function get_id() {
         return $this->id;
     }
 
-    function get_email()
-    {
+    function get_email() {
         return $this->email;
     }
 
-    function get_contribution_date()
-    {
+    function get_contribution_date() {
         return $this->contribution_date;
     }
 
-    function get_contribution_type()
-    {
+    function get_contribution_type() {
         return $this->contribution_type;
     }
 
-    function get_contribution_category()
-    {
+    function get_contribution_category() {
         return $this->contribution_category;
     }
 
-    function get_amount()
-    {
+    function get_amount() {
         return $this->amount;
     }
 
-    function get_payment_method()
-    {
+    function get_payment_method() {
         return $this->payment_method;
     }
 
-    function get_memo()
-    {
+    function get_memo() {
         return $this->memo;
     }
 
