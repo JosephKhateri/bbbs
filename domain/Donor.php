@@ -1,6 +1,6 @@
 <?php
 
-// donor.php
+// Donor.php
 // Overall Grading:
 // 1. Program specifications/correctness: Good - Program mostly inserts data into dbDonors properly
 // 2. Readability: Excellent - Has lots of comments throughout the function making it easy to read. Variables are named accordingly.

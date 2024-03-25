@@ -1,6 +1,6 @@
 <?php
 
-// dbDonation.php
+// dbDonations.php
 // Overall Grading:
 // 1. Program specifications/correctness: Adequate - Program doesn't insert data into dbDonations properly
 // 2. Readability: Adequate - Need further documentation for the functions. Variables are named accordingly.

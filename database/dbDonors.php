@@ -1,6 +1,6 @@
 <?php
 
-// dbDonor.php
+// dbDonors.php
 // Overall Grading:
 // 1. Program specifications/correctness: Good - Program mostly inserts data into dbDonors properly
 // 2. Readability: Adequate - Need further documentation. Variables are named accordingly. Need to indent everything within <php> tags
@@ -10,7 +10,7 @@
 
 
 require_once('database/dbinfo.php');
-require_once(dirname(__FILE__).'/../donor.php');
+require_once(dirname(__FILE__) . '/../domain/Donor.php');
 
 function checkDonorExists($email, $con) {
     $query = $con->prepare("SELECT Email FROM dbdonors WHERE Email = ?");
