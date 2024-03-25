@@ -221,5 +221,30 @@
         $query->bind_param("sssisssss", $donorData['Company'], $donorData['First Name'], $donorData['Last Name'], $donorData['Phone Number'], $donorData['Address'], $donorData['City'], $donorData['State'], $donorData['Zip'], $donorData['Email']);
         $query->execute();
     }
+    
+    /*
+    * Parameters: None
+    * This function retrieves all donors from the dbDonors table and returns an array of donor objects
+    * Return type: array of donors
+    * Pre-condition: None
+    * Post-condition: array of donors is returned
+    */
+    function get_all_donors() {
+        $con = connect();
+        $query = 'SELECT * FROM dbDonors';
+        $result = mysqli_query($con, $query);
+        if ($result == null || mysqli_num_rows($result) == 0) {
+            mysqli_close($con);
+            return false;
+        }
+        $theDonors = array();
+        while ($result_row = mysqli_fetch_assoc($result)) {
+            // Create donor object and add to the array
+            $theDonor = make_a_donor($result_row);
+            $theDonors[] = $theDonor;
+        }
+        mysqli_close($con);
+        return $theDonors;
+    }
 
 ?>
