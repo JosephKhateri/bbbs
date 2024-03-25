@@ -445,6 +445,46 @@
                 echo "</table>";
             } else {
                 echo "<p>Not enough Donors are available to make the report.</p>";
+            }  
+        }
+         // Report:Top 10 Donors
+        // Pre-Condition: User is logged in to be able to access report functionality
+        // Post-Condition: User will be able to look through the report as a generated table and
+        //                 be able to export the data as a CSV file
+        if (isset($_GET['report']) && $_GET['report'] == 'report7') {
+            // Modified SQL query to join Donations with Donors table and fetch required details
+            $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, SUM(d.AmountGiven) AS Sum_Of_Donations
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    GROUP BY d.Email
+                    ORDER BY Sum_Of_Donations DESC";
+            $result = mysqli_query($connection, $query);
+
+            // Check if we have results
+            if (mysqli_num_rows($result) > 0) {
+                echo "<h2 style='text-align: center;'>List of Top 10 Donors</h2>";
+                echo "<table>";
+                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Sum of Donations</th></tr>";
+                while ($row = mysqli_fetch_assoc($result)) {
+                    // Format the phone number
+                    $phone = $row['PhoneNumber'];
+                    $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+                    
+                    //Checks if the current donor has donated in the past three years if they have then
+                    //print. If not then print nothing.
+                    echo "<tr>
+                            <td>" . htmlspecialchars($row['Email']) . "</td>
+                            <td>" . htmlspecialchars($row['FirstName']) . "</td>
+                            <td>" . htmlspecialchars($row['LastName']) . "</td>
+                            <td>" . htmlspecialchars($formattedPhone) . "</td>
+                            <td>$" . htmlspecialchars($row['Sum_Of_Donations']) . "</td>      
+                          </tr>";
+                        
+                }
+                
+                echo "</table>";
+            } else {
+                echo "<p>Not enough Donors are available to make the report.</p>";
             }
         }
 		//End of report 
@@ -475,6 +515,12 @@
         if (isset($_GET['report']) && $_GET['report'] == 'report6'){
             echo "<form action='reportsExport.php' method='post' class='export-form'>
             <input type='hidden' name='action' value='export_donors_L3Y'>
+            <input type='submit' value='Export Donors' class='export-btn'>
+            </form>";
+        }
+        if (isset($_GET['report']) && $_GET['report'] == 'report7'){
+            echo "<form action='reportsExport.php' method='post' class='export-form'>
+            <input type='hidden' name='action' value='export_donors_T10'>
             <input type='submit' value='Export Donors' class='export-btn'>
             </form>";
         }

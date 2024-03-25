@@ -76,6 +76,12 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_L3Y') {
     exportDonorsL3Y();
 	exit();
 }
+//T10=Top 10 Donors
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_T10') {
+	ob_end_clean();
+    exportDonorsT10();
+	exit();
+}
 process_form();
 //pull_shift_data();
 include('footer.inc');
@@ -321,7 +327,7 @@ function exportDonorsFOGGTY() {
     $result = mysqli_query($connection, $query);
 	
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving.csv"');
+    header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving_GTY.csv"');
     
     $output = fopen("php://output", "w");
     
@@ -372,7 +378,7 @@ function exportDonorsL3Y() {
     $result = mysqli_query($connection, $query);
 	
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving.csv"');
+    header('Content-Disposition: attachment; filename="donors_Donors_From_Past_Three_Years.csv"');
     
     $output = fopen("php://output", "w");
     
@@ -383,6 +389,34 @@ function exportDonorsL3Y() {
     while ($row = mysqli_fetch_assoc($result)) {
 		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
 		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $row['EarliestDonation']));
+	}
+    fclose($output);
+    //exit();
+}
+// Export Function for the Report on Top 10 Donors
+function exportDonorsT10() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, SUM(d.AmountGiven) AS Sum_Of_Donations
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    GROUP BY d.Email
+                    ORDER BY Sum_Of_Donations DESC";
+            $result = mysqli_query($connection, $query);
+	
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Top_10_Donors.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Sum of Donation'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $row['Sum_Of_Donations']));
 	}
     fclose($output);
     //exit();
