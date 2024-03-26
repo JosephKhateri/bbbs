@@ -1,4 +1,12 @@
 <?php
+/* Code Review by Joseph
+Program Specifications/Correctness - Excellent
+Readability - Good - Commented out code makes things a bit messy
+Code Efficiency - Excellent
+Documentation - Excellent
+Assigned Task - Excellent
+*/
+
     // Template for new VMS pages. Base your new page on this one
 
     // Edited by Megan and Noor for BBBS in Spring 2024
