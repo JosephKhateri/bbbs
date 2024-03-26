@@ -38,6 +38,12 @@
         echo "No animal selected!";
     }*/
   
+  // Is user authorized to view this page?
+  if ($accessLevel < 2) {
+      header('Location: index.php');
+      die();
+  }
+  
   $donorsOver10K = [];
   $donationQuery = "SELECT Email, SUM(AmountGiven) as TotalDonation FROM dbdonations GROUP BY Email HAVING TotalDonation > 10000";
   $donationResult = mysqli_query($connection, $donationQuery);
@@ -65,7 +71,7 @@
             }
             th {
                 background-color: var(--main-color);
-                color: black;
+                color: var(--button-font-color);
                 border: 1px solid #333333;
                 text-align: left;
                 padding: 8px;
@@ -73,7 +79,7 @@
             }
           
             tr:nth-child(even) {
-                background-color: black;
+                background-color: #f0f0f0;
                 /* color:var(--button-font-color); */
 		
             }
@@ -165,7 +171,6 @@
             margin-bottom: 2rem;
         }
     </style>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     </head>
     <body>
@@ -258,10 +263,8 @@
                 echo "<p>Not enough Donors are available to make the report.</p>";
             }
         }
-		// Report: Every Donor's Frequency of Giving
-        // Pre-Condition: User is logged in to be able to access report functionality
-        // Post-Condition: User will be able to look through the report as a generated table and
-        //                 be able to export the data as a CSV file
+		//If the selected option is report3
+		// Check if the 'report' GET parameter is set to 'report3'
         if (isset($_GET['report']) && $_GET['report'] == 'report3') {
             // Modified SQL query to join Donations with Donors table and fetch required details
             // Get the current date
@@ -301,6 +304,9 @@
                 echo "<p>All donors have contributed in the last 2 years.</p>";
             }
         }
+<<<<<<< Updated upstream
+		
+=======
         //  Report: Events Donor has Sponsered 
         if (isset($_GET['report']) && $_GET['report'] == 'report4') {
             // Fetch your data for the pie chart here
@@ -309,7 +315,7 @@
             $categories = [];
             while($row = mysqli_fetch_assoc($categoryResult)) {
                 $categories[] = $row;
-            }/*
+            }
             // Pass the PHP array to JavaScript
             echo "<script>var categoryData = " . json_encode($categories) . ";</script>";
             echo "<h2 style='text-align: center;margin-top: 30px;margin-bottom: 20px'>Events Donors Have Contributed To</h2>";
@@ -338,7 +344,7 @@
                   </script>';
         
             // Output the container for the pie chart
-            echo '<div id="piechart" style="width: 1200px; height: 700px; margin: auto;"></div>';*/
+            echo '<div id="piechart" style="width: 1200px; height: 700px; margin: auto;"></div>';
 
         }
 		// Report:Frequncy of Giving Greater than Yearly
@@ -448,45 +454,26 @@
             }
         }
 
-        //report 7
-        // Report:Donors Retention Rate
-        // Pre-Condition: User is logged in to be able to access report functionality
-        // Post-Condition: User will be able to look through the report as a generated table and
-        //                 be able to export the data as a CSV file
+        //Report 7
         if (isset($_GET['report']) && $_GET['report'] == 'report7') {
-            ?>
-                <h2>Donors Retention Rate Calculator</h2>
-                    <form method="POST" action="reportsDonorsPage.php">
-                        <label for="prev_year">Previous Year:</label>
-                        <input type="number" id="prev_year" name="prev_year" required min="2000" max="2023" style="color:white;"><br><br>
-                        <label for="current_year">Current Year:</label>
-                        <input type="number" id="current_year" name="current_year" required min="2001" max="2024"  style="color:white;"><br><br>
-                        <input type="submit" value="Submit">
-                    </form>
-            <?php
-            if ($_SERVER["REQUEST_METHOD"] == "POST") {
+             
             // Define the date range (you can adjust the interval as needed)
-            
-            $prev_year = $_POST["prev_year"];
-            $current_year = $_POST["current_year"];
-
-            echo "previous year. $prev_year <br> current year. $current_year <br>";
+             
  
-                
-            // Calculate the number of donors in the previous period
-            $sql_prev_period = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31'";
-            $result_prev_period = $connection->query($sql_prev_period);
-            $num_donors_prev_period = $result_prev_period->num_rows;
+                // Calculate the number of donors in the previous period (2023)
+                $sql_prev_period = "SELECT DISTINCT Email FROM dbdonations WHERE DateOfContribution BETWEEN '2023-01-01' AND '2023-12-31'";
+                $result_prev_period = $connection->query($sql_prev_period);
+                $num_donors_prev_period = $result_prev_period->num_rows;
 
-            // Calculate the number of donors in the current period
-            $sql_current_period = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31'";
-            $result_current_period = $connection->query($sql_current_period);
-            $num_donors_current_period = $result_current_period->num_rows;
+                // Calculate the number of donors in the current period (2024)
+                $sql_current_period = "SELECT DISTINCT Email FROM dbdonations WHERE DateOfContribution BETWEEN '2024-01-01' AND '2024-12-31'";
+                $result_current_period = $connection->query($sql_current_period);
+                $num_donors_current_period = $result_current_period->num_rows;
 
-            // Calculate the number of retained donors (donors who contributed in both periods)
-            $sql_retained_donors = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31' AND DonorID IN (SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31')";
-            $result_retained_donors = $connection->query($sql_retained_donors);
-            $num_retained_donors = $result_retained_donors->num_rows;
+                // Calculate the number of retained donors (donors who contributed in both periods)
+                $sql_retained_donors = "SELECT DISTINCT Email FROM dbdonations WHERE DateOfContribution BETWEEN '2023-01-01' AND '2023-12-31' AND Email IN (SELECT DISTINCT Email FROM dbdonations WHERE DateOfContribution BETWEEN '2024-01-01' AND '2024-12-31')";
+                $result_retained_donors = $connection->query($sql_retained_donors);
+                $num_retained_donors = $result_retained_donors->num_rows;
 
                 // Calculate donor retention rate
                 if ($num_donors_prev_period > 0) {
@@ -495,11 +482,7 @@
                     $retention_rate = 0; // Default to 0 if no donors in the previous period
                 }
 
-                /*echo  "number of in the current year: " . $num_donors_current_period . "<br>";
-                echo "number of retained donors: " . $num_retained_donors . "<br>";
-                echo "number of previous donors". $num_donors_prev_period . "<br>";
-
-                echo "Donor Retention Rate for 2024 compared to 2023: " . $retention_rate . "%";*/
+                 
 
             
             // Display the donor retention rate
@@ -513,12 +496,9 @@
                  
           </tr>";
             
-            }
+            
         }
-
-
-
-
+>>>>>>> Stashed changes
 		//End of report 
         if (isset($_GET['report']) && $_GET['report'] == 'report1'){
             echo "<form action='reportsExport.php' method='post' class='export-form'>
@@ -532,31 +512,17 @@
             <input type='submit' value='Export Donors' class='export-btn'>
             </form>";
         }
+		
 		if (isset($_GET['report']) && $_GET['report'] == 'report3'){
             echo "<form action='reportsExport.php' method='post' class='export-form'>
             <input type='hidden' name='action' value='export_donors_less_2_years'>
             <input type='submit' value='Export Donors' class='export-btn'>
             </form>";
         }
-        if (isset($_GET['report']) && $_GET['report'] == 'report5'){
-            echo "<form action='reportsExport.php' method='post' class='export-form'>
-            <input type='hidden' name='action' value='export_donors_FOG_GTY'>
-            <input type='submit' value='Export Donors' class='export-btn'>
-            </form>";
-        }
-        if (isset($_GET['report']) && $_GET['report'] == 'report6'){
-            echo "<form action='reportsExport.php' method='post' class='export-form'>
-            <input type='hidden' name='action' value='export_donors_L3Y'>
-            <input type='submit' value='Export Donors' class='export-btn'>
-            </form>";
-        }
-
-        if (isset($_GET['report']) && $_GET['report'] == 'report7'){
-            echo "<form action='reportsExport.php' method='post' class='export-form'>
-            <input type='hidden' name='action' value='retention_report'>
-            <input type='submit' value='Export Donors' class='export-btn'>
-            </form>";
-        }
+        //<form action="reportsExport.php" method="post" class="export-form">
+        //<input type="hidden" name="action" value="export_donors_over_10000">
+        //<input type="submit" value="Export Donors" class="export-btn">
+        //</form>
         ?>
 
     </section>
