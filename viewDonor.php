@@ -194,7 +194,11 @@
             echo "<div style='text-align: center;'>This donor has made no donations.</div>";
         }
         ?>
-        <br><br>
+
+        <!-- Add a line break -->
+        <tr><td colspan="5">&nbsp;</td></tr>
+
+        <!-- Table of additional information (retention rate, donation frequency, etc.) will be located in table below -->
 
         <!-- Button to return to the list of donors -->
         <a class="button cancel" href="viewAllDonors.php" style="margin-top: -.5rem">Return to Donors</a>
