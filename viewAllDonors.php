@@ -39,12 +39,12 @@
     }
 
     // if there's a get request, redirect to the viewDonor.php page with the donor's email as a parameter
-    if (isset($_GET['page'])) {
+    if (isset($_GET['donor'])) {
         // Retrieve the page parameter (donor email) from the URL
-        $donorEmail = $_GET['page'];
+        $donorEmail = $_GET['donor'];
 
         // Redirect to viewDonor.php with the page parameter
-        header("Location: viewDonor.php?page=$donorEmail");
+        header("Location: viewDonor.php?donor=$donorEmail");
         exit();
     }
 ?>
@@ -53,7 +53,7 @@
 <html>
 <head>
     <?php require_once('universal.inc') ?>
-    <title>BBBS | Reset User Password</title>
+    <title>BBBS | View Donor Info</title>
     <style>
         /* Targeting the select element and option elements */
         select, option, input {
@@ -81,6 +81,14 @@
     <?php require_once('header.php') ?>
     <h1>Donors</h1>
     <main class="date">
+
+        <?php if (isset($_GET['donorNotFound'])): ?>
+            <div class="error-toast">The donor selected was not found!</div>
+        <?php elseif (isset($_GET['donorNotProvided'])): ?>
+            <div class="error-toast">Please select a donor!</div>
+        <?php elseif (isset($_GET['invalidRequest'])): ?>
+            <div class="error-toast">Accessed the page incorrectly!</div>
+        <?php endif ?>
 
         <style>
             table {
@@ -120,7 +128,7 @@
             <?php
                 foreach ($donors as $donor) {
                     echo "<tr>";
-                    echo "<td><a href='viewDonor.php?page=" . $donor->get_email() . "'>" . $donor->get_email() . "</a></td>";
+                    echo "<td><a href='viewDonor.php?donor=" . $donor->get_email() . "'>" . $donor->get_email() . "</a></td>";
                     echo "<td>" . $donor->get_first_name() . "</td>";
                     echo "<td>" . $donor->get_last_name() . "</td>";
                     echo "</tr>";
