@@ -56,7 +56,9 @@
             <?php elseif (isset($_GET['userNotFound'])): ?>
                 <div class="happy-toast">User doesn't exist! Try again later!</div>
             <?php elseif (isset($_GET['noUsers'])): ?>
-                <div class="happy-toast">No users exist for this application!</div> <!-- In the event that the database is empty -->
+                <div class="happy-toast">No users exist for this application!</div> <!-- In the event that the dbUsers database is empty -->
+            <?php elseif (isset($_GET['noDonors'])): ?>
+                <div class="happy-toast">No donors exist in the system!</div> <!-- In the event that the dbDonors database is empty -->
             <?php endif ?>
             <p>Welcome back, <?php echo $user->get_first_name() ?>!</p>
             <p>Today is <?php echo date('l, F j, Y'); ?>.</p>
@@ -76,39 +78,12 @@
                             echo ' (' . $unreadMessageCount . ')';
                         }*/
                     ?></span>
-                </div>-->
-                <!--<div class="dashboard-item" data-link="calendar.php">
-                    <img src="images/view-calendar.svg">
-                    <span>View Calendar</span>
-                </div>-->
-                <?php if ($_SESSION['access_level'] >= 2): ?>
-                    <!--<div class="dashboard-item" data-link="addEvent.php">
-                        <img src="images/new-event.svg">
-                        <span>Add Appointment</span>
-                    </div>-->
-                <?php endif ?>
-				<!--<div class="dashboard-item" data-link="addAnimal.php">
-                    <img src="images/settings.png">
-                    <span>Add Animal</span>
+                </div> -->
+
+                <div class="dashboard-item" data-link="viewAllDonors.php">
+                    <img src="images/person.svg">
+                    <span>View Donor Info</span>
                 </div>
-				<div class="dashboard-item" data-link="addService.php">
-                    <img src="images/settings.png">
-                    <span>Add Service</span>
-                </div>
-				<div class="dashboard-item" data-link="addLocation.php">
-                    <img src="images/settings.png">
-                    <span>Add Location</span>
-                </div>
-                <div class="dashboard-item" data-link="findAnimal.php">
-                        <img src="images/person-search.svg">
-                        <span>Find Animal</span>
-                </div>-->
-                <!-- Commenting out because volunteers won't be searching events
-                <div class="dashboard-item" data-link="eventSearch.php">
-                    <img src="images/search.svg">
-                    <span>Find Event</span>
-                </div>
-                -->
                 <div class="dashboard-item" data-link="UploadForm.php">
                     <img src="images/volunteer-history.svg">
                     <span>Upload File</span>
@@ -117,31 +92,16 @@
                     <img src="images/create-report.svg">
                     <span>Create Report</span>
                 </div>
-
-                <!--<?php if ($_SESSION['access_level'] >= 2): ?>
-                    <div class="dashboard-item" data-link="personSearch.php">
-                        <img src="images/person-search.svg">
-                        <span>Find Volunteer</span>
-                    </div>
-                    <div class="dashboard-item" data-link="register.php">
-                        <img src="images/add-person.svg">
-                        <span>Register Volunteer</span>
-                    </div>
-                    <div class="dashboard-item" data-link="viewArchived.php">
-                        <img src="images/person-search.svg">
-                        <span>Archived Animals</span>
-                    </div>-->
+                <?php if ($_SESSION['access_level'] >= 2): ?>
                     <!--***added User Registration button ?***-->
                     <div class="dashboard-item" data-link="registerUserForm.php">
-                        <img src="images/settings.png">
+                        <img src="images/add-person.svg">
                         <span>Add User</span>
                     </div>
                     <div class="dashboard-item" data-link="adminResetPassword.php">
                         <img src="images/settings.png">
                         <span>Reset User Password</span>
                     </div>
-
-
                 <?php endif ?>
                 <?php if ($notRoot) : ?>
                     <div class="dashboard-item" data-link="viewProfile.php">
@@ -152,13 +112,7 @@
                         <img src="images/manage-account.svg">
                         <span>Edit Profile</span>
                     </div>
-                <?php endif ?>
-                <?php if ($notRoot) : ?>
-                    <!--<div class="dashboard-item" data-link="volunteerReport.php">
-                        <img src="images/volunteer-history.svg">
-                        <span>View My Hours</span>
-                    </div>-->
-                    <div class="dashboard-item" data-link="changePassword.php"> <!-- root user can't change password -->
+                    <div class="dashboard-item" data-link="changePassword.php">
                         <img src="images/change-password.svg">
                         <span>Change Password</span>
                     </div>

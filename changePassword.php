@@ -1,4 +1,12 @@
 <?php
+/* Code Review by Joseph
+Program Specifications/Correctness - Excellent
+Readability - Good - Commented out code makes things a bit messy
+Code Efficiency - Excellent
+Documentation - Excellent
+Assigned Task - Excellent
+*/
+
     // Template for new VMS pages. Base your new page on this one
 
     // Edited by Megan and Noor for BBBS in Spring 2024
@@ -16,6 +24,12 @@
         // 0 = not logged in, 1 = standard user, 2 = manager (Admin), 3 super admin (TBI)
         $accessLevel = $_SESSION['access_level']; // need to test this out to see if it returns string (user, admin) or int (1, 2_
         $userID = $_SESSION['_id'];
+    }
+
+    // Prohibit vmsroot from accessing this page
+    if ($accessLevel > 2) {
+        header('Location: login.php');
+        die();
     }
 
     $forced = false;
@@ -57,7 +71,6 @@
         }
         $password = $_POST['password'];
         $newPassword = $_POST['new-password'];
-        $calltype = "reset password";
         $user = retrieve_user($userID);
 
         if (!$user) { // user doesn't exist
@@ -67,6 +80,8 @@
             $error1 = true; // old password provided is incorrect
         } else if($password == $newPassword) { // old password is same as new one
             $error2 = true; // old password is same as new one
+        } else if (validatePassword($newPassword) === false) {
+            $error3 = true; // new password doesn't meet requirements
         } else {
             $hash = password_hash($newPassword, PASSWORD_BCRYPT);
             $change_password_result = change_password($userID, $hash);
@@ -96,6 +111,8 @@
                 <p class="error-toast">Your entry for Current Password was incorrect.</p>
             <?php elseif (isset($error2)): ?>
                 <p class="error-toast">New password must be different from current password.</p>
+            <?php elseif (isset($error3)): ?>
+                <p class="error-toast">Password must meet requirements.</p>
             <?php endif ?>
 
             <!-- Form for user to change their password -->
@@ -110,6 +127,25 @@
                 <input type="password" id="new-password" name="new-password" placeholder="Enter new password" required>
                 <label for="reenter-new-password">New Password</label>
                 <input type="password" id="new-password-reenter" placeholder="Re-enter new password" required>
+
+                <!-- Display password requirements list -->
+                <style>
+                    p1 {
+                        font-size: small;
+                        line-height: 1em
+                        text-align: left
+                    }
+                </style>
+
+                <!--Not currently aligning left, doesn't do it either in p1 calls. It used to, but not anymore-->
+                <p1>Password must meet the following requirements:</p1>
+                <p1>- Minimum length: 8 characters</p1>
+                <p1>- At least one uppercase letter</p1>
+                <p1>- At least one lowercase letter</p1>
+                <p1>- At least one digit</p1>
+                <p1>- At least 1 special character (@$!%*?&)</p1>
+
+
                 <p id="password-match-error" class="error hidden">Passwords must match!</p>
                 <input type="submit" id="submit" name="submit" value="Change Password">
                 <?php if (!$forced): ?>

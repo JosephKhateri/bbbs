@@ -1,4 +1,12 @@
 <?php
+/* Code Review by Joseph
+Program Specifications/Correctness - Excellent
+Readability - Excellent
+Code Efficiency - Excellent
+Documentation - Excellent
+Assigned Task - Excellent
+*/
+
     // Edited by Megan and Noor for BBBS in Spring 2024
     // Purpose: Allows admins to reset a user's password
 
@@ -29,7 +37,14 @@
     // This list of users will be used to populate the dropdown menu in the HTML form
     require_once('database/dbUsers.php');
     require_once('domain/User.php');
-    $users = get_all_users();
+    if ($userID == 'vmsroot') {
+        // vmsroot is allowed to change the password of any user except themselves
+        $users = get_all_users();
+    } else {
+        // Regular admins are only allowed to change the password of standard users
+        $users = get_all_standard_users();
+    }
+    //$users = get_all_standard_users(); //just get user objects for admin to be able to change their passwords
 
     // if users is equal to false (meaning no users were retrieved from the database), redirect to the dashboard
     if (!$users) {
@@ -45,18 +60,19 @@
         $required = array(
             "user_dropdown", "new_password" // Required fields for the form
         );
-        $error1 = false;
 
         if (!wereRequiredFieldsSubmitted($args, $required)) {
             $error1 = true; // Form submission contained unexpected input; alert user and stay on this page
+        } else if (!validatePassword($args['new_password'])) {
+            $error2 = true; // New password doesn't meet requirements; alert user and stay on this page
         } else {
-            // Create new user with the values from args
+            // Set user ID to the value of the user_dropdown dropdown menu and retrieve the user from dbUsers
             $id = $args['user_dropdown'];
+            $user = retrieve_user($id);
 
             // Check that new password is different from current password
-            $user = retrieve_user($id);
             if (password_verify($args['new_password'], $user->get_password())) {
-                $error2 = true; // new and old passwords are the same
+                $error3 = true; // new and old passwords are the same
             } else {
                 // Change the user's password and redirect admin to the dashboard
                 $newPassword = password_hash($args['new_password'], PASSWORD_BCRYPT);
@@ -93,12 +109,12 @@
     }
 
     /* Optionally, style the select box to include a custom arrow icon */
-    select {
+    /*select {
         background-image: url('path-to-your-custom-arrow-icon');
         background-repeat: no-repeat;
         background-position: right .7em top 50%;
         background-size: .65em auto;
-    }
+    }*/
 </style>
 
 </head>
@@ -110,6 +126,8 @@
     <?php if (isset($error1)): ?>
         <p class="error-toast">Your form submission contained unexpected input.</p>
     <?php elseif (isset($error2)): ?>
+        <p class="error-toast">Password must meet requirements.</p>
+    <?php elseif (isset($error3)): ?>
         <p class="error-toast">New password must be different from current password.</p>
     <?php endif ?>
 
@@ -127,7 +145,22 @@
         <br><br> <!-- Add line break before New Password input -->
 
         <label for="new_password">New Password *</label>
-        <input type="text" id="new_password" name="new_password" required placeholder="Enter New Password">
+        <input type="password" id="new_password" name="new_password" required placeholder="Enter New Password">
+
+        <!-- Display password requirements list -->
+        <style>
+            p1 {
+                font-size: small;
+                line-height: 1em
+            }
+        </style>
+        <p1 style="text-align: left">Password must meet the following requirements:</p1><br>
+        <p1 style="text-align: left">- Minimum length: 8 characters</p1><br>
+        <p1 style="text-align: left">- At least one uppercase letter</p1><br>
+        <p1 style="text-align: left">- At least one lowercase letter</p1><br>
+        <p1 style="text-align: left">- At least one digit</p1><br>
+        <p1 style="text-align: left">- At least 1 special character (@$!%*?&)</p1>
+
 
         <br><br> <!-- Add line break before Submit button -->
 

@@ -1,4 +1,11 @@
 <?php
+/* Code Review by Joseph
+Program Specifications/Correctness - Excellent
+Readability - Good - Could be cleaned up a little
+Code Efficiency - Excellent
+Documentation - Excellent
+Assigned Task - Excellent
+*/
     // Template for new VMS pages. Base your new page on this one
 
     // Make session information accessible, allowing us to associate

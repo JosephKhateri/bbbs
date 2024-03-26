@@ -1,4 +1,14 @@
 <?php
+/* Code Review by Joseph
+Program Specifications/Correctness - Excellent
+Readability - Excellent
+Code Efficiency - Excellent
+Documentation - Excellent
+Assigned Task - Excellent
+
+There was not a lot in this one since only the bottom function was added for this file
+*/
+
 
     require_once(dirname(__FILE__) . '/../database/dbinfo.php');
 
@@ -200,6 +210,34 @@
 
     function validateURL($url) {
         return filter_var($url, FILTER_VALIDATE_URL);
+    }
+
+/*
+* Parameters: $password = A string that represents the password to be validated
+* This function checks that the given password meets the following requirements:
+ * - At least 8 characters
+ * - At least 1 uppercase letter
+ * - At least 1 lowercase letter
+ * - At least 1 number
+ * - At least 1 special character
+* Return type: A boolean value of "true" or "false" denoting whether the password meets the requirements
+* Pre-condition: $password is a string
+* Post-condition: The password is validated against the requirements
+*/
+//Note From Conor: Besides validatePassword there isn't much documentation for other methods.
+//I assume that's because it's from the original code and I didn't see it used anywhere else in
+//the code.
+    function validatePassword($password) {
+        // Check that the password meets the following requirements:
+        $uppercase = preg_match('@[A-Z]@', $password);
+        $lowercase = preg_match('@[a-z]@', $password);
+        $number    = preg_match('@[0-9]@', $password);
+        $specialChars = preg_match('@[^\w]@', $password);
+        $length = strlen($password) >= 8;
+
+        // Generate a boolean value that denotes whether the password meets the requirements
+        $meetsRequirements = $uppercase && $lowercase && $number && $specialChars && $length;
+        return $meetsRequirements;
     }
 
 ?>
