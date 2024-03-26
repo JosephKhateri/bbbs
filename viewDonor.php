@@ -32,7 +32,7 @@
     require_once('domain/Donation.php');
 
     // Check if the request method is GET
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    /*if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Check if a parameter named 'donor' is present in the GET request
         if (isset($_GET['donor'])) {
             // Retrieve the donor email from the GET request
@@ -48,6 +48,30 @@
     } else {
         // If the request method is not GET, respond with an error message
         echo "Error: Only GET requests are allowed.";
+    }**/
+
+    // Check if the request method is GET
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        // Check if a parameter named 'donor' is present in the GET request
+        if (isset($_GET['donor'])) {
+            // Retrieve the donor email from the GET request
+            $donorEmail = $_GET['donor'];
+
+            // Get the donor's info and their donation
+            $donor = retrieve_donor($donorEmail);
+            $donations = retrieve_donations_by_email($donorEmail);
+
+            if (!$donor) {
+                // Donor not found, display an error message
+                echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: Donor not found.</p>";
+            }
+        } else {
+            // If the 'donor' parameter is not provided, display an error message
+            echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: Donor information is missing. Please provide a valid donor email.</p>";
+        }
+    } else {
+        // If the request method is not GET, respond with an error message
+        echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: Only GET requests are allowed.</p>";
     }
 ?>
 
@@ -81,7 +105,7 @@
 </head>
 <body>
     <?php require_once('header.php') ?>
-    <h1>Donors</h1>
+    <h1><?php echo isset($donor) ? htmlspecialchars($donor->get_first_name() . ' ' . $donor->get_last_name()) : 'Donors' ?></h1>
     <main class="date">
 
         <style>
