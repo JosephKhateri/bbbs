@@ -70,10 +70,16 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG_GTY') {
     exportDonorsFOGGTY();
 	exit();
 }
-//L3Y=Less Than 3 Years
-if (isset($_POST['action']) && $_POST['action'] == 'export_donors_L3Y') {
+//L3Y=Less Than 3 Years No Events
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_L3YNE') {
 	ob_end_clean();
-    exportDonorsL3Y();
+    exportDonorsL3YNE();
+	exit();
+}
+//L3Y=Less Than 3 Years Events
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_L3YE') {
+	ob_end_clean();
+    exportDonorsL3YE();
 	exit();
 }
 //T10=Top 10 Donors
@@ -359,8 +365,8 @@ function exportDonorsFOGGTY() {
 	}
     fclose($output);
 }
-// Export Function for the Report on Donor's in the Past Three Years
-function exportDonorsL3Y() {
+// Export Function for the Report on Donor's in the Past Three Years who haven't donated to an Event
+function exportDonorsL3YNE() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
     $connection = connect();  // This should be your function to establish a database connection
     //Get current date
@@ -369,29 +375,63 @@ function exportDonorsL3Y() {
 	$thresholdDate = date('Y-m-d', strtotime('-3 years', strtotime($currentDate)));
     // Your SQL query to fetch the required data
     $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
-                      MIN(DateOfContribution) AS EarliestDonation
+                      MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
                     FROM dbdonations AS d
                     JOIN dbdonors AS p ON d.Email = p.Email
-                    WHERE d.DateOfContribution IS NULL 
-						  OR d.DateOfContribution > '$thresholdDate'
-                    GROUP BY d.Email";
-    $result = mysqli_query($connection, $query);
+                    WHERE (d.DateOfContribution IS NULL 
+                        OR  d.DateOfContribution > '$thresholdDate')
+                        AND d.email NOT IN (SELECT Email FROM dbdonations WHERE ContributionCategory='Event Sponsorship')						
+                    GROUP BY d.Email ";
+            $result = mysqli_query($connection, $query);
 	
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="donors_Donors_From_Past_Three_Years.csv"');
+    header('Content-Disposition: attachment; filename="donors_Donors_From_Past_Three_Years_No_Events.csv"');
     
     $output = fopen("php://output", "w");
     
     // Write the CSV header
-    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Earliest Donation'));
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Earliest Donation','Type of Donation'));
     
     // Write rows
     while ($row = mysqli_fetch_assoc($result)) {
 		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
-		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $row['EarliestDonation']));
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $row['EarliestDonation'], $row['ContributionCategory']));
 	}
     fclose($output);
-    //exit();
+}
+// Export Function for the Report on Donor's in the Past Three Years who have donated to Events
+function exportDonorsL3YE() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    //Get current date
+	$currentDate = date("Y-m-d");
+	//Define the threshold date (two years ago from current date)
+	$thresholdDate = date('Y-m-d', strtotime('-3 years', strtotime($currentDate)));
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
+                      MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    WHERE (d.DateOfContribution IS NULL
+                          OR d.DateOfContribution > '$thresholdDate')
+                          AND ContributionCategory='Event Sponsorship'
+                    GROUP BY d.Email ";
+            $result = mysqli_query($connection, $query);
+	
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Donors_From_Past_Three_Years_Events.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Earliest Donation','Event Sponsored'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $row['EarliestDonation'], $row['ContributionCategory']));
+	}
+    fclose($output);
 }
 // Export Function for the Report on Top 10 Donors
 function exportDonorsT10() {
@@ -402,7 +442,8 @@ function exportDonorsT10() {
                     FROM dbdonations AS d
                     JOIN dbdonors AS p ON d.Email = p.Email
                     GROUP BY d.Email
-                    ORDER BY Sum_Of_Donations DESC";
+                    ORDER BY Sum_Of_Donations DESC
+					LIMIT 10";
             $result = mysqli_query($connection, $query);
 	
     header('Content-Type: text/csv');
