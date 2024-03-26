@@ -31,24 +31,8 @@
     require_once('domain/Donor.php');
     require_once('domain/Donation.php');
 
-    // Check if the request method is GET
-    /*if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // Check if a parameter named 'donor' is present in the GET request
-        if (isset($_GET['donor'])) {
-            // Retrieve the donor email from the GET request
-            $donorEmail = $_GET['donor'];
-
-            // Get the donor's info and their donation
-            $donor = retrieve_donor($donorEmail);
-            $donations = retrieve_donations_by_email($donorEmail);
-        } else {
-            // If the 'donor' parameter is not provided, respond with an error message
-            echo "Error: 'donor' parameter is missing in the GET request.";
-        }
-    } else {
-        // If the request method is not GET, respond with an error message
-        echo "Error: Only GET requests are allowed.";
-    }**/
+    $donor = null;
+    $donations = null;
 
     // Check if the request method is GET
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -69,10 +53,68 @@
             // If the 'donor' parameter is not provided, redirect to viewAllDonors.php with an error message
             header('Location: viewAllDonors.php?donorNotProvided');
         }
+    } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Check if the 'export' button was clicked
+        if (isset($_POST['Export to CSV'])) {
+            // Retrieve the donor email from the session variable
+            if (isset($_SESSION['donor'])) {
+                $donorEmail = $_POST['donor'];
+                // Get the donor's info and their donation
+                $donor = retrieve_donor($donorEmail);
+                echo $donor->get_first_name();
+                $donations = retrieve_donations_by_email($donorEmail);
+
+                // Export the donor's information to a CSV file
+                exportDonorInfo($donor, $donations);
+            } else {
+                // If donor email is not found in the session, redirect to viewDonor.php with an error message
+                header('Location: viewAllDonors.php?donorNotFound');
+            }
+        }
     } else {
         // If the request method is not GET, redirect to viewAllDonors.php with an error message
         header('Location: viewAllDonors.php?invalidRequest');
     }
+
+function exportDonorInfo($donor, $donations) {
+    require_once('database/dbDonors.php');
+    require_once('database/dbDonations.php');
+    require_once('domain/Donor.php');
+    require_once('domain/Donation.php');
+
+    // Get donor last and first name and make it the file name
+    $donorName = $donor->get_first_name() . '_' . $donor->get_last_name();
+
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $donorName . '.csv"');
+
+    $output = fopen("php://output", "w");
+
+    // Write the CSV header for donor information
+    fputcsv($output, array('First Name', 'Last Name', 'Email', 'Phone Number', 'Address', 'City', 'State', 'Zip'));
+
+    // Write the donor's information to the CSV file
+    fputcsv($output, array($donor->get_first_name(), $donor->get_last_name(), $donor->get_email(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()), $donor->get_address(), $donor->get_city(), $donor->get_state(), $donor->get_zip()));
+
+    // Write 3 blank lines to separate the donor information from the donations
+    $currLine = 0;
+    $blankLines = 3;
+    while ($currLine < $blankLines) {
+        fputcsv($output, array());
+        $currLine++;
+    }
+
+    // Write the CSV header for donations
+    fputcsv($output, array('Date', 'Contribution Type', 'Contribution Category', 'Amount', 'Payment Method'));
+
+    // Write the donor's donations to the CSV file
+    foreach ($donations as $donation) {
+        fputcsv($output, array($donation->get_contribution_date(), $donation->get_contribution_type(), $donation->get_contribution_category(), $donation->get_amount(), $donation->get_payment_method()));
+    }
+
+    fclose($output);
+    exit(); // may need to toggle this later. However, if this is left out, then the html below gets printed to file
+}
 ?>
 
 <!DOCTYPE html>
@@ -145,7 +187,6 @@
                 <th>City</th>
                 <th>State</th>
                 <th>Zip</th>
-                <th>Lifetime Value</th>
             </tr>
             <!-- Display each attribute of the donor -->
             <tr>
@@ -157,7 +198,6 @@
                 <td><?php echo $donor->get_city() ?></td>
                 <td><?php echo $donor->get_state() ?></td>
                 <td><?php echo $donor->get_zip() ?></td>
-                <td>$<?php echo $donor->get_lifetime_donation() ?></td> <!-- Format lifetime donation with $ sign-->
             </tr>
         </table>
 
@@ -194,7 +234,20 @@
             echo "<div style='text-align: center;'>This donor has made no donations.</div>";
         }
         ?>
-        <br><br>
+
+        <!-- Add a line break -->
+        <tr><td colspan="5">&nbsp;</td></tr>
+
+        <!-- Table of additional information (lifetime value, retention rate, donation frequency, etc.) will be located in table below -->
+
+        <!-- Button to export donor information to a CSV file -->
+        <form action="viewDonor.php" method="POST">
+            <!-- Add a hidden input field to hold the donor's email -->
+            <input type="hidden" name="donorEmail" value="<?php echo $donor->get_email() ?>">
+            <!-- Submit button -->
+            <input type="submit" name="donorEmail" value="Export to CSV" style="margin-top: 1rem">
+        </form>
+
 
         <!-- Button to return to the list of donors -->
         <a class="button cancel" href="viewAllDonors.php" style="margin-top: -.5rem">Return to Donors</a>
