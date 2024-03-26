@@ -62,16 +62,16 @@
             $donations = retrieve_donations_by_email($donorEmail);
 
             if (!$donor) {
-                // Donor not found, display an error message
-                echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: Donor not found.</p>";
+                // If a donor with the provided email is not found, redirect to viewAllDonors.php with an error message
+                header('Location: viewAllDonors.php?donorNotFound');
             }
         } else {
-            // If the 'donor' parameter is not provided, display an error message
-            echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: Donor information is missing. Please provide a valid donor email.</p>";
+            // If the 'donor' parameter is not provided, redirect to viewAllDonors.php with an error message
+            header('Location: viewAllDonors.php?donorNotProvided');
         }
     } else {
-        // If the request method is not GET, respond with an error message
-        echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: Only GET requests are allowed.</p>";
+        // If the request method is not GET, redirect to viewAllDonors.php with an error message
+        header('Location: viewAllDonors.php?invalidRequest');
     }
 ?>
 
@@ -105,9 +105,8 @@
 </head>
 <body>
     <?php require_once('header.php') ?>
-    <h1><?php echo isset($donor) ? htmlspecialchars($donor->get_first_name() . ' ' . $donor->get_last_name()) : 'Donors' ?></h1>
+    <h1><?php echo $donor->get_first_name() . ' ' . $donor->get_last_name() ?></h1>
     <main class="date">
-
         <style>
             table {
                 margin-top: 1rem;

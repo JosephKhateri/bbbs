@@ -82,6 +82,14 @@
     <h1>Donors</h1>
     <main class="date">
 
+        <?php if (isset($_GET['donorNotFound'])): ?>
+            <div class="error-toast">The donor selected was not found!</div>
+        <?php elseif (isset($_GET['donorNotProvided'])): ?>
+            <div class="error-toast">Please select a donor!</div>
+        <?php elseif (isset($_GET['invalidRequest'])): ?>
+            <div class="error-toast">Accessed the page incorrectly!</div>
+        <?php endif ?>
+
         <style>
             table {
                 margin-top: 1rem;
