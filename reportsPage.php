@@ -400,7 +400,7 @@
                 echo "<p>Not enough Donors are available to make the report.</p>";
             }
         }
-        // Report:Donors who have donated in the past Three Years
+        // Report:Donors who have donated in the past Three Years who haven't donated to Events
         // Pre-Condition: User is logged in to be able to access report functionality
         // Post-Condition: User will be able to look through the report as a generated table and
         //                 be able to export the data as a CSV file
@@ -412,19 +412,21 @@
 			$thresholdDate = date('Y-m-d', strtotime('-3 years', strtotime($currentDate)));
 
             $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
-                      MIN(DateOfContribution) AS EarliestDonation
+                      MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
                     FROM dbdonations AS d
                     JOIN dbdonors AS p ON d.Email = p.Email
-                    WHERE d.DateOfContribution IS NULL 
-						  OR d.DateOfContribution > '$thresholdDate'
-                    GROUP BY d.Email";
+                    WHERE (d.DateOfContribution IS NULL 
+                        OR  d.DateOfContribution > '$thresholdDate')
+                        AND d.email NOT IN (SELECT Email FROM dbdonations WHERE ContributionCategory='Event Sponsorship')						
+                    GROUP BY d.Email ";
             $result = mysqli_query($connection, $query);
 
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
-                echo "<h2 style='text-align: center;'>List of Donors who have donated in the past three Years</h2>";
+                echo "<h2 style='text-align: center;'>List of Donors who have donated in the past three Years who haven't donated to Events</h2>";
                 echo "<table>";
-                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Earliest Donation</th></tr>";
+                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Earliest Donation</th>
+                      <th>Type of Donation</th></tr>";
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Format the phone number
                     $phone = $row['PhoneNumber'];
@@ -437,7 +439,99 @@
                             <td>" . htmlspecialchars($row['FirstName']) . "</td>
                             <td>" . htmlspecialchars($row['LastName']) . "</td>
                             <td>" . htmlspecialchars($formattedPhone) . "</td>
-                            <td>" . htmlspecialchars($row['EarliestDonation']) . "</td>      
+                            <td>" . htmlspecialchars($row['EarliestDonation']) . "</td> 
+                            <td>" . htmlspecialchars($row['ContributionCategory']) . "</td>      
+                          </tr>";
+                        
+                }
+                
+                echo "</table>";
+            } else {
+                echo "<p>Not enough Donors are available to make the report.</p>";
+            }  
+        }
+        // Report:Donors who have donated in the past Three Years into events
+        // Pre-Condition: User is logged in to be able to access report functionality
+        // Post-Condition: User will be able to look through the report as a generated table and
+        //                 be able to export the data as a CSV file
+        if (isset($_GET['report']) && $_GET['report'] == 'report7') {
+            // Modified SQL query to join Donations with Donors table and fetch required details
+            //Get current date
+            $currentDate = date("Y-m-d");
+            //Define the threshold date (two years ago from current date)
+			$thresholdDate = date('Y-m-d', strtotime('-3 years', strtotime($currentDate)));
+
+            $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
+                      MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    WHERE (d.DateOfContribution IS NULL
+                          OR d.DateOfContribution > '$thresholdDate')
+                          AND ContributionCategory='Event Sponsorship'
+                    GROUP BY d.Email ";
+            $result = mysqli_query($connection, $query);
+
+            // Check if we have results
+            if (mysqli_num_rows($result) > 0) {
+                echo "<h2 style='text-align: center;'>List of Donors who have donated in the past three Years and have donated to an Event</h2>";
+                echo "<table>";
+                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Earliest Donation</th>
+                      <th>Event Sponsored</th></tr>";
+                while ($row = mysqli_fetch_assoc($result)) {
+                    // Format the phone number
+                    $phone = $row['PhoneNumber'];
+                    $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+                    
+                    //Checks if the current donor has donated in the past three years if they have then
+                    //print. If not then print nothing.
+                    echo "<tr>
+                            <td>" . htmlspecialchars($row['Email']) . "</td>
+                            <td>" . htmlspecialchars($row['FirstName']) . "</td>
+                            <td>" . htmlspecialchars($row['LastName']) . "</td>
+                            <td>" . htmlspecialchars($formattedPhone) . "</td>
+                            <td>" . htmlspecialchars($row['EarliestDonation']) . "</td>
+                            <td>" . htmlspecialchars($row['ContributionCategory']) . "</td>      
+                          </tr>";
+                        
+                }
+                
+                echo "</table>";
+            } else {
+                echo "<p>Not enough Donors are available to make the report.</p>";
+            }  
+        }
+         // Report:Top 10 Donors
+        // Pre-Condition: User is logged in to be able to access report functionality
+        // Post-Condition: User will be able to look through the report as a generated table and
+        //                 be able to export the data as a CSV file
+        if (isset($_GET['report']) && $_GET['report'] == 'report8') {
+            // Modified SQL query to join Donations with Donors table and fetch required details
+            $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, SUM(d.AmountGiven) AS Sum_Of_Donations
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    GROUP BY d.Email
+                    ORDER BY Sum_Of_Donations DESC
+                    LIMIT 10";
+            $result = mysqli_query($connection, $query);
+
+            // Check if we have results
+            if (mysqli_num_rows($result) > 0) {
+                echo "<h2 style='text-align: center;'>List of Top 10 Donors</h2>";
+                echo "<table>";
+                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Sum of Donations</th></tr>";
+                while ($row = mysqli_fetch_assoc($result)) {
+                    // Format the phone number
+                    $phone = $row['PhoneNumber'];
+                    $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+                    
+                    //Checks if the current donor has donated in the past three years if they have then
+                    //print. If not then print nothing.
+                    echo "<tr>
+                            <td>" . htmlspecialchars($row['Email']) . "</td>
+                            <td>" . htmlspecialchars($row['FirstName']) . "</td>
+                            <td>" . htmlspecialchars($row['LastName']) . "</td>
+                            <td>" . htmlspecialchars($formattedPhone) . "</td>
+                            <td>$" . htmlspecialchars($row['Sum_Of_Donations']) . "</td>      
                           </tr>";
                         
                 }
@@ -474,7 +568,19 @@
         }
         if (isset($_GET['report']) && $_GET['report'] == 'report6'){
             echo "<form action='reportsExport.php' method='post' class='export-form'>
-            <input type='hidden' name='action' value='export_donors_L3Y'>
+            <input type='hidden' name='action' value='export_donors_L3YNE'>
+            <input type='submit' value='Export Donors' class='export-btn'>
+            </form>";
+        }
+        if (isset($_GET['report']) && $_GET['report'] == 'report7'){
+            echo "<form action='reportsExport.php' method='post' class='export-form'>
+            <input type='hidden' name='action' value='export_donors_L3YE'>
+            <input type='submit' value='Export Donors' class='export-btn'>
+            </form>";
+        }
+        if (isset($_GET['report']) && $_GET['report'] == 'report8'){
+            echo "<form action='reportsExport.php' method='post' class='export-form'>
+            <input type='hidden' name='action' value='export_donors_T10'>
             <input type='submit' value='Export Donors' class='export-btn'>
             </form>";
         }

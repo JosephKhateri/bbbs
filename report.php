@@ -96,7 +96,9 @@
                         <option value="report3">Donors who have not contributed for the last 2 years</option>
                         <option value="report4">Events Contributed</option>
                         <option value="report5">Donors whose Frequency of Giving is bigger than yearly</option>
-                        <option value="report6">Donors who have donated in the past three Years</option>
+                        <option value="report6">Donors who have donated in the past three Years and haven't donated to an Event</option>
+                        <option value="report7">Donors who have donated in the past three Years and have Donated to an Event</option>
+                        <option value="report8">Top 10 Donors</option>
                     </select><br/>
                 </div>
                 <input type="submit" name="submit_click" value="Submit">
