@@ -28,11 +28,13 @@
         $fileType = mime_content_type($tmpFilePath);
         //Filepath printing for debugging
         //echo $tmpFilePath;
-        if ($fileType !== 'text/csv') {
-            echo 'Only CSV files are allowed.';
-        } else {
+        //echo $fileType;
+        if (($fileType == 'text/csv') || ($fileType == 'text/plain')) {
             require 'upload.php';
             parseCSV($tmpFilePath);
+        } else {
+            echo $fileType;
+            //header('Location: index.php?fileTypeFail');
         }
     }
 ?>

@@ -24,8 +24,10 @@ function processDonorData($donorData, $con) {
 
     if (!$donorExists) {
         // Add new donor
+ 
         addDonor($donorData, $con);
     } else {
+
         // Combine donor data
         combineDonor($donorData, $con);
     }

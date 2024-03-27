@@ -42,6 +42,7 @@ function parseCSV($csvFilePath){
 
     fgetcsv($file); // Skip header row
 
+    echo ($line = fgetcsv($file));
     while (($line = fgetcsv($file)) !== false) {
         // Check for a valid email in the expected column (index 7 based on your CSV structure)
         if (!filter_var(trim($line[7]), FILTER_VALIDATE_EMAIL)) {
@@ -60,7 +61,7 @@ function parseCSV($csvFilePath){
     fclose($file);
     
     // Redirect with success message
-    header('Location: index.php?fileSuccess');
-    exit;
+    //header('Location: index.php?fileSuccess');
+    //exit;
 }
 ?>
