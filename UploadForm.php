@@ -8,14 +8,6 @@
     // 4. Documentation: Adequate - Add some documentation about what each section of code does
     // 5. Assigned Task: Excellent - Only accepts csv files and does so without any errors
 
-//code review - Joel
-//The upload form UI could use more styling. 
-//The code is well organised and easy to follow
-//Functionality - the code performs as expected. Uploads only csv files
-//Names - clear and meaningful variable names are used
-//Comments - the code could benefit from more comments
-//The code conforms to the given style.
-
     session_cache_expire(30);
     session_start();
 

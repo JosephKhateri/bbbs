@@ -1,4 +1,12 @@
 <?php
+/* Code Review by Joseph
+Program Specifications/Correctness - Excellent
+Readability - Good - Commented out code makes things a bit messy
+Code Efficiency - Excellent
+Documentation - Excellent
+Assigned Task - Excellent
+*/
+
     // Template for new VMS pages. Base your new page on this one
 
     // Edited by Megan and Noor for BBBS in Spring 2024
@@ -16,6 +24,12 @@
         // 0 = not logged in, 1 = standard user, 2 = manager (Admin), 3 super admin (TBI)
         $accessLevel = $_SESSION['access_level']; // need to test this out to see if it returns string (user, admin) or int (1, 2_
         $userID = $_SESSION['_id'];
+    }
+
+    // Prohibit vmsroot from accessing this page
+    if ($accessLevel > 2) {
+        header('Location: login.php');
+        die();
     }
 
     $forced = false;

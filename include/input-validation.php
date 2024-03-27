@@ -1,4 +1,14 @@
 <?php
+/* Code Review by Joseph
+Program Specifications/Correctness - Excellent
+Readability - Excellent
+Code Efficiency - Excellent
+Documentation - Excellent
+Assigned Task - Excellent
+
+There was not a lot in this one since only the bottom function was added for this file
+*/
+
 
     require_once(dirname(__FILE__) . '/../database/dbinfo.php');
 
@@ -214,6 +224,9 @@
 * Pre-condition: $password is a string
 * Post-condition: The password is validated against the requirements
 */
+//Note From Conor: Besides validatePassword there isn't much documentation for other methods.
+//I assume that's because it's from the original code and I didn't see it used anywhere else in
+//the code.
     function validatePassword($password) {
         // Check that the password meets the following requirements:
         $uppercase = preg_match('@[A-Z]@', $password);

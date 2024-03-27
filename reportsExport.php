@@ -15,6 +15,19 @@
  * @author Johnny Coster
  * @version April 2, 2012
  */
+
+
+/**
+     * Reviewed by Zack 
+     * Program Specifications/Correctness - Excellent
+     * Readability - Good
+     * Code Efficiency - Excellent
+     * Documentation - Adequate
+     * Assigned Task - Excellent
+     */
+
+
+
 // Disable error display, log errors instead
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
@@ -70,10 +83,22 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG_GTY') {
     exportDonorsFOGGTY();
 	exit();
 }
-//L3Y=Less Than 3 Years
-if (isset($_POST['action']) && $_POST['action'] == 'export_donors_L3Y') {
+//L3Y=Less Than 3 Years No Events
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_L3YNE') {
 	ob_end_clean();
-    exportDonorsL3Y();
+    exportDonorsL3YNE();
+	exit();
+}
+//L3Y=Less Than 3 Years Events
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_L3YE') {
+	ob_end_clean();
+    exportDonorsL3YE();
+	exit();
+}
+//T10=Top 10 Donors
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_T10') {
+	ob_end_clean();
+    exportDonorsT10();
 	exit();
 }
 process_form();
@@ -321,7 +346,7 @@ function exportDonorsFOGGTY() {
     $result = mysqli_query($connection, $query);
 	
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving.csv"');
+    header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving_GTY.csv"');
     
     $output = fopen("php://output", "w");
     
@@ -353,8 +378,8 @@ function exportDonorsFOGGTY() {
 	}
     fclose($output);
 }
-// Export Function for the Report on Donor's in the Past Three Years
-function exportDonorsL3Y() {
+// Export Function for the Report on Donor's in the Past Three Years who haven't donated to an Event
+function exportDonorsL3YNE() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
     $connection = connect();  // This should be your function to establish a database connection
     //Get current date
@@ -363,30 +388,107 @@ function exportDonorsL3Y() {
 	$thresholdDate = date('Y-m-d', strtotime('-3 years', strtotime($currentDate)));
     // Your SQL query to fetch the required data
     $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
-                      MIN(DateOfContribution) AS EarliestDonation
+                      MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
                     FROM dbdonations AS d
                     JOIN dbdonors AS p ON d.Email = p.Email
-                    WHERE d.DateOfContribution IS NULL 
-						  OR d.DateOfContribution > '$thresholdDate'
-                    GROUP BY d.Email";
-    $result = mysqli_query($connection, $query);
+                    WHERE (d.DateOfContribution IS NULL 
+                        OR  d.DateOfContribution > '$thresholdDate')
+                        AND d.email NOT IN (SELECT Email FROM dbdonations WHERE ContributionCategory='Event Sponsorship')						
+                    GROUP BY d.Email ";
+            $result = mysqli_query($connection, $query);
 	
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving.csv"');
+    header('Content-Disposition: attachment; filename="donors_Donors_From_Past_Three_Years_No_Events.csv"');
     
     $output = fopen("php://output", "w");
     
     // Write the CSV header
-    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Earliest Donation'));
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Earliest Donation','Type of Donation'));
     
     // Write rows
     while ($row = mysqli_fetch_assoc($result)) {
 		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
-		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $row['EarliestDonation']));
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $row['EarliestDonation'], $row['ContributionCategory']));
 	}
     fclose($output);
-    //exit();
 }
+// Export Function for the Report on Donor's in the Past Three Years who have donated to Events
+function exportDonorsL3YE() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    //Get current date
+	$currentDate = date("Y-m-d");
+	//Define the threshold date (two years ago from current date)
+	$thresholdDate = date('Y-m-d', strtotime('-3 years', strtotime($currentDate)));
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
+                      MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    WHERE (d.DateOfContribution IS NULL
+                          OR d.DateOfContribution > '$thresholdDate')
+                          AND ContributionCategory='Event Sponsorship'
+                    GROUP BY d.Email ";
+            $result = mysqli_query($connection, $query);
+	
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Donors_From_Past_Three_Years_Events.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Earliest Donation','Event Sponsored'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $row['EarliestDonation'], $row['ContributionCategory']));
+	}
+    fclose($output);
+}
+// Export Function for the Report on Top 10 Donors
+function exportDonorsT10() {
+    include_once('database/dbinfo.php'); // Your database connection setup
+    $connection = connect();  // Establishing a database connection
+
+    // Retrieve the number of top donors from the form submission
+    $topXDonors = isset($_POST['topXDonors']) ? (int)$_POST['topXDonors'] : 10; // Default to 10 if not specified
+
+    // Adjust your SQL query to use the $topXDonors variable
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, SUM(d.AmountGiven) AS Sum_Of_Donations
+              FROM dbdonations AS d
+              JOIN dbdonors AS p ON d.Email = p.Email
+              GROUP BY d.Email
+              ORDER BY Sum_Of_Donations DESC
+              LIMIT ?";
+    
+    // Prepare, bind and execute the query with the dynamic limit
+    if ($stmt = mysqli_prepare($connection, $query)) {
+        mysqli_stmt_bind_param($stmt, "i", $topXDonors);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="donors_Top_'.$topXDonors.'_Donors.csv"');
+        
+        $output = fopen("php://output", "w");
+        
+        // CSV header
+        fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Sum of Donation'));
+        
+        // Fetch and write each row
+        while ($row = mysqli_fetch_assoc($result)) {
+            $formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+            $formattedSum = '$' . number_format($row['Sum_Of_Donations'], 2);
+            fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $formattedSum));
+        }
+        
+        fclose($output);
+    } else {
+        echo "Error preparing the query.";
+    }
+}
+
 //End of export
 function export_data($current_time, $search_attr, $export_data) {
 	$filename = "dataexport.csv";
