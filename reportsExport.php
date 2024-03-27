@@ -15,6 +15,19 @@
  * @author Johnny Coster
  * @version April 2, 2012
  */
+
+
+/**
+     * Reviewed by Zack 
+     * Program Specifications/Correctness - Excellent
+     * Readability - Good
+     * Code Efficiency - Excellent
+     * Documentation - Adequate
+     * Assigned Task - Excellent
+     */
+
+
+
 // Disable error display, log errors instead
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
@@ -435,33 +448,47 @@ function exportDonorsL3YE() {
 }
 // Export Function for the Report on Top 10 Donors
 function exportDonorsT10() {
-    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
-    $connection = connect();  // This should be your function to establish a database connection
-    // Your SQL query to fetch the required data
+    include_once('database/dbinfo.php'); // Your database connection setup
+    $connection = connect();  // Establishing a database connection
+
+    // Retrieve the number of top donors from the form submission
+    $topXDonors = isset($_POST['topXDonors']) ? (int)$_POST['topXDonors'] : 10; // Default to 10 if not specified
+
+    // Adjust your SQL query to use the $topXDonors variable
     $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, SUM(d.AmountGiven) AS Sum_Of_Donations
-                    FROM dbdonations AS d
-                    JOIN dbdonors AS p ON d.Email = p.Email
-                    GROUP BY d.Email
-                    ORDER BY Sum_Of_Donations DESC
-					LIMIT 10";
-            $result = mysqli_query($connection, $query);
-	
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="donors_Top_10_Donors.csv"');
+              FROM dbdonations AS d
+              JOIN dbdonors AS p ON d.Email = p.Email
+              GROUP BY d.Email
+              ORDER BY Sum_Of_Donations DESC
+              LIMIT ?";
     
-    $output = fopen("php://output", "w");
-    
-    // Write the CSV header
-    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Sum of Donation'));
-    
-    // Write rows
-    while ($row = mysqli_fetch_assoc($result)) {
-		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
-		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $row['Sum_Of_Donations']));
-	}
-    fclose($output);
-    //exit();
+    // Prepare, bind and execute the query with the dynamic limit
+    if ($stmt = mysqli_prepare($connection, $query)) {
+        mysqli_stmt_bind_param($stmt, "i", $topXDonors);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="donors_Top_'.$topXDonors.'_Donors.csv"');
+        
+        $output = fopen("php://output", "w");
+        
+        // CSV header
+        fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Sum of Donation'));
+        
+        // Fetch and write each row
+        while ($row = mysqli_fetch_assoc($result)) {
+            $formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+            $formattedSum = '$' . number_format($row['Sum_Of_Donations'], 2);
+            fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $formattedSum));
+        }
+        
+        fclose($output);
+    } else {
+        echo "Error preparing the query.";
+    }
 }
+
 //End of export
 function export_data($current_time, $search_attr, $export_data) {
 	$filename = "dataexport.csv";

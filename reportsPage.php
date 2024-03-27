@@ -5,6 +5,16 @@
  */
 
 
+/**
+     * Reviewed by Zack 
+     * Program Specifications/Correctness - Excellent
+     * Readability - Good
+     * Code Efficiency - Excellent
+     * Documentation - Developing
+     * Assigned Task - Excellent
+     */
+
+
   session_cache_expire(30);
   session_start();
   ini_set("display_errors",1);
@@ -150,7 +160,12 @@
                 text-align: center;
                 margin-top: 20px; /* Add top margin to increase space between the table and the form */
             }
-
+            
+            /* Targeting the select element and option elements */
+            select, option, input {
+                color: white; /* Setting the font color to white */
+                background-color: #333; /* A darker background for contrast */
+            }
 	    @media only screen and (min-width: 1024px) {
                 .intro{
                     width: 80%;
@@ -170,10 +185,17 @@
     </head>
     <body>
   	<?php require_once('header.php') ?>
-    
+    <form action="" method="get">
+        <input type="hidden" name="report" value="report8">
+        <label for="topXDonors">Enter number of top donors to display:</label>
+        <input type="number" id="topXDonors" name="topXDonors" value="10" min="1">
+        <input type="submit" value="Update Report">
+    </form>
+
+
         
     <section>
-            <?php
+        <?php    
         // Check if the 'report' GET parameter is set to 'report1'
         if (isset($_GET['report']) && $_GET['report'] == 'report1') {
             // Modified SQL query to join Donations with Donors table and fetch required details
@@ -500,45 +522,50 @@
                 echo "<p>Not enough Donors are available to make the report.</p>";
             }  
         }
-         // Report:Top 10 Donors
+        // Report:Top 10 Donors
         // Pre-Condition: User is logged in to be able to access report functionality
         // Post-Condition: User will be able to look through the report as a generated table and
         //                 be able to export the data as a CSV file
+        // Get the number of top donors from user input, default to 10
+        
+        
+
+        // Modify your query to use the $topXDonors variable
         if (isset($_GET['report']) && $_GET['report'] == 'report8') {
-            // Modified SQL query to join Donations with Donors table and fetch required details
+            $topXDonors = isset($_GET['topXDonors']) ? (int)$_GET['topXDonors'] : 10;
             $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, SUM(d.AmountGiven) AS Sum_Of_Donations
                     FROM dbdonations AS d
                     JOIN dbdonors AS p ON d.Email = p.Email
                     GROUP BY d.Email
                     ORDER BY Sum_Of_Donations DESC
-                    LIMIT 10";
-            $result = mysqli_query($connection, $query);
+                    LIMIT ?";
+            if ($stmt = mysqli_prepare($connection, $query)) {
+                mysqli_stmt_bind_param($stmt, "i", $topXDonors);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
 
-            // Check if we have results
-            if (mysqli_num_rows($result) > 0) {
-                echo "<h2 style='text-align: center;'>List of Top 10 Donors</h2>";
-                echo "<table>";
-                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Sum of Donations</th></tr>";
-                while ($row = mysqli_fetch_assoc($result)) {
-                    // Format the phone number
-                    $phone = $row['PhoneNumber'];
-                    $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
-                    
-                    //Checks if the current donor has donated in the past three years if they have then
-                    //print. If not then print nothing.
-                    echo "<tr>
-                            <td>" . htmlspecialchars($row['Email']) . "</td>
-                            <td>" . htmlspecialchars($row['FirstName']) . "</td>
-                            <td>" . htmlspecialchars($row['LastName']) . "</td>
-                            <td>" . htmlspecialchars($formattedPhone) . "</td>
-                            <td>$" . htmlspecialchars($row['Sum_Of_Donations']) . "</td>      
-                          </tr>";
-                        
+                if (mysqli_num_rows($result) > 0) {
+                    echo "<h2 style='text-align: center;'>List of Top " . htmlspecialchars($topXDonors) . " Donors</h2>";
+                    echo "<table>";
+                    echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Sum of Donations</th></tr>";
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        $phone = $row['PhoneNumber'];
+                        $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+
+                        echo "<tr>
+                                <td>" . htmlspecialchars($row['Email']) . "</td>
+                                <td>" . htmlspecialchars($row['FirstName']) . "</td>
+                                <td>" . htmlspecialchars($row['LastName']) . "</td>
+                                <td>" . htmlspecialchars($formattedPhone) . "</td>
+                                <td>$" . htmlspecialchars(number_format($row['Sum_Of_Donations'], 2)) . "</td>
+                            </tr>";
+                    }
+                    echo "</table>";
+                } else {
+                    echo "<p>Not enough Donors are available to make the report.</p>";
                 }
-                
-                echo "</table>";
             } else {
-                echo "<p>Not enough Donors are available to make the report.</p>";
+                echo "<p>Error preparing the query.</p>";
             }
         }
 		//End of report 
@@ -579,11 +606,17 @@
             </form>";
         }
         if (isset($_GET['report']) && $_GET['report'] == 'report8'){
+            // Assuming you want to dynamically set the value of topXDonors based on user input
+            // For example, if you previously captured this value and stored it in a session or in a variable
+            // Ensure to validate and sanitize this value properly to avoid injection attacks or logical errors
+            $topXDonorsValue = isset($_GET['topXDonors']) ? (int)$_GET['topXDonors'] : 10; // Default to 10 if not set
             echo "<form action='reportsExport.php' method='post' class='export-form'>
-            <input type='hidden' name='action' value='export_donors_T10'>
-            <input type='submit' value='Export Donors' class='export-btn'>
+                <input type='hidden' name='action' value='export_donors_T10'>
+                <input type='hidden' name='topXDonors' value='" . htmlspecialchars($topXDonorsValue) . "'>
+                <input type='submit' value='Export Donors' class='export-btn'>
             </form>";
         }
+        
         ?>
 
     </section>
