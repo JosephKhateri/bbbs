@@ -100,7 +100,28 @@ Assigned Task - Excellent
 <html>
     <head>
         <?php require_once('universal.inc') ?>
-        <title>BBBS Donor Information System | Change Password</title>
+        <title>BBBS | Change Password</title>
+        <style>
+            /* Targeting the select element and option elements */
+            select, option, input {
+                color: white; /* Setting the font color to white */
+                background-color: #333; /* A darker background for contrast */
+            }
+
+            select {
+                -webkit-appearance: none; /* For some WebKit browsers */
+                -moz-appearance: none;    /* For Firefox */
+                appearance: none;         /* Standard syntax */
+            }
+
+            /* Optionally, style the select box to include a custom arrow icon */
+            /*select {
+                background-image: url('path-to-your-custom-arrow-icon');
+                background-repeat: no-repeat;
+                background-position: right .7em top 50%;
+                background-size: .65em auto;
+            }*/
+        </style>
     </head>
     <body>
         <?php require_once('header.php') ?>
