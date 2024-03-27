@@ -83,7 +83,7 @@
     <main class="date">
 
         <?php if (isset($_GET['donorNotFound'])): ?>
-            <div class="error-toast">The donor selected was not found! If this message appears after trying to export the donor info file, then the "donor" parameter wasn't passed correctly</div>
+            <div class="error-toast">The donor selected was not found!</div>
         <?php elseif (isset($_GET['donorNotProvided'])): ?>
             <div class="error-toast">Please select a donor!</div>
         <?php elseif (isset($_GET['invalidRequest'])): ?>

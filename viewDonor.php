@@ -45,31 +45,19 @@
             $donor = retrieve_donor($donorEmail);
             $donations = retrieve_donations_by_email($donorEmail);
 
+            // Check if the export button was clicked
+            if (isset($_GET['export']) && $_GET['export'] === 'true') {
+                // Export the donor's information to a CSV file
+                exportDonorInfo($donor, $donations);
+            }
+
+            // If a donor with the provided email is not found, redirect to viewAllDonors.php with an error message
             if (!$donor) {
-                // If a donor with the provided email is not found, redirect to viewAllDonors.php with an error message
                 header('Location: viewAllDonors.php?donorNotFound');
             }
         } else {
             // If the 'donor' parameter is not provided, redirect to viewAllDonors.php with an error message
             header('Location: viewAllDonors.php?donorNotProvided');
-        }
-    } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Check if the 'export' button was clicked
-        if (isset($_POST['Export to CSV'])) {
-            // Retrieve the donor email from the session variable
-            if (isset($_SESSION['donor'])) {
-                $donorEmail = $_POST['donor'];
-                // Get the donor's info and their donation
-                $donor = retrieve_donor($donorEmail);
-                echo $donor->get_first_name();
-                $donations = retrieve_donations_by_email($donorEmail);
-
-                // Export the donor's information to a CSV file
-                exportDonorInfo($donor, $donations);
-            } else {
-                // If donor email is not found in the session, redirect to viewDonor.php with an error message
-                header('Location: viewAllDonors.php?donorNotFound');
-            }
         }
     } else {
         // If the request method is not GET, redirect to viewAllDonors.php with an error message
@@ -98,7 +86,7 @@ function exportDonorInfo($donor, $donations) {
 
     // Write 3 blank lines to separate the donor information from the donations
     $currLine = 0;
-    $blankLines = 3;
+    $blankLines = 3; // Number of blank lines to write
     while ($currLine < $blankLines) {
         fputcsv($output, array());
         $currLine++;
@@ -240,12 +228,19 @@ function exportDonorInfo($donor, $donations) {
 
         <!-- Table of additional information (lifetime value, retention rate, donation frequency, etc.) will be located in table below -->
 
+
+
         <!-- Button to export donor information to a CSV file -->
-        <form action="viewDonor.php" method="POST">
+        <form action="viewDonor.php" method="GET">
+            <!-- For some reason both hidden fields are needed. Not sure why but this is what got the export function to actually work -->
+
             <!-- Add a hidden input field to hold the donor's email -->
-            <input type="hidden" name="donorEmail" value="<?php echo $donor->get_email() ?>">
+            <input type="hidden" name="donor" value="<?php echo $donor->get_email(); ?>">
+            <!-- Add a hidden input field to indicate the export action -->
+            <input type="hidden" name="export" value="true">
+
             <!-- Submit button -->
-            <input type="submit" name="donorEmail" value="Export to CSV" style="margin-top: 1rem">
+            <input type="submit" value="Export to CSV" style="margin-top: 1rem">
         </form>
 
 
