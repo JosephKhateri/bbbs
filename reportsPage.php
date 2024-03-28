@@ -253,8 +253,17 @@
                     
                     //Frequency of Giving
                     $FOG="";
-                    $ratio=$row['Number_Of_Donations']/($row['DateDiff']/365);
-                    if($ratio<1){
+                    //echo $row['DateDiff']. "d<br>";
+                    if($row['DateDiff']==NULL){
+                        $row['DateDiff']=0;
+                        $ratio=0;
+                    }else{
+                    $ratio = $row['Number_Of_Donations'] / ($row['DateDiff'] / 365);
+                    }
+                    
+                    if($ratio==0){
+                        $FOG="Not Enough Data";
+                    }elseif($ratio<1 && $ratio>0){
                         $FOG="Less Than Yearly";
                     }elseif($ratio<6 && $ratio>=1){
                         $FOG="Yearly";
@@ -389,18 +398,25 @@
                     
                     //Frequency of Giving
                     $FOG = "";
-                    $Rate = 0;
+                    $Rate=0;
+                    if($row['DateDiff']==NULL){
+                        $row['DateDiff']=0;
+                        $ratio=0;
+                    }else{
                     $ratio = $row['Number_Of_Donations'] / ($row['DateDiff'] / 365);
-                    if ($ratio<1){
+                    }
+                    if($ratio==0){
+                        $FOG="Not Enough Data";
+                    }elseif ($ratio<1 && $ratio>0){
                         $FOG="Less Than Yearly";
                     } elseif($ratio < 6 && $ratio >= 1){
                         $FOG = "Yearly";
                     } elseif($ratio >= 6 && $ratio < 12){ // Either comment this out for now or remove it since bi-monthly isn't needed
                         $FOG = "Bi-Monthly";
-                        $Rate = 1;
+                        $Rate=1;
                     } elseif($ratio >= 12){
                         $FOG = "Monthly";
-                        $Rate = 1;
+                        $Rate=1;
                     }
                     //Checks if the current ratio of the Donor is more than yearly if it isn't then their row
                     //won't appear in the generated table
@@ -527,9 +543,6 @@
         // Post-Condition: User will be able to look through the report as a generated table and
         //                 be able to export the data as a CSV file
         // Get the number of top donors from user input, default to 10
-        
-        
-
         // Modify your query to use the $topXDonors variable
         if (isset($_GET['report']) && $_GET['report'] == 'report8') {
             $topXDonors = isset($_GET['topXDonors']) ? (int)$_GET['topXDonors'] : 10;
@@ -600,6 +613,7 @@
             </form>";
         }
         if (isset($_GET['report']) && $_GET['report'] == 'report7'){
+            echo "GourLAMI<br>";
             echo "<form action='reportsExport.php' method='post' class='export-form'>
             <input type='hidden' name='action' value='export_donors_L3YE'>
             <input type='submit' value='Export Donors' class='export-btn'>

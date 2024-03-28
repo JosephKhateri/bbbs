@@ -278,16 +278,26 @@ function exportDonorsFOG() {
 		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
 		
 		//Calculate the FOG by taking the days and determing the ratio 
-		$FOG="";
-        $ratio=$row['Number_Of_Donations']/($row['DateDiff']/365);
-        if($ratio<1){
-            $FOG="Less Than Yearly";
-        }elseif($ratio<6 && $ratio>=1){
-            $FOG="Yearly";
-        }elseif($ratio>=6 && $ratio<12){
-            $FOG="Bi-Monthly";
-        }elseif($ratio>=12){
-           $FOG="Monthly";
+		$FOG = "";
+        $Rate=0;
+        if($row['DateDiff']==NULL){
+        $row['DateDiff']=0;
+        $ratio=0;
+        }else{
+            $ratio = $row['Number_Of_Donations'] / ($row['DateDiff'] / 365);
+        }
+        if($ratio==0){
+            $FOG="Not Enough Data";
+        }elseif ($ratio<1 && $ratio>0){
+        	$FOG="Less Than Yearly";
+        } elseif($ratio < 6 && $ratio >= 1){
+      	    $FOG = "Yearly";
+        } elseif($ratio >= 6 && $ratio < 12){ // Either comment this out for now or remove it since bi-monthly isn't needed
+        	$FOG = "Bi-Monthly";
+            $Rate=1;
+        } elseif($ratio >= 12){
+            $FOG = "Monthly";
+            $Rate=1;
         }
 		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone,$FOG,$row['DateDiff']));
 	}
@@ -359,19 +369,26 @@ function exportDonorsFOGGTY() {
 		
 		// Frequency of Giving
 		$FOG = "";
-		$Rate = 0;
-		$ratio = $row['Number_Of_Donations'] / ($row['DateDiff'] / 365);
-		if ($ratio < 1){
-			$FOG="Less Than Yearly";
-		} elseif ($ratio <6 && $ratio >= 1){
-			$FOG = "Yearly";
-		} elseif ($ratio >= 6 && $ratio < 12){ // Either comment this out for now or remove it since bimonthly isn't needed
-			$FOG = "Bi-Monthly";
-			$Rate = 1;
-		} elseif ($ratio >= 12){
-			$FOG = "Monthly";
-			$Rate = 1;
-		}
+        $Rate=0;
+        if($row['DateDiff']==NULL){
+            $row['DateDiff']=0;
+            $ratio=0;
+        }else{
+            $ratio = $row['Number_Of_Donations'] / ($row['DateDiff'] / 365);
+        }
+        if($ratio==0){
+        $FOG="Not Enough Data";
+        }elseif ($ratio<1 && $ratio>0){
+        $FOG="Less Than Yearly";
+        } elseif($ratio < 6 && $ratio >= 1){
+            $FOG = "Yearly";
+        } elseif($ratio >= 6 && $ratio < 12){ // Either comment this out for now or remove it since bi-monthly isn't needed
+            $FOG = "Bi-Monthly";
+            $Rate=1;
+        } elseif($ratio >= 12){
+                $FOG = "Monthly";
+                $Rate=1;
+        }
 		if ($Rate == 1){
 		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $FOG, $row['DateDiff']));
 		}
