@@ -10,16 +10,24 @@
 // 4. Documentation: Adequate - Add some documentation about what each section of code does
 // 5. Assigned Task: Good - Mostly performs the task correctly, but still has some errors with doing so
 
+//code review - Joel
+//Readability - 
+//the code is well organised and structured making it easy to understand.
+//uses proper variable naming, proper identation
+//Documentation 
+//The code could benefit from more comments 
+//the code doesnt have the header comment
+//code efficiency
+//the code is not bulky 
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 function parseCSV($csvFilePath){
+    require_once("database/dbinfo.php");
     require_once('database/dbDonors.php');
     require_once('database/dbDonations.php');
-    require_once('domain/Donor.php');
-    require_once('domain/Donation.php');
-
     $con = connect(); 
 
     // Open the CSV file
@@ -32,13 +40,18 @@ function parseCSV($csvFilePath){
 
     fgetcsv($file); // Skip header row
 
+    //$line = fgetcsv($file);
+    //$x = implode(" ", $line);
+    //echo $x;
+    
+
     while (($line = fgetcsv($file)) !== false) {
         // Check for a valid email in the expected column (index 7 based on your CSV structure)
         if (!filter_var(trim($line[7]), FILTER_VALIDATE_EMAIL)) {
             error_log("Invalid or missing email for row: " . implode(",", $line));
             continue; // Skip rows with invalid or missing emails
         }
-
+   
         // Process donor data
         processDonorData($line, $con);
 
