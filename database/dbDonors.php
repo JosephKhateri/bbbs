@@ -185,7 +185,6 @@
     }
 
     function addDonor($donorData, $con) {
-        echo "ADDING";
         // Ensure email validation has already been done
         $email = trim($donorData[7]); // Already validated in upload.php
 
