@@ -25,11 +25,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 function parseCSV($csvFilePath){
+    require_once("database/dbinfo.php");
     require_once('database/dbDonors.php');
     require_once('database/dbDonations.php');
     require_once('domain/Donor.php');
     require_once('domain/Donation.php');
-
     $con = connect(); 
 
     // Open the CSV file
@@ -42,19 +42,23 @@ function parseCSV($csvFilePath){
 
     fgetcsv($file); // Skip header row
 
-    echo ($line = fgetcsv($file));
+    //$line = fgetcsv($file);
+    //$x = implode(" ", $line);
+    //echo $x;
+    
+
     while (($line = fgetcsv($file)) !== false) {
         // Check for a valid email in the expected column (index 7 based on your CSV structure)
         if (!filter_var(trim($line[7]), FILTER_VALIDATE_EMAIL)) {
             error_log("Invalid or missing email for row: " . implode(",", $line));
             continue; // Skip rows with invalid or missing emails
         }
-
+   
         // Process donor data
         processDonorData($line, $con);
 
         // Process donation data
-        processDonationData($line, $con);
+        //processDonationData($line, $con);
     }
 
     // Close the CSV file

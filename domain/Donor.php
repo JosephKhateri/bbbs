@@ -98,8 +98,7 @@ class Donor {
     // 5. Assigned Task: Good - Program mostly inserts data into dbDonors properly but with 1 small error
     // 6. Additional comments: Move this file into "domain" folder
 
-    function processDonorData($donorData, $con)
-    {
+    function processDonorData($donorData, $con){
         // Assuming donorData has the email as the unique identifier in the first position -- KEY WORD IS ASSUMING!!!
         $donorEmail = $donorData[7];
         if (empty($donorEmail)) {
@@ -120,3 +119,4 @@ class Donor {
         }
     }
 }
+?>
