@@ -200,9 +200,9 @@
 // 3. Code efficiency: Good - Code is very efficient, but there are some issues with the code actually working properly
 // 4. Documentation: Adequate - Need further documentation for the functions
 // 5. Assigned Task: Adequate - Program doesn't insert data into dbDonations properly
-    function checkDonationExists($email, $con){
-        $query = $con->prepare("SELECT Email FROM dbdonations WHERE Email = ?");
-        $query->bind_param("s", $email);
+    function checkDonationExists($email, $date,$amount,$con){
+        $query = $con->prepare("SELECT Email, DateOfContribution, AmountGiven from dbdonations WHERE Email = ? AND DateOfContribution = ? AND AmountGiven = ?");
+        $query->bind_param("sdi", $email,$date,$amount);
         $query->execute();
         $result = $query->get_result();
         return $result->num_rows > 0;
@@ -250,10 +250,16 @@
     function processDonationData($donationData, $con){
         // Assuming donationData has the email as the unique identifier in the first position -- KEY WORD IS ASSUMING!!!
 
+        //$x = implode(" ", $donationData);
+        //echo $x;
+
         $donorEmail = $donationData[7];
+        $donoDate = $donationData[0];
+        $donoAmount = $donationData[3];
+
 
         // Check if donation exists for the donor
-        $donationExists = checkDonationExists($donorEmail, $con);
+        $donationExists = checkDonationExists($donorEmail, $donoDate,$donoAmount,$con);
 
         $newID = getMaxDonationID($con) + 1;
 
