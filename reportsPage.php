@@ -305,7 +305,7 @@
             if (mysqli_num_rows($result) > 0) {
                 echo "<h2 style='text-align: center;'>List of Donors Who have not Donated for the last 2 years</h2>";
                 echo "<table>";
-                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Date</th><th>Amount Donated</th></tr>";
+                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th></tr>";
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Format the phone number
                      
@@ -313,11 +313,10 @@
                             <td>" . htmlspecialchars($row['Email']) . "</td>
                             <td>" . htmlspecialchars($row['FirstName']) . "</td>
                             <td>" . htmlspecialchars($row['LastName']) . "</td>
-                            <td>" . htmlspecialchars($row['DateOfContribution']) . "</td>
-                            <td>$" . number_format($row['AmountGiven']) . "</td>
+                            
                           </tr>";
                 }
-                
+
                 echo "</table>";
             } else {
                 echo "<p>All donors have contributed in the last 2 years.</p>";
