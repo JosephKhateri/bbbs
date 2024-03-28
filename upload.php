@@ -28,8 +28,6 @@ function parseCSV($csvFilePath){
     require_once("database/dbinfo.php");
     require_once('database/dbDonors.php');
     require_once('database/dbDonations.php');
-    require_once('domain/Donor.php');
-    require_once('domain/Donation.php');
     $con = connect(); 
 
     // Open the CSV file
@@ -58,14 +56,14 @@ function parseCSV($csvFilePath){
         processDonorData($line, $con);
 
         // Process donation data
-        //processDonationData($line, $con);
+        processDonationData($line, $con);
     }
 
     // Close the CSV file
     fclose($file);
     
     // Redirect with success message
-    //header('Location: index.php?fileSuccess');
-    //exit;
+    header('Location: index.php?fileSuccess');
+    exit;
 }
 ?>

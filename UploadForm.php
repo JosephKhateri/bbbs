@@ -34,7 +34,7 @@
             parseCSV($tmpFilePath);
         } else {
             echo $fileType;
-            //header('Location: index.php?fileTypeFail');
+            header('Location: index.php?fileTypeFail');
         }
     }
 ?>

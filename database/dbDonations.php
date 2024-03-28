@@ -191,7 +191,7 @@
             $result_row['Memo']
         );
         return $theDonation;
-
+    }
 // dbDonations.php
 // Overall Grading:
 // 1. Program specifications/correctness: Adequate - Program doesn't insert data into dbDonations properly
@@ -200,8 +200,7 @@
 // 3. Code efficiency: Good - Code is very efficient, but there are some issues with the code actually working properly
 // 4. Documentation: Adequate - Need further documentation for the functions
 // 5. Assigned Task: Adequate - Program doesn't insert data into dbDonations properly
-    function checkDonationExists($email, $con)
-    {
+    function checkDonationExists($email, $con){
         $query = $con->prepare("SELECT Email FROM dbdonations WHERE Email = ?");
         $query->bind_param("s", $email);
         $query->execute();
@@ -209,8 +208,12 @@
         return $result->num_rows > 0;
     }
 
-    function addDonation($donationData, $con)
-    {
+    //Returns total number of donations in db
+    function getMaxDonationID(){
+        return count(get_all_donations());
+    }
+
+    function addDonation($donationData, $con,$newID){
         $email = trim($donationData[7]);
         $dateOfContribution = $donationData[0];
         $amountGiven = $donationData[3]; // Ensure this is captured correctly from our CSV
@@ -219,8 +222,8 @@
             return;
         }
         // Prepare the SQL query to insert a new donation
-        $query = $con->prepare("INSERT INTO dbdonations (Email, DateOfContribution, ContributedSupportType, ContributionCategory, AmountGiven, PaymentMethod, Memo) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $query->bind_param("ssssdss", $donationData['Email'], $donationData['Date of Contribution'], $donationData['Contributed Support'], $donationData['Contribution Category'], $donationData['Amount Given'], $donationData['Payment Method'], $donationData['Memo']);
+        $query = $con->prepare("INSERT INTO dbdonations (Email, DateOfContribution, ContributedSupportType, ContributionCategory, AmountGiven, PaymentMethod, Memo, DonationID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $query->bind_param("ssssdssi", $donationData[7], $donationData[0], $donationData[1], $donationData[2], $donationData[3], $donationData[13], $donationData[14],$newID);
         if (!$query->execute()) {
             error_log("Failed to insert donation: " . $query->error);
         } else {
@@ -229,16 +232,14 @@
         }
     }
 
-    function updateDonationInfo($donationData, $con)
-    {
+    function updateDonationInfo($donationData, $con){
         // Prepare the SQL query to update donation info
         $query = $con->prepare("UPDATE dbdonations SET DateOfContribution = ?, ContributedSupportType = ?, ContributionCategory = ?, AmountGiven = ?, PaymentMethod = ?, Memo = ? WHERE Email = ?");
         $query->bind_param("sssdsss", $donationData['Date of Contribution'], $donationData['Contributed Support'], $donationData['Contribution Category'], $donationData['Amount Given'], $donationData['Payment Method'], $donationData['Memo'], $donationData['Email']);
         $query->execute();
     }
 
-    function updateLifetime($email, $con)
-    {
+    function updateLifetime($email, $con){
         $query = $con->prepare("UPDATE dbdonors SET LifetimeDonation = COALESCE((SELECT SUM(AmountGiven) FROM dbdonations WHERE Email = ?), 0) WHERE Email = ?");
         $query->bind_param("ss", $email, $email);
         if (!$query->execute()) {
@@ -248,17 +249,17 @@
 
     function processDonationData($donationData, $con){
         // Assuming donationData has the email as the unique identifier in the first position -- KEY WORD IS ASSUMING!!!
-        $x = implode(" ", $donationData);
-        echo $x;
 
-        $donorEmail = $donationData[0];
+        $donorEmail = $donationData[7];
 
         // Check if donation exists for the donor
         $donationExists = checkDonationExists($donorEmail, $con);
 
+        $newID = getMaxDonationID($con) + 1;
+
         if (!$donationExists) {
             // Add new donation
-            addDonation($donationData, $con);
+            addDonation($donationData, $con,$newID);
         } else {
             // Update donation info
             updateDonationInfo($donationData, $con);
@@ -267,5 +268,5 @@
         // Update lifetime donation amount
         updateLifetime($donorEmail, $con);
     }
-}
+
 ?>
