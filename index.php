@@ -49,6 +49,8 @@
                 <div class="happy-toast">Location successfully removed!</div>-->
             <?php elseif (isset($_GET['registerSuccess'])): ?>
                 <div class="happy-toast">User registered successfully!</div>
+            <?php elseif (isset($_GET['removeSuccess'])): ?>
+                <div class="happy-toast">User removed successfully!</div>    
             <?php elseif(isset($_GET['fileSuccess'])): ?>
                 <div class="happy-toast">File uploaded successfully!</div>
             <?php elseif (isset($_GET['fileFail'])): ?>
@@ -102,6 +104,10 @@
                         <img src="images/settings.png">
                         <span>Reset User Password</span>
                     </div>
+                    <div class="dashboard-item" data-link="removeUserForm.php">
+                        <img src="images/delete.svg">
+                        <span>Remove User</span>
+                    </div>
                 <?php endif ?>
                 <?php if ($notRoot) : ?>
                     <div class="dashboard-item" data-link="viewProfile.php">
@@ -115,10 +121,6 @@
                     <div class="dashboard-item" data-link="changePassword.php">
                         <img src="images/change-password.svg">
                         <span>Change Password</span>
-                    </div>
-                    <div class="dashboard-item" data-link="removeUserForm.php">
-                        <img src="images/delete.svg">
-                        <span>Remove User</span>
                     </div>
                 <?php endif ?>
                 <div class="dashboard-item" data-link="logout.php">
