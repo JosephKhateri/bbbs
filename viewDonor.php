@@ -193,7 +193,7 @@ function exportDonorInfo($donor, $donations) {
         <tr><td colspan="5">&nbsp;</td></tr>
 
         <h2 style="text-align: center">Donation History</h2>
-        <!-- Display all donations made by the donor -->
+
         <?php
         if (!empty($donations)) { // if the donor has made any donations, display them in a table
             ?>
@@ -217,6 +217,31 @@ function exportDonorInfo($donor, $donations) {
                 }
                 ?>
             </table>
+
+            <!-- Add a line break -->
+            <tr><td colspan="5">&nbsp;</td></tr>
+
+            <!-- Table of additional information -->
+            <!-- Pie chart to show which events a donor has sponsored -->
+            <!-- Progress of individual donors (done later) -->
+            <h2 style="text-align: center">Donor Statistics</h2>
+            <table>
+                <tr>
+                    <th>Frequency of Giving</th>
+                    <th>Lifetime Value</th>
+                    <th>Retention Rate</th>
+                    <th>Donation Funnel</th>
+                    <th>Event or Non-Event Donor</th>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>$<?php echo get_total_amount_donated($donor->get_email()) ?></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+
             <?php
         } else { // There should be no instances where a donor has no donations, but this is a failsafe in case it happens
             echo "<div style='text-align: center;'>This donor has made no donations.</div>";
@@ -225,9 +250,6 @@ function exportDonorInfo($donor, $donations) {
 
         <!-- Add a line break -->
         <tr><td colspan="5">&nbsp;</td></tr>
-
-        <!-- Table of additional information (lifetime value, retention rate, donation frequency, etc.) will be located in table below -->
-
 
 
         <!-- Button to export donor information to a CSV file -->
