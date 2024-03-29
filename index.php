@@ -116,6 +116,10 @@
                         <img src="images/change-password.svg">
                         <span>Change Password</span>
                     </div>
+                    <div class="dashboard-item" data-link="removeUserForm.php">
+                        <img src="images/delete.svg">
+                        <span>Remove User</span>
+                    </div>
                 <?php endif ?>
                 <div class="dashboard-item" data-link="logout.php">
                     <img src="images/logout.svg">
