@@ -270,6 +270,11 @@ function exportDonorsLessThanTwoYears() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
     $connection = connect();  // This should be your function to establish a database connection
     
+	// Get the current date
+	$currentDate = date("Y-m-d");
+
+	// Define the threshold date (two years ago from current date)
+	$thresholdDate = date('Y-m-d', strtotime('-2 years', strtotime($currentDate)));
     // Your SQL query to fetch the required data
     $query = "SELECT d.FirstName, d.LastName, d.Email, dd.DateOfContribution, dd.AmountGiven
 						FROM DbDonors d
