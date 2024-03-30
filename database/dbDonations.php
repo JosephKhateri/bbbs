@@ -26,7 +26,7 @@
      * Pre-condition: $donation is a Donation object
      * Post-condition: A Donation is added to the dbDonations table if its ID doesn't already exist in the table, otherwise nothing happens
      */
-    function add_donation($donation) {
+    function add_donation($donation) : bool {
         if (!$donation instanceof Donation)
             die("Error: add_donation type mismatch");
         $con=connect();
@@ -58,7 +58,7 @@
      * Pre-condition: $id is a string
      * Post-condition: A Donation is removed from the dbDonations table if it exists, otherwise nothing happens
      */
-    function remove_donation($id) {
+    function remove_donation($id) : bool {
         $con=connect();
         $query = 'SELECT * FROM dbDonations WHERE id = "' . $id . '"';
         $result = mysqli_query($con,$query);
@@ -79,7 +79,7 @@
      * Pre-condition: $donation is a Donation object
      * Post-condition: The donation is updated in the dbDonations table if it exists, otherwise nothing happens
      */
-    function update_donation($donation) {
+    function update_donation($donation) : bool {
         $con=connect();
 
         // Get the values from the donation object
@@ -114,15 +114,13 @@
      * Pre-condition: $id is a string
      * Post-condition: A Donation object is returned if it exists, otherwise nothing is returned
      */
-    function retrieve_donation($id) {
+    function retrieve_donation($id) : Donation {
         $con=connect();
         $query = "SELECT * FROM dbDonations WHERE id = '" . $id . "'";
         $result = mysqli_query($con,$query);
-        if (mysqli_num_rows($result) !== 1) {
-            mysqli_close($con);
-            return false; // need to handle this properly in any code that calls this function
-        }
         $result_row = mysqli_fetch_assoc($result);
+
+        // Create a donation object
         $theDonation = make_a_donation($result_row);
     //    mysqli_close($con);
         return $theDonation;
@@ -135,7 +133,7 @@
      * Pre-condition: $email is a string
      * Post-condition: An array of Donation objects is returned
      */
-    function retrieve_donations_by_email ($email) {
+    function retrieve_donations_by_email ($email): array {
         $donations = array();
         if (!isset($email) || $email == "" || $email == null) return $donations;
         $con=connect();
@@ -155,15 +153,231 @@
      * Pre-condition: None
      * Post-condition: An array of Donation objects is returned
      */
-    function get_all_donations() {
+    function get_all_donations() : array {
         $con=connect();
         $query = 'SELECT * FROM dbDonations';
         $result = mysqli_query($con,$query);
-        if ($result == null || mysqli_num_rows($result) == 0) {
-            mysqli_close($con);
-            return false;
+
+        // Create array of donations
+        $theDonations = array();
+        while ($result_row = mysqli_fetch_assoc($result)) {
+            $theDonation = make_a_donation($result_row);
+            $theDonations[] = $theDonation;
         }
+        return $theDonations;
+    }
+
+    /*
+     * Parameters: $donorEmail = A string that represents the email of a donor
+     * This function retrieves the total amount donated by a donor
+     * Return type: A float that represents the total amount donated by the donor
+     * Pre-condition: $donorEmail is a string
+     * Post-condition: The total amount donated by the donor is returned
+     */
+    function get_total_amount_donated($donorEmail) : float {
+        $con = connect();
+        $query = "SELECT SUM(AmountGiven) AS totalAmount FROM dbDonations WHERE Email = '" . $donorEmail . "'";
         $result = mysqli_query($con,$query);
+        $totalAmount = mysqli_fetch_assoc($result);
+        $totalAmount = (float) $totalAmount['totalAmount']; // Cast the total amount to a float that is returned
+        return $totalAmount;
+    }
+
+    /*
+     * Parameters: $donorEmail = A string that represents the email of a donor
+     * This function retrieves the donation frequency of a donor
+     * Return type: A string that represents the donation frequency of the donor
+     * Pre-condition: $donorEmail is a string
+     * Post-condition: The donation frequency of the donor is returned
+     */
+    function get_donation_frequency($donorEmail) : string {
+        $con = connect();
+        $query = "SELECT DISTINCT DATE_FORMAT(DateOfContribution, '%Y-%m') AS donation_month FROM dbDonations WHERE Email = '" . $donorEmail . "'";
+        $result = mysqli_query($con,$query);
+        $donation_dates = array();
+        while ($result_row = mysqli_fetch_assoc($result)) {
+            $donation_dates[] = $result_row['donation_month'];
+        }
+
+        // Sort the donation dates in ascending order
+        sort($donation_dates);
+
+        $donation_count = count($donation_dates);
+
+        // If the donor has less than 3 donations, categorize as sporadic
+        if ($donation_count < 3) {
+            return "Sporadic";
+        }
+
+        // Calculate the average time difference between donations
+        $total_diff = 0;
+        for ($i = 1; $i < $donation_count; $i++) {
+            $total_diff += strtotime($donation_dates[$i]) - strtotime($donation_dates[$i - 1]);
+        }
+        $average_diff = $total_diff / ($donation_count - 1);
+
+        // Tolerance levels for variations
+        $monthly_tolerance = 5 * 24 * 60 * 60; // 5 days
+        $yearly_tolerance = 30 * 24 * 60 * 60; // 30 days
+
+        // Check if the donor donated approximately once a month for the last 3 months
+        $is_monthly = abs($average_diff - (31 * 24 * 60 * 60)) <= $monthly_tolerance;
+
+        // Check if the donor donated approximately once a year for the last 3 years
+        $is_yearly = abs($average_diff - (365 * 24 * 60 * 60)) <= $yearly_tolerance;
+
+        if ($is_monthly) {
+            return "Monthly";
+        } elseif ($is_yearly) {
+            return "Yearly";
+        } else {
+            return "Sporadic";
+        }
+    }
+
+    function determine_donation_funnel($donorEmail) : string {
+        $donations_last_3_years = count_donations_within_years($donorEmail, 3);
+        $donations_last_5_years = count_donations_within_years($donorEmail, 5);
+        $total_donations = get_total_amount_donated($donorEmail);
+
+        /*$funnel = "No Funnel";
+        if ($donation_count_last_3_years >= 1) {
+            $funnel = "INTERESTED";
+        }
+
+        if ($donation_count_last_3_years >= 3) {
+            $funnel = "ENGAGED";
+        }
+
+        if ($donation_count_last_5_years >= 5) {
+            $funnel = "LOYAL DONOR";
+        }
+
+        if ($donation_count_last_3_years >= 1 and $donation_count_last_3_years == $donation_count_last_5_years) {
+            $funnel = "DONOR";
+        }
+        if ($total_donation_amount >= 10000) {
+            $funnel = "LEADERSHIP DONOR";
+        }
+        return $funnel;*/
+
+        if ($donations_last_3_years >= 1) {
+            if ($donations_last_5_years >= 5) {
+                if ($total_donations > 10000) {
+                    return "LEADERSHIP DONOR";
+                }
+                return "LOYAL DONOR";
+            }
+            if ($donations_last_5_years >= 3) {
+                return "ENGAGED";
+            }
+            return "DONOR";
+        }
+        return "INTERESTED";
+    }
+
+    function count_donations_within_years($donorEmail, $years) : int {
+        $count = 0;
+        $current_date = date('Y-m-d');
+        $donations = retrieve_donations_by_email($donorEmail);
+
+        foreach ($donations as $donation) {
+            $donation_date = $donation->get_contribution_date();
+            $years_diff = date_diff(date_create($donation_date), date_create($current_date))->y;
+            if ($years_diff <= $years) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
+    /*
+     * Parameters: $donorEmail = A string that represents the email of a donor
+     * This function retrieves the event donation categories of a donor and the total amount donated to each category
+     * Return type: An array of associative arrays that represent the event donation categories of the donor
+     * Pre-condition: $donorEmail is a string
+     * Post-condition: An array of associative arrays that represent the donation categories of the donor and the total amount donated to each category is returned
+     */
+    function get_event_donation_categories($donorEmail) : array {
+        $con = connect();
+        // Query to get the event donation categories and the total amount donated to each category
+        // I may want to future-proof this to have it look for donations with Contribution Categories that match the names of the events
+        // That would require us to have a list of events in the database
+        $query = "SELECT ContributionCategory, SUM(AmountGiven) AS TotalAmount FROM dbDonations WHERE ContributedSupportType = 'Fundraising Events' AND Email = '" . $donorEmail . "' GROUP BY ContributionCategory";
+        $result = mysqli_query($con,$query);
+
+        // Create an array of associative arrays that represent the donation categories and the total amount donated to each category
+        $categories = [];
+        while($result_row = mysqli_fetch_assoc($result)) {
+            $categories[] = $result_row;
+        }
+        return $categories;
+    }
+
+    /*
+     * Parameters: $donorEmail = A string that represents the email of a donor
+     * This function determines the donation type of the donor (Event, Non-Event, Both, Neither)
+     * Return type: A string that represents the donation type of the donor (Event, Non-Event, Both, Neither)
+     * Pre-condition: $donorEmail is a string
+     * Post-condition: A string that represents the donation type of the donor is returned
+     */
+    function determine_donor_donation_type($donorEmail) : string {
+        // Get the event and non-event donations made by the donor
+        $event_donations = get_event_donations($donorEmail);
+        $non_event_donations = get_non_event_donations($donorEmail);
+
+        // Determine the donation type of the donor based on the number of event and non-event donations they made
+        if (count($event_donations) > 0 && count($non_event_donations) > 0) {
+            return "Both"; // Donor has donated to both events and non-events
+        } elseif (count($event_donations) > 0) {
+            return "Event"; // Donor has donated to events only
+        } elseif (count($non_event_donations) > 0) {
+            return "Non-Event"; // Donor has donated to non-events only
+        } else {
+            return "Neither"; // Donor has not donated to any events or non-events (no donations)
+        }
+    }
+
+    /*
+     * Parameters: $donorEmail = A string that represents the email of a donor
+     * This function retrieves the event donations made by the donor
+     * Return type: An array of Donation objects
+     * Pre-condition: $donorEmail is a string
+     * Post-condition: An array of Donation objects that represent the event donations made by the donor is returned
+     */
+    function get_event_donations($donorEmail) : array {
+        // Query to get all event donations made by the donor
+        // I may want to future-proof this to have it look for donations with Contribution Categories that match the names of the events
+        // That would require us to have a list of events in the database
+        $con = connect();
+        $query = "SELECT * FROM dbDonations WHERE ContributedSupportType = 'Fundraising Events' AND Email = '" . $donorEmail . "' GROUP BY ContributionCategory";
+        $result = mysqli_query($con,$query);
+
+        // Count the number of event donations
+        $theDonations = array();
+        while ($result_row = mysqli_fetch_assoc($result)) {
+            $theDonation = make_a_donation($result_row);
+            $theDonations[] = $theDonation;
+        }
+        return $theDonations;
+    }
+
+    /*
+     * Parameters: $donorEmail = A string that represents the email of a donor
+     * This function retrieves the non-event donations made by the donor
+     * Return type: An array of Donation objects
+     * Pre-condition: $donorEmail is a string
+     * Post-condition: An array of Donation objects that represent the non-event donations made by the donor is returned
+     */
+    function get_non_event_donations($donorEmail) : array {
+        // Query to get all non-event donations made by the donor
+        // I may want to future-proof this to have it look for donations with Contribution Categories that don't match the names of the events
+        // That would require us to have a list of events in the database
+        $con = connect();
+        $query = "SELECT * FROM dbDonations WHERE ContributedSupportType != 'Fundraising Events' AND Email = '" . $donorEmail . "' GROUP BY ContributionCategory";
+        $result = mysqli_query($con,$query);
+
+        // Count the number of non-event donations
         $theDonations = array();
         while ($result_row = mysqli_fetch_assoc($result)) {
             $theDonation = make_a_donation($result_row);
@@ -179,7 +393,7 @@
      * Pre-condition: $result_row is a valid associative array
      * Post-condition: A new Donation object is created
      */
-    function make_a_donation($result_row) {
+    function make_a_donation($result_row) : Donation {
         $theDonation = new Donation(
             $result_row['DonationID'],
             $result_row['Email'],
