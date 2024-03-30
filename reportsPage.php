@@ -334,7 +334,7 @@
         //  Report: Events Donor has Sponsered 
         if (isset($_GET['report']) && $_GET['report'] == 'report4') {
             // Fetch your data for the pie chart here
-            $categoryQuery = "SELECT ContributionCategory, SUM(AmountGiven) AS TotalAmount FROM dbdonations GROUP BY ContributionCategory";
+            $categoryQuery = "SELECT ContributionCategory, SUM(AmountGiven) AS TotalAmount FROM dbdonations WHERE ContributedSupportType = 'Fundraising Events' GROUP BY ContributionCategory";
             $categoryResult = mysqli_query($connection, $categoryQuery);
             $categories = [];
             while($row = mysqli_fetch_assoc($categoryResult)) {
