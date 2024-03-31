@@ -185,12 +185,14 @@
     </head>
     <body>
   	<?php require_once('header.php') ?>
-    <form action="" method="get">
-        <input type="hidden" name="report" value="report8">
-        <label for="topXDonors">Enter number of top donors to display:</label>
-        <input type="number" id="topXDonors" name="topXDonors" value="10" min="1">
-        <input type="submit" value="Update Report">
-    </form>
+      <?php if (isset($_GET['report']) && $_GET['report'] === 'report8'): ?>
+        <form action="" method="get">
+            <input type="hidden" name="report" value="report8">
+            <label for="topXDonors">Enter number of top donors to display:</label>
+            <input type="number" id="topXDonors" name="topXDonors" value="<?= isset($_GET['topXDonors']) ? (int)$_GET['topXDonors'] : 10 ?>" min="1">
+            <input type="submit" value="Update Report">
+        </form>
+    <?php endif; ?>
 
 
         
