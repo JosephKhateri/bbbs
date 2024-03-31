@@ -25,8 +25,8 @@
         <nav>
             <span id="nav-top">
                 <span class="logo">
-                    <span id="vms-logo"> BBBS Fred </span>
                     <img src="images/bbbs-black-bg.png">
+                    <span id="vms-logo"> BBBS Fred </span>
                 </span>
                 <img id="menu-toggle" src="images/menu.png">
             </span>
