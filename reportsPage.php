@@ -185,12 +185,14 @@
     </head>
     <body>
   	<?php require_once('header.php') ?>
-    <form action="" method="get">
-        <input type="hidden" name="report" value="report8">
-        <label for="topXDonors">Enter number of top donors to display:</label>
-        <input type="number" id="topXDonors" name="topXDonors" value="10" min="1">
-        <input type="submit" value="Update Report">
-    </form>
+      <?php if (isset($_GET['report']) && $_GET['report'] === 'report8'): ?>
+        <form action="" method="get">
+            <input type="hidden" name="report" value="report8">
+            <label for="topXDonors">Enter number of top donors to display:</label>
+            <input type="number" id="topXDonors" name="topXDonors" value="<?= isset($_GET['topXDonors']) ? (int)$_GET['topXDonors'] : 10 ?>" min="1">
+            <input type="submit" value="Update Report">
+        </form>
+    <?php endif; ?>
 
 
         
@@ -301,13 +303,13 @@
 				// Define the threshold date (two years ago from current date)
 				$thresholdDate = date('Y-m-d', strtotime('-2 years', strtotime($currentDate)));
 
-				$query = "SELECT d.FirstName, d.LastName, d.Email, dd.DateOfContribution, dd.AmountGiven
-						FROM DbDonors d
-						LEFT JOIN DbDonations dd ON d.Email = dd.Email
-						WHERE dd.DateOfContribution IS NULL 
-						  OR dd.DateOfContribution < '$thresholdDate'
-						GROUP BY d.Email
-						ORDER BY d.LastName";
+				$query = "SELECT d.FirstName, d.LastName, d.Email, MAX(dd.DateOfContribution) AS LastDonation
+                        FROM DbDonors d
+                        LEFT JOIN DbDonations dd ON d.Email = dd.Email
+                        GROUP BY d.Email
+                        HAVING LastDonation < '$thresholdDate' OR LastDonation IS NULL
+                        ORDER BY d.LastName;
+                        ";
             $result = mysqli_query($connection, $query);
 
             // Check if we have results
