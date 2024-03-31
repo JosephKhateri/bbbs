@@ -294,22 +294,6 @@
     }
 
     /*
-     * Parameters: $donorEmail = A string that represents the email of a donor
-     * This function retrieves the total amount donated by a donor
-     * Return type: A float that represents the total amount donated by the donor
-     * Pre-condition: $donorEmail is a string
-     * Post-condition: The total amount donated by the donor is returned
-     */
-    function get_total_amount_donated($donorEmail) : float {
-        $con = connect();
-        $query = "SELECT SUM(AmountGiven) AS totalAmount FROM dbDonations WHERE Email = '" . $donorEmail . "'";
-        $result = mysqli_query($con,$query);
-        $totalAmount = mysqli_fetch_assoc($result);
-        $totalAmount = (float) $totalAmount['totalAmount']; // Cast the total amount to a float that is returned
-        return $totalAmount;
-    }
-
-    /*
      * Parameters: $result_row = An associative array that represents a row in the dbDonations table
      * This function constructs a new Donation object with the given parameters
      * Return type: A Donation object
