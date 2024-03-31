@@ -218,8 +218,9 @@ function exportDonorInfo($donor, $donations) {
                 ?>
             </table>
 
+            <!-- Commented out so that this doesn't show during Zack's presentation -->
             <!-- Add a line break -->
-            <tr><td colspan="5">&nbsp;</td></tr>
+            <!-- <tr><td colspan="5">&nbsp;</td></tr> -->
 
             <!-- Table of additional information -->
             <!-- Pie chart to show which events a donor has sponsored -->
