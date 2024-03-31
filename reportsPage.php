@@ -301,13 +301,13 @@
 				// Define the threshold date (two years ago from current date)
 				$thresholdDate = date('Y-m-d', strtotime('-2 years', strtotime($currentDate)));
 
-				$query = "SELECT d.FirstName, d.LastName, d.Email, dd.DateOfContribution, dd.AmountGiven
-						FROM DbDonors d
-						LEFT JOIN DbDonations dd ON d.Email = dd.Email
-						WHERE dd.DateOfContribution IS NULL 
-						  OR dd.DateOfContribution < '$thresholdDate'
-						GROUP BY d.Email
-						ORDER BY d.LastName";
+				$query = "SELECT d.FirstName, d.LastName, d.Email, MAX(dd.DateOfContribution) AS LastDonation
+                        FROM DbDonors d
+                        LEFT JOIN DbDonations dd ON d.Email = dd.Email
+                        GROUP BY d.Email
+                        HAVING LastDonation < '$thresholdDate' OR LastDonation IS NULL
+                        ORDER BY d.LastName;
+                        ";
             $result = mysqli_query($connection, $query);
 
             // Check if we have results
