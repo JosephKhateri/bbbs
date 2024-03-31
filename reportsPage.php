@@ -459,9 +459,8 @@
                       MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
                     FROM dbdonations AS d
                     JOIN dbdonors AS p ON d.Email = p.Email
-                    WHERE (d.DateOfContribution IS NULL 
-                        OR  d.DateOfContribution > '$thresholdDate')
-                        AND d.email NOT IN (SELECT Email FROM dbdonations WHERE ContributionCategory='Event Sponsorship')						
+                    WHERE (d.DateOfContribution > '$thresholdDate')
+                          AND ContributedSupportType != 'Fundraising Events'
                     GROUP BY d.Email ";
             $result = mysqli_query($connection, $query);
 
@@ -509,9 +508,8 @@
                       MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
                     FROM dbdonations AS d
                     JOIN dbdonors AS p ON d.Email = p.Email
-                    WHERE (d.DateOfContribution IS NULL
-                          OR d.DateOfContribution > '$thresholdDate')
-                          AND ContributionCategory='Event Sponsorship'
+                    WHERE (d.DateOfContribution > '$thresholdDate')
+                          AND ContributedSupportType = 'Fundraising Events'
                     GROUP BY d.Email ";
             $result = mysqli_query($connection, $query);
 
@@ -619,7 +617,6 @@
             </form>";
         }
         if (isset($_GET['report']) && $_GET['report'] == 'report7'){
-            echo "GourLAMI<br>";
             echo "<form action='reportsExport.php' method='post' class='export-form'>
             <input type='hidden' name='action' value='export_donors_L3YE'>
             <input type='submit' value='Export Donors' class='export-btn'>
