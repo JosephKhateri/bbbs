@@ -35,7 +35,7 @@ class Donor {
      * Pre-condition: $email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip, $lifetime_donation are valid values
      * Post-condition: a new Donor object is created
      */
-    function __construct($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip, $lifetime_donation) {
+    function __construct($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip) {
         $this->email = $email;
         $this->company = $company;
         $this->first_name = $first_name;
@@ -45,7 +45,6 @@ class Donor {
         $this->city = $city;
         $this->state = $state;
         $this->zip = $zip;
-        $this->lifetime_donation = $lifetime_donation;
     }
 
     function get_email() {
@@ -82,10 +81,6 @@ class Donor {
 
     function get_zip() {
         return $this->zip;
-    }
-
-    function get_lifetime_donation() {
-        return $this->lifetime_donation;
     }
 
     // Donor.php
