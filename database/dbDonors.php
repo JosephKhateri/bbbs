@@ -153,6 +153,137 @@
         return $theDonors;
     }
 
+    function get_donor_retention($donorEmail) : string {
+        $donations = retrieve_donations_by_email($donorEmail);
+
+        // Get dates of all donations
+        $dates = array();
+        foreach ($donations as $donation) {
+            $dates[] = $donation->get_contribution_date();
+        }
+
+        // Sort dates in ascending order
+        sort($dates);
+
+        // get the years of the dates
+        $years = array();
+        foreach ($dates as $date) {
+            $years[] = date('Y', strtotime($date));
+        }
+
+        // Remove duplicate years
+        $unique_years = array_unique($years);
+
+        // If the donor's first donation was from this year
+        if (in_array(date('Y'), $years) && count($unique_years) == 1) {
+            return "New Donor";
+        }
+        // if the donor made a donation last year and this year
+        elseif (in_array(date('Y') - 1, $years) && in_array(date('Y'), $years)) {
+            return "Multiyear Donor";
+        }
+        // If the donor donated this year, but their 2nd most recent donation was from 2 or more years ago
+        elseif (in_array(date('Y'), $years) && isset($years[1]) && $years[1] <= date('Y') - 2) {
+            return "Returning Donor";
+        }
+        else { // if the donor has donated previously, but not in the last year, return "Inactive Donor"
+            return "Inactive Donor";
+        }
+    }
+
+    function determine_donation_funnel($donorEmail) : string {
+        $donations_last_3_years = count_donations_within_years($donorEmail, 3);
+        $donations_last_5_years = count_donations_within_years($donorEmail, 5);
+        $total_donations = get_total_amount_donated($donorEmail);
+
+        /*$funnel = "No Funnel";
+        if ($donation_count_last_3_years >= 1) {
+            $funnel = "INTERESTED";
+        }
+
+        if ($donation_count_last_3_years >= 3) {
+            $funnel = "ENGAGED";
+        }
+
+        if ($donation_count_last_5_years >= 5) {
+            $funnel = "LOYAL DONOR";
+        }
+
+        if ($donation_count_last_3_years >= 1 and $donation_count_last_3_years == $donation_count_last_5_years) {
+            $funnel = "DONOR";
+        }
+        if ($total_donation_amount >= 10000) {
+            $funnel = "LEADERSHIP DONOR";
+        }
+        return $funnel;*/
+
+        if ($donations_last_3_years >= 1) {
+            if ($donations_last_5_years >= 5) {
+                if ($total_donations > 10000) {
+                    return "LEADERSHIP DONOR";
+                }
+                return "LOYAL DONOR";
+            }
+            if ($donations_last_5_years >= 3) {
+                return "ENGAGED";
+            }
+            return "DONOR";
+        }
+        return "INTERESTED";
+    }
+
+    /*
+     * Parameters: $donorEmail = A string that represents the email of a donor
+     * This function retrieves the donation frequency of a donor
+     * Return type: A string that represents the donation frequency of the donor
+     * Pre-condition: $donorEmail is a string
+     * Post-condition: The donation frequency of the donor is returned
+     */
+    function get_donation_frequency($donorEmail) : string {
+        $con = connect();
+        $query = "SELECT DISTINCT DATE_FORMAT(DateOfContribution, '%Y-%m') AS donation_month FROM dbDonations WHERE Email = '" . $donorEmail . "'";
+        $result = mysqli_query($con,$query);
+        $donation_dates = array();
+        while ($result_row = mysqli_fetch_assoc($result)) {
+            $donation_dates[] = $result_row['donation_month'];
+        }
+
+        // Sort the donation dates in ascending order
+        sort($donation_dates);
+
+        $donation_count = count($donation_dates);
+
+        // If the donor has less than 3 donations, categorize as sporadic
+        if ($donation_count < 3) {
+            return "Sporadic";
+        }
+
+        // Calculate the average time difference between donations
+        $total_diff = 0;
+        for ($i = 1; $i < $donation_count; $i++) {
+            $total_diff += strtotime($donation_dates[$i]) - strtotime($donation_dates[$i - 1]);
+        }
+        $average_diff = $total_diff / ($donation_count - 1);
+
+        // Tolerance levels for variations
+        $monthly_tolerance = 5 * 24 * 60 * 60; // 5 days
+        $yearly_tolerance = 30 * 24 * 60 * 60; // 30 days
+
+        // Check if the donor donated approximately once a month for the last 3 months
+        $is_monthly = abs($average_diff - (31 * 24 * 60 * 60)) <= $monthly_tolerance;
+
+        // Check if the donor donated approximately once a year for the last 3 years
+        $is_yearly = abs($average_diff - (365 * 24 * 60 * 60)) <= $yearly_tolerance;
+
+        if ($is_monthly) {
+            return "Monthly";
+        } elseif ($is_yearly) {
+            return "Yearly";
+        } else {
+            return "Sporadic";
+        }
+    }
+
     /*
      * Parameters: $result_row = An associative array that represents a row in the dbDonations table
      * This function constructs a new Donation object with the given parameters
@@ -225,6 +356,3 @@
             combineDonor($donorData, $con);
         }
     }
-
-
-?>

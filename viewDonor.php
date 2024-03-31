@@ -130,7 +130,6 @@ function exportDonorInfo($donor, $donations, $donor_type) {
 
 ?>
 
-
 <script>
     // Javascript function that draws a pie chart using the Google Charts API
     function drawChart() {
@@ -296,7 +295,7 @@ function exportDonorInfo($donor, $donations, $donor_type) {
                 <tr>
                     <td><?php echo get_donation_frequency($donor->get_email()) ?></td>
                     <td>$<?php echo get_total_amount_donated($donor->get_email()) ?></td>
-                    <td></td>
+                    <td><?php echo get_donor_retention($donor->get_email()) ?></td>
                     <td><?php echo determine_donation_funnel($donor->get_email()) ?></td>
                     <td><?php echo $donor_type ?></td>
                 </tr>
