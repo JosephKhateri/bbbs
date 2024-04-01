@@ -109,6 +109,7 @@
                         <option value="report6">Donors who have donated in the past three Years and haven't donated to an Event</option>
                         <option value="report7">Donors who have donated in the past three Years and have Donated to an Event</option>
                         <option value="report8">Top X Donors</option>
+                        <option value="report9">Donor's Donation Stage/Funnel</option>
                     </select><br/>
                 </div>
                 <input type="submit" name="submit_click" value="Submit">

@@ -101,6 +101,12 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_T10') {
     exportDonorsT10();
 	exit();
 }
+//DSF= Donation Stage Funnel
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_DSF') {
+	ob_end_clean();
+    exportDonorsDSF();
+	exit();
+}
 process_form();
 //pull_shift_data();
 include('footer.inc');
@@ -506,6 +512,190 @@ function exportDonorsT10() {
     }
 }
 
+// Export Function for the Report on Donor's Stage/Funnel
+function exportDonorsDSF() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+
+        //How Donation Stages Work:
+            //  1.INTERESTED: If the donor has donated at least once in the past three years  
+            //  2.DONOR: If the donor has donated at least once a year in the past three years 
+            //  3.ENGANGED: If the donor has donated at least three times in the last five years
+            //  4.LOYAL DONOR: If the donor has donated at least five times in the last five years
+            //  5.LEADERSHIP DONOR: If the donor has donated over $10,000 since they became a donor
+            //  6.DOESN'T FIT ANY CATEGORY: The donor doesn't fit any of these categories
+            
+            //Represents what category a donor falls into
+            $type=6;
+
+            //Array that holds an array of each donor
+            $donorArray= array();
+
+            //Get current date
+            $currentDate = date("Y-m-d");
+            
+            //Define the threshold date (five years ago from current date)
+            $thresholdDate3 = date('Y-m-d', strtotime('-3 years', strtotime($currentDate)));
+            
+            //First Query sets each Donor as type 6
+            $query = "SELECT d.Email
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    GROUP BY d.Email";
+            $result = mysqli_query($connection, $query);
+
+            //Give each Donor the DOESN'T FIT ANY CATEGORY type
+            if (mysqli_num_rows($result) > 0) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $donor_name=$row['Email'];
+                    $type=6;
+                    //Makes a Key Value pair for that Donor to have that type and push it onto array
+                    //Whether they are INTERESTED or DONOR they are pushed to the array
+                    $donorArray[$donor_name]=$type;
+                }
+            }
+
+            //Second Query to check for type 1 and 2 donors in the last three years
+            $query = "SELECT d.Email, COUNT(d.email) AS Number_Of_Donations
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    WHERE (d.DateOfContribution > '$thresholdDate3')
+                    GROUP BY d.Email";
+            $result = mysqli_query($connection, $query);
+
+            //  1.INTERESTED: If the donor has donated at least once in the past three years  
+            //  2.DONOR: If the donor has donated at least once a year in the past three years 
+
+            // Check for all the Donors in the Last Three Years
+            if (mysqli_num_rows($result) > 0) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $donor_name=$row['Email'];
+                    $don_num=$row['Number_Of_Donations'];
+
+                    //echo $donor_name.": ".$don_num."<br>";
+
+                    if($don_num==1 || $don_num==2){
+                        $type=1;//Donor counts as INTERESTED
+                    }else{
+                        $type=2;//Donor counts as DONOR
+                    } 
+                         
+                    //Makes a Key Value pair for that Donor to have that type and push it onto array
+                    //Whether they are INTERESTED or DONOR they are pushed to the array
+                    $donorArray[$donor_name]=$type;
+                }
+            }
+
+            //Define the threshold date (five years ago from current date)
+            $thresholdDate5 = date('Y-m-d', strtotime('-5 years', strtotime($currentDate)));
+            
+            //Third Query to find type 3 and 4 Donors
+            $query = "SELECT d.Email, COUNT(d.email) AS Number_Of_Donations
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    WHERE (d.DateOfContribution > '$thresholdDate5')
+                    GROUP BY d.Email";
+            $result = mysqli_query($connection, $query);
+
+            //  3.ENGANGED: If the donor has donated at least three times in the last five years
+            //  4.LOYAL DONOR: If the donor has donated at least five times in the last five years
+            
+            // Check for all the Donors in the Last Three Years
+            if (mysqli_num_rows($result) > 0) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    //Name of Donor
+                    $donor_name=$row['Email'];
+                    $don_num=$row['Number_Of_Donations'];
+                    
+                    //echo $donor_name.": ". $row['Number_Of_Donations'] ."<br>";
+
+                    if ($don_num==3 || $don_num==4){
+                        $type=3;//Donor counts as ENGAGED
+                    } elseif($don_num>=5){
+                        $type=4;//Donor counts as LOYAL DONOR
+                    }
+
+                    //Makes a Key Value pair for that Donor to have that type and push it onto array
+                    //Whether they are ENGAGED or LOYAL DONOR
+                    
+                    //In a very specific scenario if someone had donated once or twice in the past 5 years
+                    //but didn't donate anymore then they could get by the if else statement and get the
+                    //type of the previous donor so this if statement is here to stop that
+                    if($don_num>=2){
+                    $donorArray[$donor_name]=$type;
+                    }
+                }
+            }
+
+            //Fourth Query to check for type 5 donors
+            $query = "SELECT d.Email, SUM(AmountGiven) AS Sum_Of_Donations
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    GROUP BY d.Email
+                    HAVING Sum_Of_Donations >=10000";
+            $result = mysqli_query($connection, $query);
+
+            //  5.LEADERSHIP DONOR: If the donor has donated over $10,000 since they became a donor
+            if (mysqli_num_rows($result) > 0) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    //Name of Donor
+                    $donor_name=$row['Email'];
+    
+                    //echo $donor_name.": ". $row['Sum_Of_Donations'] . "<br>";
+
+                    //Donor has donated more than $10,000 in their time as a donor
+                    $type=5;
+    
+                    //Makes a Key Value pair for that Donor to have that type and push it onto array
+                    $donorArray[$donor_name]=$type;
+                }
+            }
+
+    //5th query to get all the donor's information and then display their Donation Stage
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations,
+              DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff, SUM(AmountGiven) AS Sum_Of_Donations
+              FROM dbdonations AS d
+              JOIN dbdonors AS p ON d.Email = p.Email
+              GROUP BY d.Email";
+    $result = mysqli_query($connection, $query);
+
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Donors_Stage.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Donation Stage'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+        //Name of Donor
+        $donor_name=$row['Email'];
+                    
+        // Format the phone number
+        $phone = $row['PhoneNumber'];
+        
+        $type=$donorArray[$donor_name];
+        
+        //echo $donor_name. ": " . $type . "<br>";
+        
+        $Donation_Stage="Doesn't Fit Any Category";
+        if($type==1){
+            $Donation_Stage="Interested Donor";
+        }else if($type==2){
+            $Donation_Stage="Donor";
+        }else if($type==3){
+            $Donation_Stage="Engaged Donor";
+        }else if($type==4){
+            $Donation_Stage="Loyal Donor";
+        }else if($type==5){
+            $Donation_Stage="Leadership Donor";
+        } 
+		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $Donation_Stage));
+	}
+    fclose($output);
+}
 //End of export
 function export_data($current_time, $search_attr, $export_data) {
 	$filename = "dataexport.csv";
