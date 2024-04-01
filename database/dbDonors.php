@@ -36,8 +36,7 @@
                 $donor->get_address() . '","' .
                 $donor->get_city() . '","' .
                 $donor->get_state() . '","' .
-                $donor->get_zip() . '","' .
-                $donor->get_lifetime_donation() . '");'
+                $donor->get_zip() . '");'
             );
             mysqli_close($con);
             return true;
@@ -100,7 +99,6 @@
         $query .= "City = '" . $city . "' ";
         $query .= "State = '" . $state . "' ";
         $query .= "Zip = '" . $zip . "' ";
-        $query .= "LifetimeDonation = '" . $lifetime . "' ";
         $query .= "WHERE Email = '" . $email . "'";
         $result = mysqli_query($con,$query);
         mysqli_close($con);
@@ -170,8 +168,7 @@
             $result_row['Address'],
             $result_row['City'],
             $result_row['State'],
-            $result_row['Zip'],
-            $result_row['LifetimeDonation']
+            $result_row['Zip']
         );
         return $theDonor;
     }

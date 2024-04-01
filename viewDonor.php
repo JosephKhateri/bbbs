@@ -218,13 +218,14 @@ function exportDonorInfo($donor, $donations) {
                 ?>
             </table>
 
+            <!-- Commented out so that this doesn't show during Zack's presentation -->
             <!-- Add a line break -->
-            <tr><td colspan="5">&nbsp;</td></tr>
+            <!-- <tr><td colspan="5">&nbsp;</td></tr> -->
 
             <!-- Table of additional information -->
             <!-- Pie chart to show which events a donor has sponsored -->
             <!-- Progress of individual donors (done later) -->
-            <h2 style="text-align: center">Donor Statistics</h2>
+            <!--<h2 style="text-align: center">Donor Statistics</h2>
             <table>
                 <tr>
                     <th>Frequency of Giving</th>
@@ -240,7 +241,7 @@ function exportDonorInfo($donor, $donations) {
                     <td></td>
                     <td></td>
                 </tr>
-            </table>
+            </table>-->
 
             <?php
         } else { // There should be no instances where a donor has no donations, but this is a failsafe in case it happens
