@@ -164,9 +164,7 @@
                     $current_year = $_POST["current_year"];
 
                    
-                   
-
-                    echo "previous year. $prev_year <br> current year. $current_year <br>";
+                    
          
                         
                     // Calculate the number of donors in the previous period
@@ -194,17 +192,47 @@
                         }
 
                     
+                    
+                    //Select retained donor's info
+ 
+                
+                    $sql_retained_donors_info = "SELECT dnr.FirstName, dnr.LastName, dnr.Email, dnr.PhoneNumber, dnr.Company
+                    FROM dbdonors dnr
+                    INNER JOIN (
+                      SELECT DISTINCT Email
+                      FROM dbdonations
+                      WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31'
+                      AND Email IN (
+                        SELECT DISTINCT Email
+                        FROM dbdonations
+                        WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31'
+                      )
+                    ) AS retained_donors ON dnr.Email = retained_donors.Email;";
+
+                    
+                    $result_retained_donor_info = mysqli_query($connection, $sql_retained_donors_info);
+                echo "</table>";
+                        
+
+                        echo "Donor's last year &nbsp".($num_donors_prev_period)."<br>Donor's this year &nbsp".($num_donors_current_period)."<br>Retained Donors &nbsp".$num_retained_donors;
                     // Display the donor retention rate
+                    if (mysqli_num_rows($result_retained_donor_info) > 0) {
+                    echo "<h2 style='text-align: center;'>Retained Members</h2>";
                     echo "<table>";
-                    echo "<tr><th>Donors this year</th><th>Total donors last year</th><th>Retained Donors</th><th>Donor Retention Rate:</th></tr>";
-                    echo "<tr>
-                    <td>" . htmlspecialchars($num_donors_current_period) . "</td>
-                    <td>" . htmlspecialchars($num_donors_prev_period) . "</td>
-                    <td>" . htmlspecialchars($num_retained_donors) . "</td>
-                    <td>" . htmlspecialchars(round($retention_rate, 2)) . "%"."</td>
-                         
-                  </tr>";
-                  echo "</table>";
+                    echo "<tr><th>First Name</th><th> Second Name </th><th> Email</th><th>Phone Number</th><th>Company</th></tr>";
+                    while($row = mysqli_fetch_assoc($result_retained_donor_info)) {
+                        echo "<tr>";
+                        echo "<td>" . $row["FirstName"] . "</td>";
+                        echo "<td>" . $row["LastName"] . "</td>";
+                        echo "<td>" . $row["Email"] . "</td>";
+                        echo "<td>". $row["PhoneNumber"] . "</td>";
+                        echo "<td>". $row["Company"] . "</td>";
+                        echo "</tr>";
+                    }
+                    echo "</table>";
+                } else {
+                  echo "No retained donors found.";
+                }
 
                   //End of report 
                    echo "<form action='reportsExport.php' method='post' class='export-form'>
