@@ -154,80 +154,103 @@
     function get_donor_retention($donorEmail) : string {
         $donations = retrieve_donations_by_email($donorEmail);
 
-        // Get dates of all donations
-        $dates = array();
-        foreach ($donations as $donation) {
-            $dates[] = $donation->get_contribution_date();
+        // If the donor has no donations, return "No Donations"
+        if (empty($donations)) {
+            return "No Donations";
         }
 
-        // Sort dates in ascending order
-        sort($dates);
+        // Sort donations by date
+        usort($donations, function($a, $b) {
+            return strtotime($b->get_contribution_date()) - strtotime($a->get_contribution_date());
+        });
 
-        // get the years of the dates
-        $years = array();
-        foreach ($dates as $date) {
-            $years[] = date('Y', strtotime($date));
-        }
+        // Get the current date
+        $current_date = time();
 
-        // Remove duplicate years
-        $unique_years = array_unique($years);
+        // Get the date one year ago
+        $one_year_ago = strtotime('-1 year', $current_date);
+
+        // Get the date two years ago
+        $two_years_ago = strtotime('-2 year', $current_date);
+
+        // Get the date of the earliest donation
+        $earliest_donation_date = strtotime($donations[count($donations) - 1]->get_contribution_date());
 
         // If the donor's first donation was from this year
-        if (in_array(date('Y'), $years) && count($unique_years) == 1) {
+        if (date('Y', $earliest_donation_date) == date('Y')) {
             return "New Donor";
         }
-        // if the donor made a donation last year and this year
-        elseif (in_array(date('Y') - 1, $years) && in_array(date('Y'), $years)) {
+
+        // Check if the donor made a donation both within the past year and the year before
+        $donations_last_year = array_filter($donations, function($donation) use ($one_year_ago) {
+            return strtotime($donation->get_contribution_date()) >= $one_year_ago;
+        });
+        $donations_year_before = array_filter($donations, function($donation) use ($one_year_ago, $two_years_ago) {
+            $donation_date = strtotime($donation->get_contribution_date());
+            return $donation_date < $one_year_ago && $donation_date >= $two_years_ago;
+        });
+        if (!empty($donations_last_year) && !empty($donations_year_before)) {
             return "Multiyear Donor";
         }
-        // If the donor donated this year, but their 2nd most recent donation was from 2 or more years ago
-        elseif (in_array(date('Y'), $years) && isset($years[1]) && $years[1] <= date('Y') - 2) {
-            return "Returning Donor";
+
+        // Check if the donor donated over 2 years ago, then started donating again within the last year
+        if ($earliest_donation_date <= $two_years_ago) {
+            $donations_between_two_and_one_year_ago = array_filter($donations, function($donation) use ($one_year_ago, $two_years_ago) {
+                $donation_date = strtotime($donation->get_contribution_date());
+                return $donation_date < $two_years_ago && $donation_date >= $one_year_ago;
+            });
+            if (!empty($donations_between_two_and_one_year_ago)) {
+                return "Returning Donor";
+            }
         }
-        else { // if the donor has donated previously, but not in the last year, return "Inactive Donor"
+
+        // Check if the donor has not donated within the past year, but donated within the past 2 years
+        if (!empty($donations_last_year) && empty($donations_year_before)) {
+            return "Formerly Active Donor";
+        }
+
+        // If the donor has not donated in 2 or more years from today's date
+        if ($earliest_donation_date <= $two_years_ago) {
             return "Inactive Donor";
         }
+
+        return "Unknown Donor"; // The donor hasn't made any donations (shouldn't reach this point but is here if needed)
     }
 
     function determine_donation_funnel($donorEmail) : string {
-        $donations_last_3_years = count_donations_within_years($donorEmail, 3);
-        $donations_last_5_years = count_donations_within_years($donorEmail, 5);
-        $total_donations = get_total_amount_donated($donorEmail);
+        /* Funnels:
+            - INTERESTED: If the donor has donated at least once in the past three years
+            - DONOR: If the donor has donated at least once a year in the past three years
+            - ENGAGED: If the donor has donated at least three times in the last five years
+            - LOYAL DONOR: If the donor has donated at least five times in the last five years
+            - LEADERSHIP DONOR: If the donor has donated over $10,000 since they became a donor
+            - N/A: if the donor doesn't fit into any funnel
+        */
 
-        /*$funnel = "No Funnel";
-        if ($donation_count_last_3_years >= 1) {
-            $funnel = "INTERESTED";
-        }
+        // Get the number of donations within the last 3 and 5 years from the donor
+        $donations_3_years = count_donations_within_years($donorEmail, 3);
+        $donations_5_years = count_donations_within_years($donorEmail, 5);
 
-        if ($donation_count_last_3_years >= 3) {
-            $funnel = "ENGAGED";
+        if (get_total_amount_donated($donorEmail) >= 10000) {
+            return "LEADERSHIP DONOR";
         }
-
-        if ($donation_count_last_5_years >= 5) {
-            $funnel = "LOYAL DONOR";
+        elseif ($donations_5_years >= 5) {
+            return "LOYAL DONOR";
         }
-
-        if ($donation_count_last_3_years >= 1 and $donation_count_last_3_years == $donation_count_last_5_years) {
-            $funnel = "DONOR";
-        }
-        if ($total_donation_amount >= 10000) {
-            $funnel = "LEADERSHIP DONOR";
-        }
-        return $funnel;*/
-
-        if ($donations_last_3_years >= 1) {
-            if ($donations_last_5_years >= 5) {
-                if ($total_donations > 10000) {
-                    return "LEADERSHIP DONOR";
-                }
-                return "LOYAL DONOR";
-            }
-            if ($donations_last_5_years >= 3) {
-                return "ENGAGED";
-            }
+        elseif ($donations_3_years >= 3) {
+            // this might need to be checked if they've donated at least once a year for 3 years straight, or if 2 years is enough
+            // the processing isn't completely done here to check for donations from individual years
             return "DONOR";
         }
-        return "INTERESTED";
+        elseif ($donations_5_years >= 3) {
+            return "ENGAGED";
+        }
+        elseif ($donations_3_years >= 1) {
+            return "INTERESTED";
+        }
+        else {
+            return "N/A";
+        }
     }
 
     /*
