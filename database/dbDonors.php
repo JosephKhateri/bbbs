@@ -151,7 +151,7 @@
         return $theDonors;
     }
 
-    function get_donor_retention($donorEmail) : string {
+    function get_donor_retention($donorEmail) {
         $donations = retrieve_donations_by_email($donorEmail);
 
         // If the donor has no donations, return "No Donations"
@@ -176,8 +176,8 @@
         // Get the date of the earliest donation
         $earliest_donation_date = strtotime($donations[count($donations) - 1]->get_contribution_date());
 
-        // If the donor's first donation was from this year
-        if (date('Y', $earliest_donation_date) == date('Y')) {
+        // If the donor's first donation was from this year or within the last year
+        if ($earliest_donation_date >= $one_year_ago) {
             return "New Donor";
         }
 
@@ -214,7 +214,8 @@
             return "Inactive Donor";
         }
 
-        return "Unknown Donor"; // The donor hasn't made any donations (shouldn't reach this point but is here if needed)
+        // Default case if none of the above conditions met
+        return "Unknown Donor";
     }
 
     function determine_donation_funnel($donorEmail) : string {
