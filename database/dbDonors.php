@@ -263,47 +263,72 @@
      */
     function get_donation_frequency($donorEmail) : string {
         $con = connect();
-        $query = "SELECT DISTINCT DATE_FORMAT(DateOfContribution, '%Y-%m') AS donation_month FROM dbDonations WHERE Email = '" . $donorEmail . "'";
-        $result = mysqli_query($con,$query);
+
+        // Get today's date
+        $current_date = date('Y-m-d');
+
+        // Calculate three years ago from today
+        $three_years_ago = date('Y-m-d', strtotime('-3 years', strtotime($current_date)));
+
+        // Calculate three months ago from today
+        $three_months_ago = date('Y-m-d', strtotime('-3 months', strtotime($current_date)));
+
+        $query = "SELECT DATE_FORMAT(DateOfContribution, '%Y-%m-%d') AS donation_date FROM dbDonations WHERE Email = '" . $donorEmail . "'";
+        $result = mysqli_query($con, $query);
+
         $donation_dates = array();
         while ($result_row = mysqli_fetch_assoc($result)) {
-            $donation_dates[] = $result_row['donation_month'];
+            $donation_dates[] = $result_row['donation_date'];
         }
 
         // Sort the donation dates in ascending order
         sort($donation_dates);
 
-        $donation_count = count($donation_dates);
+        // Initialize counters
+        $monthly_count = 0;
 
-        // If the donor has less than 3 donations, categorize as sporadic
-        if ($donation_count < 3) {
-            return "Sporadic";
+        // Track unique years of donations
+        $unique_years = array();
+
+        // Iterate through donation dates to categorize
+        foreach ($donation_dates as $donation_date) {
+            // Check if the donation is within the last 3 months
+            if ($donation_date >= $three_months_ago) {
+                $monthly_count++;
+            }
+
+            // Track unique years of donations
+            $year = date('Y', strtotime($donation_date));
+            if (!in_array($year, $unique_years)) {
+                $unique_years[] = $year;
+            }
         }
 
-        // Calculate the average time difference between donations
-        $total_diff = 0;
-        for ($i = 1; $i < $donation_count; $i++) {
-            $total_diff += strtotime($donation_dates[$i]) - strtotime($donation_dates[$i - 1]);
+        // Check if there's at least one donation in each of the past three years
+        $current_year = date('Y');
+        $three_years_ago = $current_year - 3;
+        $yearly_count = count($unique_years);
+
+        // for each year within the past 3 years from today's date, check if there's at least one donation
+        // I'm not totally sur eif this uses today's date or if it just uses the current year. this would need more examining to make it the former
+        for ($i = 0; $i < 3; $i++) {
+            if (!in_array($current_year - $i, $unique_years)) {
+                $yearly_count = 0; // reset the count if there's a missing year
+                break;
+            }
         }
-        $average_diff = $total_diff / ($donation_count - 1);
 
-        // Tolerance levels for variations
-        $monthly_tolerance = 5 * 24 * 60 * 60; // 5 days
-        $yearly_tolerance = 30 * 24 * 60 * 60; // 30 days
 
-        // Check if the donor donated approximately once a month for the last 3 months
-        $is_monthly = abs($average_diff - (31 * 24 * 60 * 60)) <= $monthly_tolerance;
-
-        // Check if the donor donated approximately once a year for the last 3 years
-        $is_yearly = abs($average_diff - (365 * 24 * 60 * 60)) <= $yearly_tolerance;
-
-        if ($is_monthly) {
-            return "Monthly";
-        } elseif ($is_yearly) {
-            return "Yearly";
+        // Determine the category based on counts
+        if ($monthly_count >= 3) {
+            $category = "Monthly";
+        } elseif ($yearly_count >= 3) {
+            $category = "Yearly";
         } else {
-            return "Sporadic";
+            $category = "Sporadic";
         }
+
+        return $category;
     }
 
     /*
