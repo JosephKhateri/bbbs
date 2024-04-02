@@ -44,7 +44,10 @@
       $donorsOver10K[] = $row;
   }
   
-  // Report 1: List of Donors Who Donated Over $10,000
+// Report 1: List of Donors Who Donated Over $10,000
+// Pre-Condition: User is logged in to be able to access report functionality
+// Post-Condition: User will be able to look through the report as a generated table and
+//                 be able to export the data as a CSV file
 function reportDonorsOver10K($connection) {
                 // Modified SQL query to join Donations with Donors table and fetch required details
                 $query = "SELECT d.Email, SUM(d.AmountGiven) AS TotalDonation, p.FirstName, p.LastName, p.PhoneNumber 
@@ -80,6 +83,9 @@ function reportDonorsOver10K($connection) {
 }
 
 // Report 2: Frequency of Giving
+// Pre-Condition: User is logged in to be able to access report functionality
+// Post-Condition: User will be able to look through the report as a generated table and
+//                 be able to export the data as a CSV file
 function reportFrequencyOfGiving($connection) {
             // Modified SQL query to join Donations with Donors table and fetch required details
             $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
@@ -140,6 +146,9 @@ function reportFrequencyOfGiving($connection) {
 }
 
 // Report 3: Donors Who Have Not Donated for the Last 2 Years
+// Pre-Condition: User is logged in to be able to access report functionality
+// Post-Condition: User will be able to look through the report as a generated table and
+//                 be able to export the data as a CSV file
 function reportDonorsNotDonatedIn2Years($connection) {
             // Modified SQL query to join Donations with Donors table and fetch required details
             // Get the current date
@@ -180,6 +189,9 @@ function reportDonorsNotDonatedIn2Years($connection) {
 }
 
 // Report 4: Events Donors Have Contributed To
+// Pre-Condition: User is logged in to be able to access report functionality
+// Post-Condition: User will be able to look through the report as a generated table and
+//                 be able to export the data as a CSV file
 function reportEventsDonorsContributed($connection) {
             // Fetch your data for the pie chart here
             $categoryQuery = "SELECT ContributionCategory, SUM(AmountGiven) AS TotalAmount FROM dbdonations WHERE ContributedSupportType = 'Fundraising Events' GROUP BY ContributionCategory";
@@ -226,6 +238,9 @@ function reportEventsDonorsContributed($connection) {
 }
 
 // Report 5: Frequency of Giving Greater Than Yearly
+// Pre-Condition: User is logged in to be able to access report functionality
+// Post-Condition: User will be able to look through the report as a generated table and
+//                 be able to export the data as a CSV file
 function reportFrequencyGreaterThanYearly($connection) {
             // Modified SQL query to join Donations with Donors table and fetch required details
             $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
@@ -290,6 +305,9 @@ function reportFrequencyGreaterThanYearly($connection) {
 }
 
 // Report 6: Donors Who Have Donated in the Past Three Years but Not to Events
+// Pre-Condition: User is logged in to be able to access report functionality
+// Post-Condition: User will be able to look through the report as a generated table and
+//                 be able to export the data as a CSV file
 function reportDonorsDonatedNotToEvents($connection) {
             // Modified SQL query to join Donations with Donors table and fetch required details
             //Get current date
@@ -337,6 +355,9 @@ function reportDonorsDonatedNotToEvents($connection) {
 }
 
 // Report 7: Donors Who Have Donated in the Past Three Years to Events
+// Pre-Condition: User is logged in to be able to access report functionality
+// Post-Condition: User will be able to look through the report as a generated table and
+//                 be able to export the data as a CSV file
 function reportDonorsDonatedToEvents($connection) {
             // Modified SQL query to join Donations with Donors table and fetch required details
             //Get current date
@@ -384,6 +405,11 @@ function reportDonorsDonatedToEvents($connection) {
 }
 
 // Report 8: Top X Donors
+// Pre-Condition: User is logged in to be able to access report functionality
+// Post-Condition: User will be able to look through the report as a generated table and
+//                 be able to export the data as a CSV file
+// Get the number of top donors from user input, default to 10
+// Modify your query to use the $topXDonors variable
 function reportTopXDonors($connection, $topXDonors) {
     $topXDonors = isset($_GET['topXDonors']) ? (int)$_GET['topXDonors'] : 10;
     $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, SUM(d.AmountGiven) AS Sum_Of_Donations
@@ -421,6 +447,7 @@ function reportTopXDonors($connection, $topXDonors) {
         echo "<p>Error preparing the query.</p>";
     }
 }
+
 function displayTopDonorsForm($currentValue) {
     echo "<form action='' method='get'>
             <input type='hidden' name='report' value='report8'>
@@ -429,7 +456,7 @@ function displayTopDonorsForm($currentValue) {
             <input type='submit' value='Update Report'>
           </form>";
 }
-// Logic to determine which report to run based on user input
+
 
 ?>
 <!DOCTYPE html>
