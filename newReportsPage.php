@@ -118,14 +118,12 @@ function reportFrequencyOfGiving($connection) {
                     
                     if($ratio==0){
                         $FOG="Not Enough Data";
-                    }elseif($ratio<1 && $ratio>0){
-                        $FOG="Less Than Yearly";
                     }elseif($ratio<6 && $ratio>=1){
                         $FOG="Yearly";
-                    }elseif($ratio>=6 && $ratio<12){
-                        $FOG="Bi-Monthly";
                     }elseif($ratio>=12){
                         $FOG="Monthly";
+                    } else {
+                        $FOG = "Sporadic";
                     }
 
                     echo "<tr>
