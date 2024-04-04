@@ -680,8 +680,6 @@
                     //Name of Donor
                     $donor_name=$row['Email'];
                     $don_num=$row['Number_Of_Donations'];
-                    
-                    //echo $donor_name.": ". $row['Number_Of_Donations'] ."<br>";
 
                     if ($don_num==3 || $don_num==4){
                         $type=3;//Donor counts as ENGAGED
