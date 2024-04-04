@@ -244,7 +244,7 @@
             error_log("Failed to insert donation: " . $query->error);
         } else {
             // Optionally, call updateLifetime here if it's not automatically triggered elsewhere
-            updateLifetime($email, $con);
+            //updateLifetime($email, $con);
         }
     }
 
@@ -288,7 +288,7 @@
         }
 
         // Update lifetime donation amount
-        updateLifetime($donorEmail, $con);
+        //updateLifetime($donorEmail, $con);
     }
 
 ?>
