@@ -216,9 +216,9 @@
 // 3. Code efficiency: Good - Code is very efficient, but there are some issues with the code actually working properly
 // 4. Documentation: Adequate - Need further documentation for the functions
 // 5. Assigned Task: Adequate - Program doesn't insert data into dbDonations properly
-    function checkDonationExists($email, $date,$amount,$con){
-        $query = $con->prepare("SELECT Email, DateOfContribution, AmountGiven from dbdonations WHERE Email = ? AND DateOfContribution = ? AND AmountGiven = ?");
-        $query->bind_param("sdi", $email,$date,$amount);
+    function checkDonationExists($email, $date, $amount, $con) {
+        $query = $con->prepare("SELECT Email, DateOfContribution, AmountGiven FROM dbdonations WHERE Email = ? AND DateOfContribution = ? AND AmountGiven = ?");
+        $query->bind_param("ssd", $email, $date, $amount);
         $query->execute();
         $result = $query->get_result();
         return $result->num_rows > 0;
@@ -229,9 +229,9 @@
         return count(get_all_donations());
     }
 
-    function addDonation($donationData, $con,$newID){
+    function addDonation($donationData, $con, $newID) {
         $email = trim($donationData[7]);
-        $dateOfContribution = $donationData[0];
+        $dateOfContribution = date('Y-m-d', strtotime($donationData[0])); // Convert date to MySQL-compatible format
         $amountGiven = $donationData[3]; // Ensure this is captured correctly from our CSV
         if (empty($email) || empty($dateOfContribution) || empty($amountGiven)) {
             error_log("Missing essential donation information: " . implode(", ", $donationData));
@@ -239,7 +239,7 @@
         }
         // Prepare the SQL query to insert a new donation
         $query = $con->prepare("INSERT INTO dbdonations (Email, DateOfContribution, ContributedSupportType, ContributionCategory, AmountGiven, PaymentMethod, Memo, DonationID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $query->bind_param("ssssdssi", $donationData[7], $donationData[0], $donationData[1], $donationData[2], $donationData[3], $donationData[13], $donationData[14],$newID);
+        $query->bind_param("ssssdssi", $donationData[7], $dateOfContribution, $donationData[1], $donationData[2], $donationData[3], $donationData[13], $donationData[14], $newID);
         if (!$query->execute()) {
             error_log("Failed to insert donation: " . $query->error);
         } else {
@@ -263,32 +263,31 @@
         }
     }
 
-    function processDonationData($donationData, $con){
-        // Assuming donationData has the email as the unique identifier in the first position -- KEY WORD IS ASSUMING!!!
-
-        //$x = implode(" ", $donationData);
-        //echo $x;
-
-        $donorEmail = $donationData[7];
-        $donoDate = $donationData[0];
-        $donoAmount = $donationData[3];
-
-
-        // Check if donation exists for the donor
-        $donationExists = checkDonationExists($donorEmail, $donoDate,$donoAmount,$con);
-
-        $newID = getMaxDonationID($con) + 1;
-
-        if (!$donationExists) {
-            // Add new donation
-            addDonation($donationData, $con,$newID);
-        } else {
-            // Update donation info
-            updateDonationInfo($donationData, $con);
+    function processDonationData($donationData, $con) {
+        $email = trim($donationData[7]);
+        $dateOfContribution = date('Y-m-d', strtotime($donationData[0]));
+        $amountGiven = $donationData[3];
+    
+        if (empty($email) || empty($dateOfContribution) || empty($amountGiven)) {
+            error_log("Missing essential donation information: " . implode(", ", $donationData));
+            return;
         }
-
-        // Update lifetime donation amount
-        //updateLifetime($donorEmail, $con);
+    
+        $newID = getMaxDonationID($con) + 1;
+    
+        // Check if the donation exists based on email, date, and amount
+        $donationExists = checkDonationExists($email, $dateOfContribution, $amountGiven, $con);
+    
+        if ($donationExists) {
+            echo json_encode(['status' => 'duplicate', 'message' => 'Duplicate detected. Do you want to proceed?']);
+            exit;
+        } else {
+            addDonation($donationData, $con, $newID);
+            return ['status' => 'success', 'message' => 'Donation added successfully'];
+        }
+            
+        
     }
-
 ?>
+
+

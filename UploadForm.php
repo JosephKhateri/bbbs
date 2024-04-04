@@ -83,5 +83,42 @@
             <input type="submit" value="Upload">
         </form>
     </main>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var form = document.querySelector('form[name="uploadFile"]');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Stop the form from submitting the traditional way
+
+            var formData = new FormData(this);
+            
+            // AJAX request to the server with the form data
+            fetch('upload.php', { // Ensure this matches the path to your processing script
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'duplicate') {
+                    // Ask the user what they want to do about the duplicate
+                    if (confirm(data.message)) {
+                        // If user chooses to proceed, resend data with a flag to force insert
+                        formData.append('forceInsert', 'true');
+                        return fetch('upload.php', { // Resend to the same endpoint
+                            method: 'POST',
+                            body: formData,
+                        })
+                        .then(response => response.json())
+                        .then(data => alert(data.message)); // Notify the user of the outcome
+                    } else {
+                        alert('Duplicate donation not added.'); // User chose not to proceed
+                    }
+                } else {
+                    alert('Donation processed successfully.'); // No duplicates detected
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
 </body>
 </html>
