@@ -210,7 +210,7 @@
 
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
-                echo "<h2 style='text-align: center;'>List of Donors Who Donated Over $10,000</h2>";
+                echo "<h2 style='text-align: center;'>Donors Who Donated Over $10,000</h2>";
                 echo "<table>";
                 echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Total Donation</th></tr>";
                 while ($row = mysqli_fetch_assoc($result)) {
@@ -244,7 +244,7 @@
 
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
-                echo "<h2 style='text-align: center;'>List of Donor's Frequency of Giving</h2>";
+                echo "<h2 style='text-align: center;'>Donors' Frequency of Giving</h2>";
                 echo "<table>";
                 echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Frequency of Giving</th>
                       <th>Days from Earliest Donation</th></tr>";
@@ -314,9 +314,9 @@
 
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
-                echo "<h2 style='text-align: center;'>List of Donors Who have not Donated for the last 2 years</h2>";
+                echo "<h2 style='text-align: center;'>Donors Who Have Not Donated for the Last 2 Years</h2>";
                 echo "<table>";
-                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th></tr>";
+                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Date of Last Donation</th></tr>";
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Format the phone number
                      
@@ -324,7 +324,7 @@
                             <td>" . htmlspecialchars($row['Email']) . "</td>
                             <td>" . htmlspecialchars($row['FirstName']) . "</td>
                             <td>" . htmlspecialchars($row['LastName']) . "</td>
-                            
+                            <td>" . htmlspecialchars($row['LastDonation']) . "</td>
                           </tr>";
                 }
 
@@ -343,7 +343,7 @@
                 $categories[] = $row;
             }
             // Pass the PHP array to JavaScript
-            echo "<script>var categoryData = " . json_encode($categories) . ";</script>";
+            echo "<script>let categoryData = " . json_encode($categories) . ";</script>";
             echo "<h2 style='text-align: center;margin-top: 30px;margin-bottom: 20px'>Events Donors Have Contributed To</h2>";
             // Include the Google Charts loader and the pie chart drawing script
             echo '<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>';
@@ -352,19 +352,24 @@
                     google.charts.setOnLoadCallback(drawChart);
                     
                     function drawChart() {
-                        var data = new google.visualization.DataTable();
+                        let data = new google.visualization.DataTable();
                         data.addColumn("string", "Category");
                         data.addColumn("number", "Amount");
                         categoryData.forEach(function(category) {
                             data.addRow([category.ContributionCategory, parseFloat(category.TotalAmount)]);
                         });
         
-                        var options = {
+                        let options = {
                             title: "Donation Contribution Categories",
                             is3D: true,
                         };
+                        let formatter = new google.visualization.NumberFormat({
+                            prefix: "$", // Add dollar sign as prefix
+                            fractionDigits: 2 // Display two decimal places
+                        });
+                        formatter.format(data, 1); // Apply formatting to the "Amount" column
         
-                        var chart = new google.visualization.PieChart(document.getElementById("piechart"));
+                        let chart = new google.visualization.PieChart(document.getElementById("piechart"));
                         chart.draw(data, options);
                     }
                   </script>';
@@ -388,7 +393,7 @@
 
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
-                echo "<h2 style='text-align: center;'>List of Donors whose Frequency of Giving is greater than yearly</h2>";
+                echo "<h2 style='text-align: center;'>Donors Whose Frequency of Giving is Greater than Yearly</h2>";
                 echo "<table>";
                 echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Frequency of Giving</th>
                       <th>Days from Earliest Donation</th></tr>";
@@ -454,15 +459,14 @@
                       MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
                     FROM dbdonations AS d
                     JOIN dbdonors AS p ON d.Email = p.Email
-                    WHERE (d.DateOfContribution IS NULL 
-                        OR  d.DateOfContribution > '$thresholdDate')
-                        AND d.email NOT IN (SELECT Email FROM dbdonations WHERE ContributionCategory='Event Sponsorship')						
+                    WHERE (d.DateOfContribution > '$thresholdDate')
+                          AND ContributedSupportType != 'Fundraising Events'
                     GROUP BY d.Email ";
             $result = mysqli_query($connection, $query);
 
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
-                echo "<h2 style='text-align: center;'>List of Donors who have donated in the past three Years who haven't donated to Events</h2>";
+                echo "<h2 style='text-align: center;'>Non-Event Donors Who Have Donated in the Past 3 Years</h2>";
                 echo "<table>";
                 echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Earliest Donation</th>
                       <th>Type of Donation</th></tr>";
@@ -504,15 +508,14 @@
                       MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
                     FROM dbdonations AS d
                     JOIN dbdonors AS p ON d.Email = p.Email
-                    WHERE (d.DateOfContribution IS NULL
-                          OR d.DateOfContribution > '$thresholdDate')
-                          AND ContributionCategory='Event Sponsorship'
+                    WHERE (d.DateOfContribution > '$thresholdDate')
+                          AND ContributedSupportType = 'Fundraising Events'
                     GROUP BY d.Email ";
             $result = mysqli_query($connection, $query);
 
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
-                echo "<h2 style='text-align: center;'>List of Donors who have donated in the past three Years and have donated to an Event</h2>";
+                echo "<h2 style='text-align: center;'>Event Donors Who Have Donated in the Past 3 Years</h2>";
                 echo "<table>";
                 echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Earliest Donation</th>
                       <th>Event Sponsored</th></tr>";
@@ -614,7 +617,6 @@
             </form>";
         }
         if (isset($_GET['report']) && $_GET['report'] == 'report7'){
-            echo "GourLAMI<br>";
             echo "<form action='reportsExport.php' method='post' class='export-form'>
             <input type='hidden' name='action' value='export_donors_L3YE'>
             <input type='submit' value='Export Donors' class='export-btn'>
