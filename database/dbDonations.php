@@ -183,21 +183,6 @@
         return $totalAmount;
     }
 
-    function count_donations_within_years($donorEmail, $years) : int {
-        $count = 0;
-        $current_date = date('Y-m-d');
-        $donations = retrieve_donations_by_email($donorEmail);
-
-        foreach ($donations as $donation) {
-            $donation_date = $donation->get_contribution_date();
-            $years_diff = date_diff(date_create($donation_date), date_create($current_date))->y;
-            if ($years_diff <= $years) {
-                $count++;
-            }
-        }
-        return $count;
-    }
-
     /*
      * Parameters: $donorEmail = A string that represents the email of a donor
      * This function retrieves the event donation categories of a donor and the total amount donated to each category

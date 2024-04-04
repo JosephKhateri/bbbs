@@ -151,7 +151,14 @@
         return $theDonors;
     }
 
-    function get_donor_retention($donorEmail) {
+    /*
+     * Parameters: $donorEmail = A string that represents the email of a donor
+     * This function retrieves all donations made by a donor using the donor's email
+     * Return type: A string representing the donor's retention status (New Donor, Multiyear Donor, Returning Donor, Formerly Active Donor, Inactive Donor, or Unknown Donor)
+     * Pre-condition: $donorEmail is a string
+     * Post-condition: The donor's retention status is returned
+     */
+    function get_donor_retention($donorEmail) : string {
         $donations = retrieve_donations_by_email($donorEmail);
 
         // If the donor has no donations, return "No Donations"
@@ -160,21 +167,19 @@
         }
 
         // Sort donations by date
-        usort($donations, function($a, $b) {
-            return strtotime($b->get_contribution_date()) - strtotime($a->get_contribution_date());
-        });
+        sort($donations);
 
-        // Get the current date
-        $current_date = time();
 
         // Get the date one year ago
-        $one_year_ago = strtotime('-1 year', $current_date);
+        $one_year_ago = date('Y-m-d', strtotime('-1 year'));;
 
         // Get the date two years ago
-        $two_years_ago = strtotime('-2 year', $current_date);
+        $two_years_ago = date('Y-m-d', strtotime('-2 year'));;
 
         // Get the date of the earliest donation
-        $earliest_donation_date = strtotime($donations[count($donations) - 1]->get_contribution_date());
+        $earliest_donation_date = end($donations)->get_contribution_date();
+
+        $date_of_last_donation = $donations[0]->get_contribution_date();
 
         // If the donor's first donation was from this year or within the last year
         if ($earliest_donation_date >= $one_year_ago) {
@@ -183,10 +188,10 @@
 
         // Check if the donor made a donation both within the past year and the year before
         $donations_last_year = array_filter($donations, function($donation) use ($one_year_ago) {
-            return strtotime($donation->get_contribution_date()) >= $one_year_ago;
+            return $donation->get_contribution_date() >= $one_year_ago;
         });
         $donations_year_before = array_filter($donations, function($donation) use ($one_year_ago, $two_years_ago) {
-            $donation_date = strtotime($donation->get_contribution_date());
+            $donation_date = $donation->get_contribution_date();
             return $donation_date < $one_year_ago && $donation_date >= $two_years_ago;
         });
         if (!empty($donations_last_year) && !empty($donations_year_before)) {
@@ -205,19 +210,26 @@
         }
 
         // Check if the donor has not donated within the past year, but donated within the past 2 years
-        if (!empty($donations_last_year) && empty($donations_year_before)) {
+        if ($date_of_last_donation >= $two_years_ago && $date_of_last_donation < $one_year_ago) {
             return "Formerly Active Donor";
         }
 
         // If the donor has not donated in 2 or more years from today's date
-        if ($earliest_donation_date <= $two_years_ago) {
+        if ($date_of_last_donation <= $two_years_ago) {
             return "Inactive Donor";
         }
 
-        // Default case if none of the above conditions met
+        // Default case if none of the above conditions met (shouldn't happen)
         return "Unknown Donor";
     }
 
+    /*
+     * Parameters: $donorEmail = A string that represents the email of a donor
+     * This function sorts the donor into a donation funnel based on their donation history
+     * Return type: A string that represents the donation funnel the donor falls into
+     * Pre-condition: $donorEmail is a string
+     * Post-condition: The donation funnel the donor falls into is returned or "N/A" if the donor doesn't fit into any funnel
+     */
     function determine_donation_funnel($donorEmail) : string {
         /* Funnels:
             - INTERESTED: If the donor has donated at least once in the past three years
@@ -228,29 +240,83 @@
             - N/A: if the donor doesn't fit into any funnel
         */
 
-        // Get the number of donations within the last 3 and 5 years from the donor
-        $donations_3_years = count_donations_within_years($donorEmail, 3);
-        $donations_5_years = count_donations_within_years($donorEmail, 5);
+        $current_date = date('Y-m-d'); // Get the current date
+        $three_years_ago = date('Y-m-d', strtotime('-3 years', strtotime($current_date))); // Get the date three years ago
 
         if (get_total_amount_donated($donorEmail) >= 10000) {
             return "LEADERSHIP DONOR";
         }
-        elseif ($donations_5_years >= 5) {
-            return "LOYAL DONOR";
+
+        $con = connect();
+        $query = "SELECT DATE_FORMAT(DateOfContribution, '%Y-%m-%d') AS donation_date FROM dbDonations WHERE Email = '" . $donorEmail . "'";
+        $result = mysqli_query($con, $query);
+
+        $donation_dates = array();
+        while ($result_row = mysqli_fetch_assoc($result)) {
+            $donation_dates[] = $result_row['donation_date'];
         }
-        elseif ($donations_3_years >= 3) {
-            // this might need to be checked if they've donated at least once a year for 3 years straight, or if 2 years is enough
-            // the processing isn't completely done here to check for donations from individual years
-            return "DONOR";
-        }
-        elseif ($donations_5_years >= 3) {
-            return "ENGAGED";
-        }
-        elseif ($donations_3_years >= 1) {
-            return "INTERESTED";
-        }
-        else {
-            return "N/A";
+
+        sort($donation_dates); // Sort the donations by newest to oldest
+
+        // Get date of oldest donation
+        $oldest_donation = $donation_dates[0];
+
+        // If oldest donation was over 3 years ago
+        if($oldest_donation < $three_years_ago) {
+            $num_donations = 0; // Initialize number of donations
+
+            // Check how many times the donor has donated in the last five years
+            for ($i = 1; $i < 6; $i++) {
+                // Get the year to check for donations
+                $year_to_check = date('Y-m-d', strtotime("-$i years", strtotime($current_date)));
+                $year_to_check_plus_one = date('Y-m-d', strtotime("+1 year", strtotime($year_to_check))); // Get the year after the year to check
+
+                // Iterate through donation dates to find donations within the year being checked
+                foreach ($donation_dates as $donation_date) {
+                    if ($donation_date >= $year_to_check && $donation_date <= $year_to_check_plus_one) {
+                        $num_donations++;
+                    }
+                }
+            }
+
+            if ($num_donations >= 5) { // If the donor has donated at least five times in the last five years
+                return "LOYAL DONOR";
+            } elseif ($num_donations >= 3) { // If the donor has donated at least three times in the last five years
+                return "ENGAGED";
+            } else { // Donation was over 5 years ago or donor made less than 3 donations in the last 5 years
+                return "N/A";
+            }
+        } else {
+            // Check if the donor has donated at least once in the past three years
+            $yearly_count = 0; // Initialize yearly count
+
+            // Check if there's at least one donation for each of the past three years
+            for ($i = 1; $i < 4; $i++) {
+                $year_to_check = date('Y-m-d', strtotime("-$i years", strtotime($current_date))); // Get the year to check
+                $year_to_check_plus_one = date('Y-m-d', strtotime("+1 year", strtotime($year_to_check))); // Get the year after the year to check
+
+                $has_donation = false; // Flag to track if there's a donation for the year
+
+                // Iterate through donation dates to find donations within the year being checked
+                foreach ($donation_dates as $donation_date) {
+                    if ($donation_date >= $year_to_check && $donation_date <= $year_to_check_plus_one) {
+                        $has_donation = true;
+                        break; // Exit loop early when a donation is found for the year
+                    }
+                }
+
+                if ($has_donation) {
+                    $yearly_count++; // Increment yearly count if a donation was found for the year
+                }
+            }
+
+            if ($yearly_count == 3) { // If the donor has donated at least once a year in the past three years
+                return "DONOR";
+            } elseif ($yearly_count >= 1) { // If the donor has donated at least once in the past three years
+                return "INTERESTED";
+            } else { // If the donor doesn't fit into any funnel after all checks
+                return "N/A";
+            }
         }
     }
 
@@ -259,16 +325,13 @@
      * This function retrieves the donation frequency of a donor
      * Return type: A string that represents the donation frequency of the donor
      * Pre-condition: $donorEmail is a string
-     * Post-condition: The donation frequency of the donor is returned
+     * Post-condition: The donation frequency of the donor is returned (Monthly, Yearly, or Sporadic)
      */
     function get_donation_frequency($donorEmail) : string {
         $con = connect();
 
         // Get today's date
         $current_date = date('Y-m-d');
-
-        // Calculate three years ago from today
-        $three_years_ago = date('Y-m-d', strtotime('-3 years', strtotime($current_date)));
 
         // Calculate three months ago from today
         $three_months_ago = date('Y-m-d', strtotime('-3 months', strtotime($current_date)));
@@ -306,11 +369,10 @@
 
         // Check if there's at least one donation in each of the past three years
         $current_year = date('Y');
-        $three_years_ago = $current_year - 3;
         $yearly_count = count($unique_years);
 
         // for each year within the past 3 years from today's date, check if there's at least one donation
-        // I'm not totally sur eif this uses today's date or if it just uses the current year. this would need more examining to make it the former
+        // I'm not totally sure if this uses today's date or if it just uses the current year. this would need more examining to make it the former
         for ($i = 0; $i < 3; $i++) {
             if (!in_array($current_year - $i, $unique_years)) {
                 $yearly_count = 0; // reset the count if there's a missing year
@@ -318,7 +380,7 @@
             }
         }
 
-
+        //echo $yearly_count;
         // Determine the category based on counts
         if ($monthly_count >= 3) {
             $category = "Monthly";
