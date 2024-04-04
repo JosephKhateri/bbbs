@@ -288,7 +288,7 @@ function exportDonorInfo($donor, $donations, $donor_type) {
                 <tr>
                     <th>Frequency of Giving</th>
                     <th>Lifetime Value</th>
-                    <th>Retention Rate</th>
+                    <th>Retention</th>
                     <th>Donation Funnel</th>
                     <th>Event or Non-Event Donor</th>
                 </tr>
