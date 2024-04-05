@@ -280,22 +280,21 @@
 
     /*
      * Parameters: $donation_dates = An array of strings that represent the dates of donations made by a donor
-     * This function checks if a donor has donated at least once a year for the past three years and is
+     * This function checks if a donor has donated at least once a year for the past X years and is
          * called when calculating the donation frequency and funnel of a donor
-         * For donation frequency, the donor is considered "Yearly" if this function returns 3 or more
-         * For donation funnel, the donor is considered "DONOR" if this function returns 3 or more
-     * Return type: An integer that represents the number of years the donor has donated in the past three years
+         * For donation frequency, the donor is considered "Yearly" if this function returns the provided number of years (2)
+         * For donation funnel, the donor is considered "DONOR" if this function returns the provided number of years (3)
+     * Return type: An integer that represents the number of years the donor has donated in the past X years
      * Pre-condition: $donation_dates is an array of dates in the format 'YYYY-MM-DD'
      * Post-condition: The number of years the donor has donated in the past three years is returned
      */
-    function check_donations_for_past_three_years($donation_dates) : int {
+    function check_donations_for_past_x_years($donation_dates, $num_years) : int {
         $current_date = date('Y-m-d'); // Get the current date
 
         // Check if the donor has donated at least once in the past three years
         $yearly_count = 0; // Initialize yearly count
 
-        // Check if there's at least one donation for each of the past three years
-        $num_years = 3; // Number of years to check for donations
+        // Check if there's at least one donation for each of the past X years
         for ($i = 1; $i <= $num_years; $i++) {
             $year_to_check = date('Y-m-d', strtotime("-$i years", strtotime($current_date))); // Get the year to check
             $year_to_check_plus_one = date('Y-m-d', strtotime("+1 year", strtotime($year_to_check))); // Get the year after the year to check
