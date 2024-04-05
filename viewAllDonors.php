@@ -46,54 +46,29 @@
         // Redirect to viewDonor.php with the page parameter
         header("Location: viewDonor.php?donor=$donorEmail");
         exit();
+    } elseif (isset($_GET['export'])) {
+        exportAllDonorInfo();
     }
 
-function exportDonorInfo($donor, $donations, $donor_type) {
+function exportAllDonorInfo() {
     require_once('database/dbDonors.php');
     require_once('database/dbDonations.php');
     require_once('domain/Donor.php');
     require_once('domain/Donation.php');
 
-    // Get donor last and first name and make it the file name
-    $donorName = $donor->get_first_name() . '_' . $donor->get_last_name();
+    $donors = get_all_donors();
 
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="' . $donorName . '.csv"');
-
+    header('Content-Disposition: attachment; filename="bbbs_donors.csv"');
     $output = fopen("php://output", "w");
 
     // Write the CSV header for donor information
     fputcsv($output, array('First Name', 'Last Name', 'Company', 'Email', 'Phone Number', 'Address', 'City', 'State', 'Zip'));
 
-    // Write the donor's information to the CSV file
-    fputcsv($output, array($donor->get_first_name(), $donor->get_last_name(), $donor->get_company(), $donor->get_email(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()), $donor->get_address(), $donor->get_city(), $donor->get_state(), $donor->get_zip()));
-
-    // Write 3 blank lines to separate the donor information from the donations
-    $currLine = 0;
-    $blankLines = 3; // Number of blank lines to write
-    while ($currLine < $blankLines) {
-        fputcsv($output, array());
-        $currLine++;
+    foreach ($donors as $donor) {
+        // Write the donor's information to the CSV file
+        fputcsv($output, array($donor->get_first_name(), $donor->get_last_name(), $donor->get_company(), $donor->get_email(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()), $donor->get_address(), $donor->get_city(), $donor->get_state(), $donor->get_zip()));
     }
-
-    // Write the CSV header for donations
-    fputcsv($output, array('Date', 'Contribution Type', 'Contribution Category', 'Amount', 'Payment Method'));
-
-    // Write the donor's donations to the CSV file
-    foreach ($donations as $donation) {
-        fputcsv($output, array($donation->get_contribution_date(), $donation->get_contribution_type(), $donation->get_contribution_category(), $donation->get_amount(), $donation->get_payment_method()));
-    }
-
-    $currLine = 0;
-    while ($currLine < $blankLines) {
-        fputcsv($output, array());
-        $currLine++;
-    }
-
-    // Write the CSV header for donations
-    fputcsv($output, array('Frequency of Giving', 'Lifetime Value', 'Retention', 'Donation Funnel', 'Event or Non-Event Donor'));
-    fputcsv($output, array(get_donation_frequency($donor->get_email()), get_total_amount_donated($donor->get_email()), get_donor_retention($donor->get_email()), determine_donation_funnel($donor->get_email()), $donor_type));
-
     fclose($output);
     exit(); // may need to toggle this later. However, if this is left out, then the html below gets printed to file
 }
@@ -187,6 +162,14 @@ function exportDonorInfo($donor, $donations, $donor_type) {
         </table>
 
         <br>
+        <!-- Button to export donor information to a CSV file -->
+        <form action="viewAllDonors.php" method="GET">
+            <!-- Add a hidden input field to indicate the export action -->
+            <input type="hidden" name="export" value="true">
+
+            <!-- Submit button -->
+            <input type="submit" value="Export to CSV" style="margin-top: 1rem">
+        </form>
         <a class="button cancel" href="index.php" style="margin-top: -.5rem">Return to Dashboard</a>
     </main>
 </body>
