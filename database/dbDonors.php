@@ -244,7 +244,7 @@
         $three_years_ago = date('Y-m-d', strtotime('-3 years', strtotime($current_date))); // Get the date three years ago
 
         if (get_total_amount_donated($donorEmail) >= 10000) {
-            return "LEADERSHIP DONOR";
+            return "Leadership Donor";
         }
 
         $con = connect();
@@ -281,20 +281,21 @@
             }
 
             if ($num_donations >= 5) { // If the donor has donated at least five times in the last five years
-                return "LOYAL DONOR";
+                return "Loyal Donor";
             } elseif ($num_donations >= 3) { // If the donor has donated at least three times in the last five years
-                return "ENGAGED";
+                return "Engaged";
             } else { // Donation was over 5 years ago or donor made less than 3 donations in the last 5 years
                 return "N/A";
             }
         } else {
             // Check if the donor has donated at least once a year in the past three years
-            $yearly_count = check_donations_for_past_three_years($donation_dates);
+            $num_years = 3; // Number of years to check for donations
+            $yearly_count = check_donations_for_past_x_years($donation_dates, $num_years);
 
             if ($yearly_count == 3) { // If the donor has donated at least once a year in the past three years
-                return "DONOR";
+                return "Donor";
             } elseif ($yearly_count >= 1) { // If the donor has donated at least once in the past three years
-                return "INTERESTED";
+                return "Interested";
             } else { // If the donor doesn't fit into any funnel after all checks
                 return "N/A";
             }
@@ -315,7 +316,7 @@
         $current_date = date('Y-m-d');
 
         // Calculate three months ago from today
-        $three_months_ago = date('Y-m-d', strtotime('-3 months', strtotime($current_date)));
+        $two_months_ago = date('Y-m-d', strtotime('-2 months', strtotime($current_date)));
 
         $query = "SELECT DATE_FORMAT(DateOfContribution, '%Y-%m-%d') AS donation_date FROM dbDonations WHERE Email = '" . $donorEmail . "'";
         $result = mysqli_query($con, $query);
@@ -334,18 +335,19 @@
         // Iterate through donation dates to categorize
         foreach ($donation_dates as $donation_date) {
             // Check if the donation is within the last 3 months
-            if ($donation_date >= $three_months_ago) {
+            if ($donation_date >= $two_months_ago) {
                 $monthly_count++;
             }
         }
 
-        // Check if the donor has donated at least once each year for the past three years
-        $yearly_count = check_donations_for_past_three_years($donation_dates);
+        // Check if the donor has donated at least once each year for the past two years
+        $num_years = 2; // Number of years to check for donations
+        $yearly_count = check_donations_for_past_x_years($donation_dates, $num_years);
 
         // Determine the category based on counts
-        if ($monthly_count >= 3) {
+        if ($monthly_count >= 2) {
             $category = "Monthly";
-        } elseif ($yearly_count >= 3) {
+        } elseif ($yearly_count >= 2) {
             $category = "Yearly";
         } else {
             $category = "Sporadic";
