@@ -510,9 +510,15 @@ function exportDonorsDSF() {
             // Format the phone number
             $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
 
-            // Get the donor's donation funnel
-            $funnel = determine_donation_funnel($donor_email);
-            fputcsv($output, array($donor_email, $donor_first_name, $donor_last_name, $formattedPhone, $funnel));
+            // get the donor's donations
+            $donations = get_donations_by_email($donor_email);
+
+            // If the donor has donations, then determine their donation funnel and display the donor
+            if (!empty($donations)) {
+                // Get the donor's donation funnel
+                $funnel = determine_donation_funnel($donor_email);
+                fputcsv($output, array($donor_email, $donor_first_name, $donor_last_name, $formattedPhone, $funnel));
+            }
         }
     }
     fclose($output);

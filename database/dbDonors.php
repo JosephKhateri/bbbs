@@ -256,7 +256,7 @@
             $donation_dates[] = $result_row['donation_date'];
         }
 
-        sort($donation_dates); // Sort the donations by newest to oldest
+        sort($donation_dates); // Sort the donations by oldest to newest
 
         // Get date of oldest donation
         $oldest_donation = $donation_dates[0];

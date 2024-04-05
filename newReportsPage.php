@@ -437,18 +437,23 @@ function reportDonationStage(){
             // Format the phone number
             $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
 
-            // Get the donor's donation funnel
-            $funnel = determine_donation_funnel($donor_email);
+            // get the donor's donations
+            $donations = get_donations_by_email($donor_email);
 
-            //Checks if the current donor has donated in the past three years if they have then
-            //print. If not then print nothing.
-            echo "<tr>
+            // If the donor has donations, then determine their donation funnel and display the donor
+            if (!empty($donations)) {
+                // Get the donor's donation funnel
+                $funnel = determine_donation_funnel($donor_email);
+
+                // Table entry for donor
+                echo "<tr>
                     <td>" . htmlspecialchars($donor_email) . "</td>
                     <td>" . htmlspecialchars($donor_first_name) . "</td>
                     <td>" . htmlspecialchars($donor_last_name) . "</td>
                     <td>" . htmlspecialchars($formattedPhone) . "</td>
                     <td>" . htmlspecialchars($funnel) . "</td>      
                   </tr>";
+            }
         }
         echo "</table>";
     } else {
