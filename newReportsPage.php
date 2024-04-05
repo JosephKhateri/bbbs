@@ -438,7 +438,7 @@ function reportDonationStage(){
             $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
 
             // get the donor's donations
-            $donations = get_donations_by_email($donor_email);
+            $donations = retrieve_donations_by_email($donor_email);
 
             // If the donor has donations, then determine their donation funnel and display the donor
             if (!empty($donations)) {
