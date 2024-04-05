@@ -29,65 +29,14 @@
         //Filepath printing for debugging
         //echo $tmpFilePath;
         //echo $fileType;
-
-        //Commented out for testing.
-        /*if (($fileType == 'text/csv') || ($fileType == 'text/plain')) {
+        if (($fileType == 'text/csv') || ($fileType == 'text/plain')) {
             require 'upload.php';
             parseCSV($tmpFilePath);
         } else {
             echo $fileType;
             header('Location: index.php?fileTypeFail');
-        }**/
-
-        //Check if file type is CSV or plain text
-        if (($fileType == 'text/csv') || ($fileType == 'text/plain')) {
-            //Check CSV file for phone number format and date format
-            $formatCheckResult = checkCSVFormat($tmpFilePath);
-            if ($formatCheckResult === true) {
-                require 'upload.php';
-                parseCSV($tmpFilePath);
-            } else {
-                $errorMsg = '';
-                if ($formatCheckResult === 'phone') {
-                    $errorMsg = 'Wrong phone number format. Cannot upload CSV. Try again later.';
-                } elseif ($formatCheckResult === 'date') {
-                    $errorMsg = 'Wrong date format. Cannot upload CSV. Try again later.';
-                }
-                echo "<script>alert('$errorMsg');</script>";
-            }
-        } else {
-            header('Location: index.php?fileTypeFail');
-            exit;
         }
-    }
-
-    // Function to check CSV format for phone number and date format.
-    //If phone numbers contain any dashes or the date is not formatted as such: Y-M-D, then it prompts an error message.
-    function checkCSVFormat($csvFilePath) {
-        $file = fopen($csvFilePath, 'r');
-        if (!$file) {
-            return false; //Unable to open file
-        }
-
-        fgetcsv($file); //Skip header row
-
-        while (($line = fgetcsv($file)) !== false) {
-            //Check phone number format (no dashes allowed)
-            if (preg_match('/\d{3}-\d{3}-\d{4}/', $line[3])) {
-                fclose($file);
-                return 'phone'; //Wrong phone number format
-            }
-
-            //Check date format (year-month-day order)
-            $date = $line[6];
-            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-                fclose($file);
-                return 'date'; //Wrong date format
-            }
-        }
-        fclose($file);
-        return true; //Format checks passed
-    }
+    }    
 ?>
 
 <!DOCTYPE html>
