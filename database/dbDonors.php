@@ -262,11 +262,12 @@
         $oldest_donation = $donation_dates[0];
 
         // If oldest donation was over 3 years ago
-        if($oldest_donation < $three_years_ago) {
+        if ($oldest_donation < $three_years_ago) {
             $num_donations = 0; // Initialize number of donations
 
             // Check how many times the donor has donated in the last five years
-            for ($i = 1; $i < 6; $i++) {
+            $num_years = 5; // Number of years to check for donations
+            for ($i = 1; $i <= $num_years; $i++) {
                 // Get the year to check for donations
                 $year_to_check = date('Y-m-d', strtotime("-$i years", strtotime($current_date)));
                 $year_to_check_plus_one = date('Y-m-d', strtotime("+1 year", strtotime($year_to_check))); // Get the year after the year to check
@@ -287,28 +288,8 @@
                 return "N/A";
             }
         } else {
-            // Check if the donor has donated at least once in the past three years
-            $yearly_count = 0; // Initialize yearly count
-
-            // Check if there's at least one donation for each of the past three years
-            for ($i = 1; $i < 4; $i++) {
-                $year_to_check = date('Y-m-d', strtotime("-$i years", strtotime($current_date))); // Get the year to check
-                $year_to_check_plus_one = date('Y-m-d', strtotime("+1 year", strtotime($year_to_check))); // Get the year after the year to check
-
-                $has_donation = false; // Flag to track if there's a donation for the year
-
-                // Iterate through donation dates to find donations within the year being checked
-                foreach ($donation_dates as $donation_date) {
-                    if ($donation_date >= $year_to_check && $donation_date <= $year_to_check_plus_one) {
-                        $has_donation = true;
-                        break; // Exit loop early when a donation is found for the year
-                    }
-                }
-
-                if ($has_donation) {
-                    $yearly_count++; // Increment yearly count if a donation was found for the year
-                }
-            }
+            // Check if the donor has donated at least once a year in the past three years
+            $yearly_count = check_donations_for_past_three_years($donation_dates);
 
             if ($yearly_count == 3) { // If the donor has donated at least once a year in the past three years
                 return "DONOR";
@@ -347,11 +328,8 @@
         // Sort the donation dates in ascending order
         sort($donation_dates);
 
-        // Initialize counters
+        // Initialize counter for monthly donations
         $monthly_count = 0;
-
-        // Track unique years of donations
-        $unique_years = array();
 
         // Iterate through donation dates to categorize
         foreach ($donation_dates as $donation_date) {
@@ -359,28 +337,11 @@
             if ($donation_date >= $three_months_ago) {
                 $monthly_count++;
             }
-
-            // Track unique years of donations
-            $year = date('Y', strtotime($donation_date));
-            if (!in_array($year, $unique_years)) {
-                $unique_years[] = $year;
-            }
         }
 
-        // Check if there's at least one donation in each of the past three years
-        $current_year = date('Y');
-        $yearly_count = count($unique_years);
+        // Check if the donor has donated at least once each year for the past three years
+        $yearly_count = check_donations_for_past_three_years($donation_dates);
 
-        // for each year within the past 3 years from today's date, check if there's at least one donation
-        // I'm not totally sure if this uses today's date or if it just uses the current year. this would need more examining to make it the former
-        for ($i = 0; $i < 3; $i++) {
-            if (!in_array($current_year - $i, $unique_years)) {
-                $yearly_count = 0; // reset the count if there's a missing year
-                break;
-            }
-        }
-
-        //echo $yearly_count;
         // Determine the category based on counts
         if ($monthly_count >= 3) {
             $category = "Monthly";

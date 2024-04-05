@@ -279,6 +279,45 @@
     }
 
     /*
+     * Parameters: $donation_dates = An array of strings that represent the dates of donations made by a donor
+     * This function checks if a donor has donated at least once a year for the past three years and is
+         * called when calculating the donation frequency and funnel of a donor
+         * For donation frequency, the donor is considered "Yearly" if this function returns 3 or more
+         * For donation funnel, the donor is considered "DONOR" if this function returns 3 or more
+     * Return type: An integer that represents the number of years the donor has donated in the past three years
+     * Pre-condition: $donation_dates is an array of dates in the format 'YYYY-MM-DD'
+     * Post-condition: The number of years the donor has donated in the past three years is returned
+     */
+    function check_donations_for_past_three_years($donation_dates) : int {
+        $current_date = date('Y-m-d'); // Get the current date
+
+        // Check if the donor has donated at least once in the past three years
+        $yearly_count = 0; // Initialize yearly count
+
+        // Check if there's at least one donation for each of the past three years
+        $num_years = 3; // Number of years to check for donations
+        for ($i = 1; $i <= $num_years; $i++) {
+            $year_to_check = date('Y-m-d', strtotime("-$i years", strtotime($current_date))); // Get the year to check
+            $year_to_check_plus_one = date('Y-m-d', strtotime("+1 year", strtotime($year_to_check))); // Get the year after the year to check
+
+            $has_donation = false; // Flag to track if there's a donation for the year
+
+            // Iterate through donation dates to find donations within the year being checked
+            foreach ($donation_dates as $donation_date) {
+                if ($donation_date >= $year_to_check && $donation_date <= $year_to_check_plus_one) {
+                    $has_donation = true;
+                    break; // Exit loop early when a donation is found for the year
+                }
+            }
+
+            if ($has_donation) {
+                $yearly_count++; // Increment yearly count if a donation was found for the year
+            }
+        }
+        return $yearly_count;
+    }
+
+    /*
      * Parameters: $result_row = An associative array that represents a row in the dbDonations table
      * This function constructs a new Donation object with the given parameters
      * Return type: A Donation object
