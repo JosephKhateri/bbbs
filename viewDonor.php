@@ -56,6 +56,15 @@
                     return strtotime($b->get_contribution_date()) - strtotime($a->get_contribution_date());
                 });
 
+                $frequency = get_donation_frequency($donorEmail);
+                $frequency_description = get_frequency_description($frequency);
+
+                $retention = get_donor_retention($donorEmail);
+                $retention_description = get_retention_description($retention);
+
+                $funnel = determine_donation_funnel($donorEmail);
+                $funnel_description = get_funnel_description($funnel);
+
                 // Determine the donor's donation type (event or non-event)
                 $donor_type = determine_donor_donation_type($donorEmail);
 
@@ -295,10 +304,19 @@ function exportDonorInfo($donor, $donations, $donor_type) {
                     <th>Event or Non-Event Donor</th>
                 </tr>
                 <tr>
-                    <td><?php echo get_donation_frequency($donor->get_email()) ?></td>
+                    <td><?php echo $frequency ?>
+                        <br><br>
+                        <small><?php echo $frequency_description ?></small>
+                    </td>
                     <td>$<?php echo get_total_amount_donated($donor->get_email()) ?></td>
-                    <td><?php echo get_donor_retention($donor->get_email()) ?></td>
-                    <td><?php echo determine_donation_funnel($donor->get_email()) ?></td>
+                    <td><?php echo $retention ?>
+                        <br><br>
+                        <small><?php echo $retention_description ?></small>
+                    </td>
+                    <td><?php echo $funnel ?>
+                        <br><br>
+                        <small><?php echo $funnel_description ?></small>
+                    </td>
                     <td><?php echo $donor_type ?></td>
                 </tr>
             </table>

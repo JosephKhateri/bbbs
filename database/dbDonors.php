@@ -223,6 +223,22 @@
         return "Unknown Donor";
     }
 
+    function get_retention_description($retention) : string {
+        if ($retention == "New Donor") {
+            return "Donor made their first donation within the past year";
+        } elseif ($retention == "Multiyear Donor") {
+            return "Donor made a donation both within the past year and the year before";
+        } elseif ($retention == "Returning Donor") {
+            return "Donor donated over 2 years ago, then started donating again within the last year";
+        } elseif ($retention == "Formerly Active Donor") {
+            return "Donor has not donated within the past year, but has donated within the past 2 years";
+        } elseif ($retention == "Inactive Donor") {
+            return "Donor has not donated in 2 or more years from today's date";
+        } else {
+            return "";
+        }
+    }
+
     /*
      * Parameters: $donorEmail = A string that represents the email of a donor
      * This function sorts the donor into a donation funnel based on their donation history
@@ -302,6 +318,22 @@
         }
     }
 
+    function get_funnel_description($funnel) : string {
+        if ($funnel == "Interested") {
+            return "Donor has donated at least once in the past 3 years";
+        } elseif ($funnel == "Donor") {
+            return "Donor has donated at least once a year in the past 3 years";
+        } elseif ($funnel == "Engaged") {
+            return "Donor has donated at least 3 times in the past 5 years";
+        } elseif ($funnel == "Loyal Donor") {
+            return "Donor has donated at least 5 times in the past 5 years";
+        } elseif ($funnel == "Leadership Donor") {
+            return "Donor has donated over $10,000";
+        } else {
+            return "";
+        }
+    }
+
     /*
      * Parameters: $donorEmail = A string that represents the email of a donor
      * This function retrieves the donation frequency of a donor
@@ -354,6 +386,18 @@
         }
 
         return $category;
+    }
+
+    function get_frequency_description($frequency) : string {
+        if ($frequency == "Monthly") {
+            return "Donor has donated at least twice each month for the past 2 months";
+        } elseif ($frequency == "Yearly") {
+            return "Donor has donated at least once each year for the past 2 years";
+        } elseif ($frequency == "Sporadic") {
+            return "Donor donates inconsistently";
+        } else {
+            return "";
+        }
     }
 
     /*
