@@ -93,10 +93,10 @@ function exportDonorInfo($donor, $donations, $donor_type) {
     $output = fopen("php://output", "w");
 
     // Write the CSV header for donor information
-    fputcsv($output, array('First Name', 'Last Name', 'Email', 'Phone Number', 'Address', 'City', 'State', 'Zip'));
+    fputcsv($output, array('First Name', 'Last Name', 'Company', 'Email', 'Phone Number', 'Address', 'City', 'State', 'Zip'));
 
     // Write the donor's information to the CSV file
-    fputcsv($output, array($donor->get_first_name(), $donor->get_last_name(), $donor->get_email(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()), $donor->get_address(), $donor->get_city(), $donor->get_state(), $donor->get_zip()));
+    fputcsv($output, array($donor->get_first_name(), $donor->get_last_name(), $donor->get_company(), $donor->get_email(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()), $donor->get_address(), $donor->get_city(), $donor->get_state(), $donor->get_zip()));
 
     // Write 3 blank lines to separate the donor information from the donations
     $currLine = 0;
@@ -121,8 +121,8 @@ function exportDonorInfo($donor, $donations, $donor_type) {
     }
 
     // Write the CSV header for donations
-    fputcsv($output, array('Frequency of Giving', 'Lifetime Value', 'Retention Rate', 'Donation Funnel', 'Event or Non-Event Donor'));
-    fputcsv($output, array(get_donation_frequency($donor->get_email()), get_total_amount_donated($donor->get_email()), '', determine_donation_funnel($donor->get_email()), $donor_type));
+    fputcsv($output, array('Frequency of Giving', 'Lifetime Value', 'Retention', 'Donation Funnel', 'Event or Non-Event Donor'));
+    fputcsv($output, array(get_donation_frequency($donor->get_email()), get_total_amount_donated($donor->get_email()), get_donor_retention($donor->get_email()), determine_donation_funnel($donor->get_email()), $donor_type));
 
     fclose($output);
     exit(); // may need to toggle this later. However, if this is left out, then the html below gets printed to file
@@ -229,6 +229,7 @@ function exportDonorInfo($donor, $donations, $donor_type) {
             <tr>
                 <th>First Name</th>
                 <th>Last Name</th>
+                <th>Company</th>
                 <th>Email</th>
                 <th>Phone Number</th>
                 <th>Address</th>
@@ -240,6 +241,7 @@ function exportDonorInfo($donor, $donations, $donor_type) {
             <tr>
                 <td><?php echo $donor->get_first_name() ?></td>
                 <td><?php echo $donor->get_last_name() ?></td>
+                <td><?php echo $donor->get_company() ?></td>
                 <td><?php echo $donor->get_email() ?></td>
                 <td><?php echo preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()) ?></td> <!-- Format phone number -->
                 <td><?php echo $donor->get_address() ?></td>
