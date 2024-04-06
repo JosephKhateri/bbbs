@@ -48,30 +48,49 @@
         exit();
     } elseif (isset($_GET['export'])) {
         exportAllDonorInfo();
+    } elseif (isset($_GET['query'])) {
+        // Retrieve the search query
+        $search_query = $_GET['query'];
+
+        // Perform search (replace this with your own search logic)
+        // For demonstration, let's assume we have an array of names
+        $donors = get_all_donors();
+        $matching_donors = array_filter($donors, function($donor) use ($search_query) {
+            // Combine first and last name of the donor for search
+            $full_name = $donor->get_first_name() . " " . $donor->get_last_name();
+            // Case-insensitive search
+            return stripos($full_name, $search_query) !== false;
+        });
+
+        // Update $donors with matching donors
+        $donors = $matching_donors;
     }
 
-function exportAllDonorInfo() {
-    require_once('database/dbDonors.php');
-    require_once('database/dbDonations.php');
-    require_once('domain/Donor.php');
-    require_once('domain/Donation.php');
+    /**
+     * Exports all donors and their information in dbDonors to a CSV file
+     */
+    function exportAllDonorInfo() : void {
+        require_once('database/dbDonors.php');
+        require_once('database/dbDonations.php');
+        require_once('domain/Donor.php');
+        require_once('domain/Donation.php');
 
-    $donors = get_all_donors();
+        $donors = get_all_donors();
 
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="bbbs_donors.csv"');
-    $output = fopen("php://output", "w");
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="bbbs_donors.csv"');
+        $output = fopen("php://output", "w");
 
-    // Write the CSV header for donor information
-    fputcsv($output, array('First Name', 'Last Name', 'Company', 'Email', 'Phone Number', 'Address', 'City', 'State', 'Zip'));
+        // Write the CSV header for donor information
+        fputcsv($output, array('First Name', 'Last Name', 'Company', 'Email', 'Phone Number', 'Address', 'City', 'State', 'Zip'));
 
-    foreach ($donors as $donor) {
-        // Write the donor's information to the CSV file
-        fputcsv($output, array($donor->get_first_name(), $donor->get_last_name(), $donor->get_company(), $donor->get_email(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()), $donor->get_address(), $donor->get_city(), $donor->get_state(), $donor->get_zip()));
+        foreach ($donors as $donor) {
+            // Write the donor's information to the CSV file
+            fputcsv($output, array($donor->get_first_name(), $donor->get_last_name(), $donor->get_company(), $donor->get_email(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()), $donor->get_address(), $donor->get_city(), $donor->get_state(), $donor->get_zip()));
+        }
+        fclose($output);
+        exit(); // may need to toggle this later. However, if this is left out, then the html below gets printed to file
     }
-    fclose($output);
-    exit(); // may need to toggle this later. However, if this is left out, then the html below gets printed to file
-}
 ?>
 
 <!DOCTYPE html>
@@ -100,6 +119,7 @@ function exportAllDonorInfo() {
             background-size: .65em auto;
         }*/
     </style>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 
 </head>
 <body>
@@ -141,10 +161,31 @@ function exportAllDonorInfo() {
             }
         </style>
 
+        <input type="text" id="searchInput" name="query" placeholder="Search donors">
+        <div id="searchResults"></div>
+
+        <!-- Filters the contents of the Donor table based on the search query -->
+        <script>
+            $(document).ready(function() {
+                $('#searchInput').on('input', function() {
+                    var query = $(this).val();
+
+                    $.ajax({
+                        url: 'viewAllDonors.php',
+                        method: 'GET',
+                        data: { query: query },
+                        success: function(response) {
+                            $('#donorTable').html($(response).find('#donorTable').html()); // Replace content of the donor table
+                        }
+                    });
+                });
+            });
+        </script>
+
         <!-- Table of all donors -->
         <!-- Display all donors in a table, displaying their emails and names -->
         <!-- When a donor is clicked, then will redirect to viewDonor.php with that donor's email passed as a parameter -->
-        <table>
+        <table id="donorTable">
             <tr>
                 <th>Email</th>
                 <th>First Name</th>
@@ -166,9 +207,8 @@ function exportAllDonorInfo() {
         <form action="viewAllDonors.php" method="GET">
             <!-- Add a hidden input field to indicate the export action -->
             <input type="hidden" name="export" value="true">
-
             <!-- Submit button -->
-            <input type="submit" value="Export to CSV" style="margin-top: 1rem">
+            <input type="submit" value="Export All Donors to CSV" style="margin-top: 1rem">
         </form>
         <a class="button cancel" href="index.php" style="margin-top: -.5rem">Return to Dashboard</a>
     </main>

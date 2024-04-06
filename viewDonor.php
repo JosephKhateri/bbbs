@@ -87,55 +87,62 @@
         header('Location: viewAllDonors.php?invalidRequest');
     }
 
-function exportDonorInfo($donor, $donations, $donor_type) {
-    require_once('database/dbDonors.php');
-    require_once('database/dbDonations.php');
-    require_once('domain/Donor.php');
-    require_once('domain/Donation.php');
+    /**
+     * Exports the donor's information, donations, and calculated analytics to a CSV file
+     *
+     * @param Donor $donor The donor object
+     * @param Donation[] $donations An array of donation objects
+     * @param string $donor_type The type of donor (event or non-event)
+     */
+    function exportDonorInfo(Donor $donor, array $donations, string $donor_type) : void {
+        require_once('database/dbDonors.php');
+        require_once('database/dbDonations.php');
+        require_once('domain/Donor.php');
+        require_once('domain/Donation.php');
 
-    // Get donor last and first name and make it the file name
-    $donorName = $donor->get_first_name() . '_' . $donor->get_last_name();
+        // Get donor last and first name and make it the file name
+        $donorName = $donor->get_first_name() . '_' . $donor->get_last_name();
 
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="' . $donorName . '.csv"');
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $donorName . '.csv"');
 
-    $output = fopen("php://output", "w");
+        $output = fopen("php://output", "w");
 
-    // Write the CSV header for donor information
-    fputcsv($output, array('First Name', 'Last Name', 'Company', 'Email', 'Phone Number', 'Address', 'City', 'State', 'Zip'));
+        // Write the CSV header for donor information
+        fputcsv($output, array('First Name', 'Last Name', 'Company', 'Email', 'Phone Number', 'Address', 'City', 'State', 'Zip'));
 
-    // Write the donor's information to the CSV file
-    fputcsv($output, array($donor->get_first_name(), $donor->get_last_name(), $donor->get_company(), $donor->get_email(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()), $donor->get_address(), $donor->get_city(), $donor->get_state(), $donor->get_zip()));
+        // Write the donor's information to the CSV file
+        fputcsv($output, array($donor->get_first_name(), $donor->get_last_name(), $donor->get_company(), $donor->get_email(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()), $donor->get_address(), $donor->get_city(), $donor->get_state(), $donor->get_zip()));
 
-    // Write 3 blank lines to separate the donor information from the donations
-    $currLine = 0;
-    $blankLines = 3; // Number of blank lines to write
-    while ($currLine < $blankLines) {
-        fputcsv($output, array());
-        $currLine++;
+        // Write 3 blank lines to separate the donor information from the donations
+        $currLine = 0;
+        $blankLines = 3; // Number of blank lines to write
+        while ($currLine < $blankLines) {
+            fputcsv($output, array());
+            $currLine++;
+        }
+
+        // Write the CSV header for donations
+        fputcsv($output, array('Date', 'Contribution Type', 'Contribution Category', 'Amount', 'Payment Method'));
+
+        // Write the donor's donations to the CSV file
+        foreach ($donations as $donation) {
+            fputcsv($output, array($donation->get_contribution_date(), $donation->get_contribution_type(), $donation->get_contribution_category(), $donation->get_amount(), $donation->get_payment_method()));
+        }
+
+        $currLine = 0;
+        while ($currLine < $blankLines) {
+            fputcsv($output, array());
+            $currLine++;
+        }
+
+        // Write the CSV header for donations
+        fputcsv($output, array('Frequency of Giving', 'Lifetime Value', 'Retention', 'Donation Funnel', 'Event or Non-Event Donor'));
+        fputcsv($output, array(get_donation_frequency($donor->get_email()), get_total_amount_donated($donor->get_email()), get_donor_retention($donor->get_email()), determine_donation_funnel($donor->get_email()), $donor_type));
+
+        fclose($output);
+        exit(); // may need to toggle this later. However, if this is left out, then the html below gets printed to file
     }
-
-    // Write the CSV header for donations
-    fputcsv($output, array('Date', 'Contribution Type', 'Contribution Category', 'Amount', 'Payment Method'));
-
-    // Write the donor's donations to the CSV file
-    foreach ($donations as $donation) {
-        fputcsv($output, array($donation->get_contribution_date(), $donation->get_contribution_type(), $donation->get_contribution_category(), $donation->get_amount(), $donation->get_payment_method()));
-    }
-
-    $currLine = 0;
-    while ($currLine < $blankLines) {
-        fputcsv($output, array());
-        $currLine++;
-    }
-
-    // Write the CSV header for donations
-    fputcsv($output, array('Frequency of Giving', 'Lifetime Value', 'Retention', 'Donation Funnel', 'Event or Non-Event Donor'));
-    fputcsv($output, array(get_donation_frequency($donor->get_email()), get_total_amount_donated($donor->get_email()), get_donor_retention($donor->get_email()), determine_donation_funnel($donor->get_email()), $donor_type));
-
-    fclose($output);
-    exit(); // may need to toggle this later. However, if this is left out, then the html below gets printed to file
-}
 
 ?>
 
@@ -304,22 +311,19 @@ function exportDonorInfo($donor, $donations, $donor_type) {
                     <th>Event or Non-Event Donor</th>
                 </tr>
                 <tr>
-                    <td><?php echo $frequency ?>
-                        <br><br>
-                        <small><?php echo $frequency_description ?></small>
-                    </td>
+                    <td><?php echo $frequency ?>*</td>
                     <td>$<?php echo get_total_amount_donated($donor->get_email()) ?></td>
-                    <td><?php echo $retention ?>
-                        <br><br>
-                        <small><?php echo $retention_description ?></small>
-                    </td>
-                    <td><?php echo $funnel ?>
-                        <br><br>
-                        <small><?php echo $funnel_description ?></small>
-                    </td>
+                    <td><?php echo $retention ?>**</td>
+                    <td><?php echo $funnel ?>***</td>
                     <td><?php echo $donor_type ?></td>
                 </tr>
             </table>
+
+            <!-- Display descriptions for donation frequency, retention, and funnel -->
+            <p style="margin: 0; padding: 0; line-height: 0.75"> <small>* <?php echo $frequency . ': ' . $frequency_description ?></small> </p>
+            <p style="margin: 0; padding: 0; line-height: 0.75"> <small>** <?php echo $retention . ': ' . $retention_description ?></small> </p>
+            <p style="margin: 0; padding: 0; line-height: 0.75"> <small>*** <?php echo $funnel . ': ' . $funnel_description ?></small> </p>
+
 
             <!-- Display the pie chart of the donor's donations only if the donor has donated to events -->
             <?php

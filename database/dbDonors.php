@@ -390,7 +390,7 @@
 
     function get_frequency_description($frequency) : string {
         if ($frequency == "Monthly") {
-            return "Donor has donated at least twice each month for the past 2 months";
+            return "Donor has donated at least once each month for the past 2 months";
         } elseif ($frequency == "Yearly") {
             return "Donor has donated at least once each year for the past 2 years";
         } elseif ($frequency == "Sporadic") {
