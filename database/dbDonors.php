@@ -158,7 +158,7 @@
      * Pre-condition: $donorEmail is a string
      * Post-condition: The donor's retention status is returned
      */
-    function get_donor_retention($donorEmail) : string {
+    function get_donor_status($donorEmail) : string {
         $donations = retrieve_donations_by_email($donorEmail);
 
         // If the donor has no donations, return "No Donations"
@@ -169,17 +169,11 @@
         // Sort donations by date
         sort($donations);
 
-
-        // Get the date one year ago
-        $one_year_ago = date('Y-m-d', strtotime('-1 year'));;
-
-        // Get the date two years ago
-        $two_years_ago = date('Y-m-d', strtotime('-2 year'));;
-
-        // Get the date of the earliest donation
-        $earliest_donation_date = end($donations)->get_contribution_date();
-
-        $date_of_last_donation = $donations[0]->get_contribution_date();
+        // Get date variables
+        $one_year_ago = date('Y-m-d', strtotime('-1 year')); // Date of one year ago from today
+        $two_years_ago = date('Y-m-d', strtotime('-2 year')); // Date of two years ago from today
+        $earliest_donation_date = end($donations)->get_contribution_date(); // Date of donor's first donation
+        $date_of_last_donation = $donations[0]->get_contribution_date(); // Date of donor's last donation
 
         // If the donor's first donation was from this year or within the last year
         if ($earliest_donation_date >= $one_year_ago) {
@@ -221,22 +215,6 @@
 
         // Default case if none of the above conditions met (shouldn't happen)
         return "Unknown Donor";
-    }
-
-    function get_retention_description($retention) : string {
-        if ($retention == "New Donor") {
-            return "Donor made their first donation within the past year";
-        } elseif ($retention == "Multiyear Donor") {
-            return "Donor made a donation both within the past year and the year before";
-        } elseif ($retention == "Returning Donor") {
-            return "Donor donated over 2 years ago, then started donating again within the last year";
-        } elseif ($retention == "Formerly Active Donor") {
-            return "Donor has not donated within the past year, but has donated within the past 2 years";
-        } elseif ($retention == "Inactive Donor") {
-            return "Donor has not donated in 2 or more years from today's date";
-        } else {
-            return "";
-        }
     }
 
     /*
@@ -318,22 +296,6 @@
         }
     }
 
-    function get_funnel_description($funnel) : string {
-        if ($funnel == "Interested") {
-            return "Donor has donated at least once in the past 3 years";
-        } elseif ($funnel == "Donor") {
-            return "Donor has donated at least once a year in the past 3 years";
-        } elseif ($funnel == "Engaged") {
-            return "Donor has donated at least 3 times in the past 5 years";
-        } elseif ($funnel == "Loyal Donor") {
-            return "Donor has donated at least 5 times in the past 5 years";
-        } elseif ($funnel == "Leadership Donor") {
-            return "Donor has donated over $10,000";
-        } else {
-            return "";
-        }
-    }
-
     /*
      * Parameters: $donorEmail = A string that represents the email of a donor
      * This function retrieves the donation frequency of a donor
@@ -388,14 +350,41 @@
         return $category;
     }
 
-    function get_frequency_description($frequency) : string {
-        if ($frequency == "Monthly") {
-            return "Donor has donated at least once each month for the past 2 months";
-        } elseif ($frequency == "Yearly") {
-            return "Donor has donated at least once each year for the past 2 years";
-        } elseif ($frequency == "Sporadic") {
-            return "Donor donates inconsistently";
-        } else {
+    /*
+     * Parameters: $term = A string that represents a term
+     * This function retrieves the description of a term from an associated array (dictionary)
+     * Return type: A string that represents the description of the term
+     * Pre-condition: $term is a string
+     * Post-condition: The description of the term is returned
+     */
+    function get_description($term) : string {
+        $descriptions = array(
+            // Retention status descriptions
+            "New Donor" => "Donor made their first donation within the past year",
+            "Multiyear Donor" => "Donor made a donation both within the past year and the year before",
+            "Returning Donor" => "Donor donated over 2 years ago, then started donating again within the last year",
+            "Formerly Active Donor" => "Donor has not donated within the past year, but has donated within the past 2 years",
+            "Inactive Donor" => "Donor has not donated in 2 or more years from today's date",
+
+            // Donation funnel descriptions
+            "Interested" => "Donor has donated at least once in the past 3 years",
+            "Donor" => "Donor has donated at least once a year in the past 3 years",
+            "Engaged" => "Donor has donated at least 3 times in the past 5 years",
+            "Loyal Donor" => "Donor has donated at least 5 times in the past 5 years",
+            "Leadership Donor" => "Donor has donated over $10,000",
+
+            // Donation frequency descriptions
+            "Monthly" => "Donor has donated at least once each month for the past 2 months",
+            "Yearly" => "Donor has donated at least once each year for the past 2 years",
+            "Sporadic" => "Donor donates inconsistently"
+        );
+
+        if (array_key_exists($term, $descriptions)) {
+            // Return the corresponding value
+            return $descriptions[$term];
+        }
+        else {
+            // Return an empty string if the term is not found
             return "";
         }
     }
