@@ -51,15 +51,23 @@
     } elseif (isset($_GET['query'])) {
         // Retrieve the search query
         $search_query = $_GET['query'];
-
-        // Perform search (replace this with your own search logic)
-        // For demonstration, let's assume we have an array of names
         $donors = get_all_donors();
         $matching_donors = array_filter($donors, function($donor) use ($search_query) {
-            // Combine first and last name of the donor for search
-            $full_name = $donor->get_first_name() . " " . $donor->get_last_name();
-            // Case-insensitive search
-            return stripos($full_name, $search_query) !== false;
+            // Array of attributes to search by
+            $attributes = array(
+                $donor->get_first_name() . " " . $donor->get_last_name(), // Full name
+                $donor->get_email(), // Email
+                $donor->get_company(), // Company
+            );
+
+            // Check if any attribute contains the search query
+            foreach ($attributes as $attribute) {
+                if (stripos($attribute, $search_query) !== false) {
+                    return true; // Match found
+                }
+            }
+
+            return false; // No match found for any attribute
         });
 
         // Update $donors with matching donors
@@ -190,6 +198,7 @@
                 <th>Email</th>
                 <th>First Name</th>
                 <th>Last Name</th>
+                <th>Company</th>
             </tr>
             <?php
                 foreach ($donors as $donor) {
@@ -197,6 +206,7 @@
                     echo "<td><a href='viewDonor.php?donor=" . $donor->get_email() . "'>" . $donor->get_email() . "</a></td>";
                     echo "<td>" . $donor->get_first_name() . "</td>";
                     echo "<td>" . $donor->get_last_name() . "</td>";
+                    echo "<td>" . $donor->get_company() . "</td>";
                     echo "</tr>";
                 }
             ?>
