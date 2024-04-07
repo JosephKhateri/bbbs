@@ -57,13 +57,13 @@
                 });
 
                 $frequency = get_donation_frequency($donorEmail);
-                $frequency_description = get_frequency_description($frequency);
+                $frequency_description = get_description($frequency);
 
                 $retention = get_donor_retention($donorEmail);
-                $retention_description = get_retention_description($retention);
+                $retention_description = get_description($retention);
 
                 $funnel = determine_donation_funnel($donorEmail);
-                $funnel_description = get_funnel_description($funnel);
+                $funnel_description = get_description($funnel);
 
                 // Determine the donor's donation type (event or non-event)
                 $donor_type = determine_donor_donation_type($donorEmail);
@@ -320,10 +320,9 @@
             </table>
 
             <!-- Display descriptions for donation frequency, retention, and funnel -->
-            <p style="margin: 0; padding: 0; line-height: 0.75"> <small>* <?php echo $frequency . ': ' . $frequency_description ?></small> </p>
-            <p style="margin: 0; padding: 0; line-height: 0.75"> <small>** <?php echo $retention . ': ' . $retention_description ?></small> </p>
-            <p style="margin: 0; padding: 0; line-height: 0.75"> <small>*** <?php echo $funnel . ': ' . $funnel_description ?></small> </p>
-
+            <p style="margin: 0; padding: 0; line-height: 0.75"> <small>* <?php echo $frequency_description ?></small> </p>
+            <p style="margin: 0; padding: 0; line-height: 0.75"> <small>** <?php echo $retention_description ?></small> </p>
+            <p style="margin: 0; padding: 0; line-height: 0.75"> <small>*** <?php echo $funnel_description ?></small> </p>
 
             <!-- Display the pie chart of the donor's donations only if the donor has donated to events -->
             <?php
