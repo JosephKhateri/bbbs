@@ -164,6 +164,7 @@
                     $current_year = $_POST["current_year"];
 
                    
+<<<<<<< Updated upstream
                     
          
                         
@@ -174,16 +175,43 @@
                     
                     // Calculate the number of donors in the current period
                     $sql_current_period = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31'";
+=======
+                   
+         
+                        
+                    // Calculate the number of donors in the previous period
+                    $sql_prev_period = "SELECT DISTINCT Email FROM dbdonations WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31'";
+                    $result_prev_period = $connection->query($sql_prev_period);
+
+                    $result_prev_period = $connection->query($sql_prev_period);
+        
+                    if ($result_prev_period) {
+                    $num_donors_prev_period = $result_prev_period->num_rows;
+                    } else {
+                    // Handle the query failure
+                    echo "Error: Unable to execute query. " . $connection->error;
+                    }
+
+                    $num_donors_prev_period = $result_prev_period->num_rows;
+                    
+                    // Calculate the number of donors in the current period
+                    $sql_current_period = "SELECT DISTINCT Email FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31'";
+>>>>>>> Stashed changes
                     $result_current_period = $connection->query($sql_current_period);
                     $num_donors_current_period = $result_current_period->num_rows;
 
                     // Calculate the number of retained donors (donors who contributed in both periods)
+<<<<<<< Updated upstream
                     $sql_retained_donors = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31' AND DonorID IN (SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31')";
+=======
+                    $sql_retained_donors = "SELECT DISTINCT Email FROM dbdonations WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31' AND Email IN (SELECT DISTINCT Email FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31')";
+>>>>>>> Stashed changes
                     
 
                     $result_retained_donors = $connection->query($sql_retained_donors);
                     $num_retained_donors = $result_retained_donors->num_rows;
 
+<<<<<<< Updated upstream
                         // Calculate donor retention rate
                         if ($num_donors_prev_period > 0) {
                             $retention_rate = ($num_retained_donors / $num_donors_prev_period) * 100;
@@ -193,6 +221,15 @@
 
                     
                     
+=======
+                    // Calculate donor retention rate
+                    if ($num_donors_prev_period > 0) {
+                        $retention_rate = ($num_retained_donors / $num_donors_prev_period) * 100;
+                    } else {
+                        $retention_rate = 0; // Default to 0 if no donors in the previous period
+                    }
+
+>>>>>>> Stashed changes
                     //Select retained donor's info
  
                 

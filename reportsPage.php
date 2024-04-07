@@ -557,6 +557,28 @@
             <input type='submit' value='Export Donors' class='export-btn'>
             </form>";
         }
+<<<<<<< Updated upstream
+=======
+        if (isset($_GET['report']) && $_GET['report'] == 'report8'){
+            // Assuming you want to dynamically set the value of topXDonors based on user input
+            // For example, if you previously captured this value and stored it in a session or in a variable
+            // Ensure to validate and sanitize this value properly to avoid injection attacks or logical errors
+            $topXDonorsValue = isset($_GET['topXDonors']) ? (int)$_GET['topXDonors'] : 10; // Default to 10 if not set
+            echo "<form action='reportsExport.php' method='post' class='export-form'>
+                <input type='hidden' name='action' value='export_donors_T10'>
+                <input type='hidden' name='topXDonors' value='" . htmlspecialchars($topXDonorsValue) . "'>
+                <input type='submit' value='Export Donors' class='export-btn'>
+            </form>";
+        }
+        if (isset($_GET['report']) && $_GET['report'] == 'report10'){
+            echo "<form action='reportsExport.php' method='post' class='export-form'>
+            <input type='hidden' name='action' value='export_donors_L3YE'>
+            <input type='submit' value='Export Donors' class='export-btn'>
+            </form>";
+        }
+        
+        
+>>>>>>> Stashed changes
         ?>
 
     </section>
