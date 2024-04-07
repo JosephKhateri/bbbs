@@ -28,6 +28,7 @@ function parseCSV($csvFilePath){
     require_once("database/dbinfo.php");
     require_once('database/dbDonors.php');
     require_once('database/dbDonations.php');
+    require_once('include/input-validation.php');
     $con = connect(); 
 
     // Open the CSV file
@@ -46,6 +47,21 @@ function parseCSV($csvFilePath){
     
 
     while (($line = fgetcsv($file)) !== false) {
+
+        //validate phone number format (assuming phone number is in column index 3)
+        if (!validatePhoneNumberFormat(trim($line[3]))) {
+            //invalid; redirect with error message
+            header('Location: index.php?phoneFormatFail');
+            exit;
+        }
+
+        //validate date format (assuming date is in column index 0)
+        if (!validateDate(trim($line[0]))) {
+            //invalid; redirect with error message
+            header('Location: index.php?dateFormatFail');
+            exit;
+        }
+
         // Check for a valid email in the expected column (index 7 based on your CSV structure)
         if (!filter_var(trim($line[7]), FILTER_VALIDATE_EMAIL)) {
             error_log("Invalid or missing email for row: " . implode(",", $line));
