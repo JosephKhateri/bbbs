@@ -53,6 +53,10 @@
                 <div class="happy-toast">No users exist for this application!</div> <!-- In the event that the dbUsers database is empty -->
             <?php elseif (isset($_GET['noDonors'])): ?>
                 <div class="happy-toast">No donors exist in the system!</div> <!-- In the event that the dbDonors database is empty -->
+            <?php elseif (isset($_GET['phoneFormatFail'])): ?>
+                <div class="error-toast">Invalid phone number format. Please try again.</div>
+            <?php elseif (isset($_GET['dateFormatFail'])): ?>
+                <div class="error-toast">Invalid date format. Please try again.</div>
             <?php endif ?>
             <p>Welcome back, <?php echo $user->get_first_name() ?>!</p>
             <p>Today is <?php echo date('l, F j, Y'); ?>.</p>
