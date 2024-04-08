@@ -30,7 +30,7 @@
         if (!$donation instanceof Donation)
             die("Error: add_donation type mismatch");
         $con=connect();
-        $query = "SELECT * FROM dbDonations WHERE id = '" . $donation->get_id() . "'";
+        $query = "SELECT * FROM dbDonations WHERE DonationID = '" . $donation->get_id() . "'";
         $result = mysqli_query($con,$query);
         //if there's no entry for this id, add it
         if ($result == null || mysqli_num_rows($result) == 0) {
@@ -85,23 +85,23 @@
         // Get the values from the donation object
         $id = $donation->get_id();
         $email = $donation->get_email();
-        $date = $donation->get_date();
-        $type = $donation->get_type();
-        $category = $donation->get_category();
+        $date = $donation->get_contribution_date();
+        $type = $donation->get_contribution_type();
+        $category = $donation->get_contribution_category();
         $amount = $donation->get_amount();
-        $method = $donation->get_method();
+        $method = $donation->get_payment_method();
         $memo = $donation->get_memo();
 
         // Query is broken up into multiple lines for readability
         $query = "UPDATE dbDonations SET ";
         $query .= "Email = '" . $email . "', ";
         $query .= "DateOfContribution = '" . $date . "', ";
-        $query .= "ContributionSupportType = '" . $type . "', ";
+        $query .= "ContributedSupportType = '" . $type . "', ";
         $query .= "ContributionCategory = '" . $category . "', ";
         $query .= "AmountGiven = '" . $amount . "', ";
         $query .= "PaymentMethod = '" . $method . "', ";
         $query .= "Memo = '" . $memo . "' ";
-        $query .= "WHERE id = '" . $id . "'";
+        $query .= "WHERE DonationID = '" . $id . "'";
         $result = mysqli_query($con,$query);
         mysqli_close($con);
         return $result;
@@ -116,7 +116,7 @@
      */
     function retrieve_donation($id) : Donation {
         $con=connect();
-        $query = "SELECT * FROM dbDonations WHERE id = '" . $id . "'";
+        $query = "SELECT * FROM dbDonations WHERE DonationID = '" . $id . "'";
         $result = mysqli_query($con,$query);
         $result_row = mysqli_fetch_assoc($result);
 
