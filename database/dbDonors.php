@@ -27,7 +27,7 @@
         $result = mysqli_query($con,$query);
         //if there's no entry for this id, add it
         if ($result == null || mysqli_num_rows($result) == 0) {
-            mysqli_query($con,'INSERT INTO dbDonations VALUES("' .
+            mysqli_query($con,'INSERT INTO dbDonors VALUES("' .
                 $donor->get_email() . '","' .
                 $donor->get_company() . '","' .
                 $donor->get_first_name() . '","' .
@@ -36,7 +36,8 @@
                 $donor->get_address() . '","' .
                 $donor->get_city() . '","' .
                 $donor->get_state() . '","' .
-                $donor->get_zip() . '");'
+                $donor->get_zip() .
+                '");'
             );
             mysqli_close($con);
             return true;
@@ -86,7 +87,6 @@
         $city = $donor->get_city();
         $state = $donor->get_state();
         $zip = $donor->get_zip();
-        $lifetime = $donor->get_lifetime_donation();
 
         // Query is broken up into multiple lines for readability
         $query = "UPDATE dbDonors SET ";
@@ -96,8 +96,8 @@
         $query .= "LastName = '" . $last_name . "', ";
         $query .= "PhoneNumber = '" . $phone . "', ";
         $query .= "Address = '" . $address . "', ";
-        $query .= "City = '" . $city . "' ";
-        $query .= "State = '" . $state . "' ";
+        $query .= "City = '" . $city . "', ";
+        $query .= "State = '" . $state . "', ";
         $query .= "Zip = '" . $zip . "' ";
         $query .= "WHERE Email = '" . $email . "'";
         $result = mysqli_query($con,$query);
