@@ -97,7 +97,7 @@
 	<h2>Generate Report</h2>
 	<br>
 
-    <form class="report_select" method="get" action="reportsPage.php">
+    <form class="report_select" method="get" action="newReportsPage.php">
                 <div>
                     <label for="report">Select Report</label>
                     <select id="report" name="report" required>
@@ -109,6 +109,7 @@
                         <option value="report6">Non-Event Donors Who Have Donated in the Past 3 Years</option>
                         <option value="report7">Event Donors Who Have Donated in the Past 3 Years</option>
                         <option value="report8">Top X Donors</option>
+                        <option value="report9">Donor's Donation Stage/Funnel</option>
                     </select><br/>
                 </div>
                 <input type="submit" name="submit_click" value="Submit">

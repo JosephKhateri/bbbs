@@ -1,46 +1,52 @@
 <?php
-/*
- * Copyright 2013 by Jerrick Hoang, Ivy Xing, Sam Roberts, James Cook, 
- * Johnny Coster, Judy Yang, Jackson Moniaga, Oliver Radwan, 
- * Maxwell Palmer, Nolan McNair, Taylor Talmage, and Allen Tucker. 
- * This program is part of RMH Homebase, which is free software.  It comes with 
- * absolutely no warranty. You can redistribute and/or modify it under the terms 
- * of the GNU General Public License as published by the Free Software Foundation
- * (see <http://www.gnu.org/licenses/ for more information).
- * 
- */
+    /*
+     * Copyright 2013 by Jerrick Hoang, Ivy Xing, Sam Roberts, James Cook,
+     * Johnny Coster, Judy Yang, Jackson Moniaga, Oliver Radwan,
+     * Maxwell Palmer, Nolan McNair, Taylor Talmage, and Allen Tucker.
+     * This program is part of RMH Homebase, which is free software.  It comes with
+     * absolutely no warranty. You can redistribute and/or modify it under the terms
+     * of the GNU General Public License as published by the Free Software Foundation
+     * (see <http://www.gnu.org/licenses/ for more information).
+     *
+     */
 
-/*
- * dataSearch page for RMH homebase.
- * @author Johnny Coster
- * @version April 2, 2012
- */
-
-
-/**
-     * Reviewed by Zack 
-     * Program Specifications/Correctness - Excellent
-     * Readability - Good
-     * Code Efficiency - Excellent
-     * Documentation - Adequate
-     * Assigned Task - Excellent
+    /*
+     * dataSearch page for RMH homebase.
+     * @author Johnny Coster
+     * @version April 2, 2012
      */
 
 
+    /**
+         * Reviewed by Zack
+         * Program Specifications/Correctness - Excellent
+         * Readability - Good
+         * Code Efficiency - Excellent
+         * Documentation - Adequate
+         * Assigned Task - Excellent
+         */
 
-// Disable error display, log errors instead
-ini_set('display_errors', 0);
-error_reporting(E_ALL);
-ini_set('log_errors', 1);
-ini_set('error_log', 'path/to/error.log'); // Specify the error log file
 
-ob_start(); // Start output buffering
-if (session_status() == PHP_SESSION_NONE) {
-    session_cache_expire(30); // Optional: Set session cache expire time if needed
-    session_start();
-}
-//session_start();
-//session_cache_expire(30);
+
+    // Disable error display, log errors instead
+    ini_set('display_errors', 0);
+    error_reporting(E_ALL);
+    ini_set('log_errors', 1);
+    ini_set('error_log', 'path/to/error.log'); // Specify the error log file
+
+    ob_start(); // Start output buffering
+    if (session_status() == PHP_SESSION_NONE) {
+        session_cache_expire(30); // Optional: Set session cache expire time if needed
+        session_start();
+    }
+    //session_start();
+    //session_cache_expire(30);
+
+    require_once('database/dbinfo.php');
+    require_once('database/dbDonations.php');
+    require_once('database/dbDonors.php');
+    require_once('domain/Donor.php');
+    require_once('domain/Donation.php');
 ?>
 <html>
 <head>
@@ -100,6 +106,12 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_T10') {
 	ob_end_clean();
     exportDonorsT10();
 	exit();
+}
+//DSF= Donation Stage Funnel
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_DSF') {
+    ob_end_clean();
+    exportDonorsDSF();
+    exit();
 }
 process_form();
 //pull_shift_data();
@@ -217,6 +229,7 @@ function process_form() {
 		exportDonorsOver10000();
 	}
 }
+
 // Define the function to handle the export
 function exportDonorsOver10000() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
@@ -277,29 +290,9 @@ function exportDonorsFOG() {
     while ($row = mysqli_fetch_assoc($result)) {
 		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
 		
-		//Calculate the FOG by taking the days and determing the ratio 
-		$FOG = "";
-        $Rate=0;
-        if($row['DateDiff']==NULL){
-        $row['DateDiff']=0;
-        $ratio=0;
-        }else{
-            $ratio = $row['Number_Of_Donations'] / ($row['DateDiff'] / 365);
-        }
-        if($ratio==0){
-            $FOG="Not Enough Data";
-        }elseif ($ratio<1 && $ratio>0){
-        	$FOG="Less Than Yearly";
-        } elseif($ratio < 6 && $ratio >= 1){
-      	    $FOG = "Yearly";
-        } elseif($ratio >= 6 && $ratio < 12){ // Either comment this out for now or remove it since bi-monthly isn't needed
-        	$FOG = "Bi-Monthly";
-            $Rate=1;
-        } elseif($ratio >= 12){
-            $FOG = "Monthly";
-            $Rate=1;
-        }
-		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone,$FOG,$row['DateDiff']));
+		// Get the current donor's frequency of giving
+        $FOG = get_donation_frequency($row["Email"]);
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $FOG, $row['DateDiff']));
 	}
 	
     fclose($output);
@@ -310,16 +303,21 @@ function exportDonorsFOG() {
 function exportDonorsLessThanTwoYears() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
     $connection = connect();  // This should be your function to establish a database connection
-    
-    // Your SQL query to fetch the required data
-    $query = "SELECT d.FirstName, d.LastName, d.Email, dd.DateOfContribution, dd.AmountGiven
-						FROM DbDonors d
-						LEFT JOIN DbDonations dd ON d.Email = dd.Email
-						WHERE dd.DateOfContribution IS NULL 
-						  OR dd.DateOfContribution < '$thresholdDate'
-						GROUP BY d.Email
-						ORDER BY d.LastName";
 
+    // Modified SQL query to join Donations with Donors table and fetch required details
+    // Get the current date
+    $currentDate = date("Y-m-d");
+
+    // Define the threshold date (two years ago from current date)
+    $thresholdDate = date('Y-m-d', strtotime('-2 years', strtotime($currentDate)));
+
+    $query = "SELECT d.FirstName, d.LastName, d.Email, MAX(dd.DateOfContribution) AS LastDonation
+                FROM DbDonors d
+                LEFT JOIN DbDonations dd ON d.Email = dd.Email
+                GROUP BY d.Email
+                HAVING LastDonation < '$thresholdDate' OR LastDonation IS NULL
+                ORDER BY d.LastName;
+                ";
     $result = mysqli_query($connection, $query);
 	
     header('Content-Type: text/csv');
@@ -334,7 +332,7 @@ function exportDonorsLessThanTwoYears() {
     while ($row = mysqli_fetch_assoc($result)) {
 		 // Format the total donation to include a dollar sign and commas
 		$formattedTotalDonation = '$' . number_format($row['AmountGiven'], 2, '.', ',');
-		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $row['DateOfContribution'], $formattedTotalDonation));
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $row['LastDonation'], $formattedTotalDonation));
 	}
 	
     
@@ -342,7 +340,7 @@ function exportDonorsLessThanTwoYears() {
     //exit();
 }
 
-// Export Function for the Report on Donor's who's Frequncy of Giving is Greater than Yearly
+// Export Function for the Report on Donors whose Frequency of Giving is Greater than Yearly
 function exportDonorsFOGGTY() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
     $connection = connect();  // This should be your function to establish a database connection
@@ -368,28 +366,8 @@ function exportDonorsFOGGTY() {
 		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
 		
 		// Frequency of Giving
-		$FOG = "";
-        $Rate=0;
-        if($row['DateDiff']==NULL){
-            $row['DateDiff']=0;
-            $ratio=0;
-        }else{
-            $ratio = $row['Number_Of_Donations'] / ($row['DateDiff'] / 365);
-        }
-        if($ratio==0){
-        $FOG="Not Enough Data";
-        }elseif ($ratio<1 && $ratio>0){
-        $FOG="Less Than Yearly";
-        } elseif($ratio < 6 && $ratio >= 1){
-            $FOG = "Yearly";
-        } elseif($ratio >= 6 && $ratio < 12){ // Either comment this out for now or remove it since bi-monthly isn't needed
-            $FOG = "Bi-Monthly";
-            $Rate=1;
-        } elseif($ratio >= 12){
-                $FOG = "Monthly";
-                $Rate=1;
-        }
-		if ($Rate == 1){
+		$FOG = get_donation_frequency($row["Email"]);
+		if ($FOG == "Monthly"){
 		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $FOG, $row['DateDiff']));
 		}
 	}
@@ -505,7 +483,46 @@ function exportDonorsT10() {
         echo "Error preparing the query.";
     }
 }
+// Export Function for the Report on Donor's Stage/Funnel
+function exportDonorsDSF() {
 
+
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Donors_Stage.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Donation Funnel'));
+
+    // Get all donors
+    $donors = get_all_donors();
+    
+    // Write rows
+    if (count($donors) > 0) { // If we have donors, create the file
+            foreach ($donors as $donor) {
+            // Get the donor details
+            $donor_first_name = $donor->get_first_name();
+            $donor_last_name = $donor->get_last_name();
+            $donor_email = $donor->get_email();
+            $phone = $donor->get_phone();
+
+            // Format the phone number
+            $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+
+            // get the donor's donations
+            $donations = retrieve_donations_by_email($donor_email);
+
+            // If the donor has donations, then determine their donation funnel and display the donor
+            if (!empty($donations)) {
+                // Get the donor's donation funnel
+                $funnel = determine_donation_funnel($donor_email);
+                fputcsv($output, array($donor_email, $donor_first_name, $donor_last_name, $formattedPhone, $funnel));
+            }
+        }
+    }
+    fclose($output);
+}
 //End of export
 function export_data($current_time, $search_attr, $export_data) {
 	$filename = "dataexport.csv";

@@ -43,17 +43,31 @@
 
             // Get the donor's info and their donation
             $donor = retrieve_donor($donorEmail);
-            $donations = retrieve_donations_by_email($donorEmail);
-
-            // Check if the export button was clicked
-            if (isset($_GET['export']) && $_GET['export'] === 'true') {
-                // Export the donor's information to a CSV file
-                exportDonorInfo($donor, $donations);
-            }
 
             // If a donor with the provided email is not found, redirect to viewAllDonors.php with an error message
             if (!$donor) {
                 header('Location: viewAllDonors.php?donorNotFound');
+            } else {
+                // Retrieve the donor's donations
+                $donations = retrieve_donations_by_email($donorEmail);
+
+                // Sort donations by date in descending order
+                usort($donations, function($a, $b) {
+                    return strtotime($b->get_contribution_date()) - strtotime($a->get_contribution_date());
+                });
+
+                // Determine the donor's donation type (event or non-event)
+                $donor_type = determine_donor_donation_type($donorEmail);
+
+                // Get the donation categories for the donor to use for the pie chart
+                $categories = get_event_donation_categories($donorEmail);
+                $categoryDataJSON = json_encode($categories); // Encode $categories array to JSON for JavaScript
+
+                // Check if the export button was clicked
+                if (isset($_GET['export']) && $_GET['export'] === 'true') {
+                    // Export the donor's information to a CSV file
+                    exportDonorInfo($donor, $donations, $donor_type);
+                }
             }
         } else {
             // If the 'donor' parameter is not provided, redirect to viewAllDonors.php with an error message
@@ -64,7 +78,7 @@
         header('Location: viewAllDonors.php?invalidRequest');
     }
 
-function exportDonorInfo($donor, $donations) {
+function exportDonorInfo($donor, $donations, $donor_type) {
     require_once('database/dbDonors.php');
     require_once('database/dbDonations.php');
     require_once('domain/Donor.php');
@@ -79,10 +93,10 @@ function exportDonorInfo($donor, $donations) {
     $output = fopen("php://output", "w");
 
     // Write the CSV header for donor information
-    fputcsv($output, array('First Name', 'Last Name', 'Email', 'Phone Number', 'Address', 'City', 'State', 'Zip'));
+    fputcsv($output, array('First Name', 'Last Name', 'Company', 'Email', 'Phone Number', 'Address', 'City', 'State', 'Zip'));
 
     // Write the donor's information to the CSV file
-    fputcsv($output, array($donor->get_first_name(), $donor->get_last_name(), $donor->get_email(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()), $donor->get_address(), $donor->get_city(), $donor->get_state(), $donor->get_zip()));
+    fputcsv($output, array($donor->get_first_name(), $donor->get_last_name(), $donor->get_company(), $donor->get_email(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()), $donor->get_address(), $donor->get_city(), $donor->get_state(), $donor->get_zip()));
 
     // Write 3 blank lines to separate the donor information from the donations
     $currLine = 0;
@@ -100,10 +114,49 @@ function exportDonorInfo($donor, $donations) {
         fputcsv($output, array($donation->get_contribution_date(), $donation->get_contribution_type(), $donation->get_contribution_category(), $donation->get_amount(), $donation->get_payment_method()));
     }
 
+    $currLine = 0;
+    while ($currLine < $blankLines) {
+        fputcsv($output, array());
+        $currLine++;
+    }
+
+    // Write the CSV header for donations
+    fputcsv($output, array('Frequency of Giving', 'Lifetime Value', 'Retention', 'Donation Funnel', 'Event or Non-Event Donor'));
+    fputcsv($output, array(get_donation_frequency($donor->get_email()), get_total_amount_donated($donor->get_email()), get_donor_retention($donor->get_email()), determine_donation_funnel($donor->get_email()), $donor_type));
+
     fclose($output);
     exit(); // may need to toggle this later. However, if this is left out, then the html below gets printed to file
 }
+
 ?>
+
+<script>
+    // Javascript function that draws a pie chart using the Google Charts API
+    function drawChart() {
+        let data = new google.visualization.DataTable();
+        data.addColumn("string", "Category");
+        data.addColumn("number", "Amount");
+
+        categoryData.forEach(function(category) {
+            let amount = parseFloat(category.TotalAmount);
+            data.addRow([category.ContributionCategory, amount]);
+        });
+
+        let options = {
+            is3D: true,
+            chartArea: { width: '80%', height: '80%' }, // Enlarge chart area
+        };
+
+        let formatter = new google.visualization.NumberFormat({
+            prefix: "$", // Add dollar sign as prefix
+            fractionDigits: 2 // Display two decimal places
+        });
+        formatter.format(data, 1); // Apply formatting to the "Amount" column
+
+        let chart = new google.visualization.PieChart(document.getElementById("piechart"));
+        chart.draw(data, options);
+    }
+</script>
 
 <!DOCTYPE html>
 <html>
@@ -131,6 +184,13 @@ function exportDonorInfo($donor, $donations) {
             background-size: .65em auto;
         }*/
     </style>
+
+    <!-- Include the Google Charts loader -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        // Inject PHP data into JavaScript
+        let categoryData = <?php echo $categoryDataJSON; ?>;
+    </script>
 
 </head>
 <body>
@@ -169,6 +229,7 @@ function exportDonorInfo($donor, $donations) {
             <tr>
                 <th>First Name</th>
                 <th>Last Name</th>
+                <th>Company</th>
                 <th>Email</th>
                 <th>Phone Number</th>
                 <th>Address</th>
@@ -180,6 +241,7 @@ function exportDonorInfo($donor, $donations) {
             <tr>
                 <td><?php echo $donor->get_first_name() ?></td>
                 <td><?php echo $donor->get_last_name() ?></td>
+                <td><?php echo $donor->get_company() ?></td>
                 <td><?php echo $donor->get_email() ?></td>
                 <td><?php echo preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()) ?></td> <!-- Format phone number -->
                 <td><?php echo $donor->get_address() ?></td>
@@ -195,7 +257,7 @@ function exportDonorInfo($donor, $donations) {
         <h2 style="text-align: center">Donation History</h2>
 
         <?php
-        if (!empty($donations)) { // if the donor has made any donations, display them in a table
+        if (!empty($donations)) { // If the donor has made any donations (which should always be the case), display them in a table
             ?>
             <table>
                 <tr>
@@ -218,32 +280,47 @@ function exportDonorInfo($donor, $donations) {
                 ?>
             </table>
 
-            <!-- Commented out so that this doesn't show during Zack's presentation -->
             <!-- Add a line break -->
-            <!-- <tr><td colspan="5">&nbsp;</td></tr> -->
+            <tr><td colspan="5">&nbsp;</td></tr>
 
             <!-- Table of additional information -->
             <!-- Pie chart to show which events a donor has sponsored -->
-            <!-- Progress of individual donors (done later) -->
-            <!--<h2 style="text-align: center">Donor Statistics</h2>
+            <h2 style="text-align: center">Donor Statistics</h2>
             <table>
                 <tr>
                     <th>Frequency of Giving</th>
                     <th>Lifetime Value</th>
-                    <th>Retention Rate</th>
+                    <th>Retention</th>
                     <th>Donation Funnel</th>
                     <th>Event or Non-Event Donor</th>
                 </tr>
                 <tr>
-                    <td></td>
+                    <td><?php echo get_donation_frequency($donor->get_email()) ?></td>
                     <td>$<?php echo get_total_amount_donated($donor->get_email()) ?></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td><?php echo get_donor_retention($donor->get_email()) ?></td>
+                    <td><?php echo determine_donation_funnel($donor->get_email()) ?></td>
+                    <td><?php echo $donor_type ?></td>
                 </tr>
-            </table>-->
+            </table>
 
+            <!-- Display the pie chart of the donor's donations only if the donor has donated to events -->
             <?php
+            if (!empty($categories)) {
+                ?>
+                <!-- Add a line break -->
+                <tr><td colspan="5">&nbsp;</td></tr>
+
+                <!-- Pie chart to show which events a donor has sponsored -->
+                <h2 style="text-align: center">Events Donor has Sponsored</h2>
+                <div id="piechart" style="width: 700px; height: 450px; margin: auto;"></div>
+
+                <!-- JavaScript to draw the pie chart -->
+                <script type="text/javascript">
+                    google.charts.load("current", {"packages":["corechart"]});
+                    google.charts.setOnLoadCallback(drawChart);
+                </script>
+            <?php
+            }
         } else { // There should be no instances where a donor has no donations, but this is a failsafe in case it happens
             echo "<div style='text-align: center;'>This donor has made no donations.</div>";
         }
@@ -251,7 +328,6 @@ function exportDonorInfo($donor, $donations) {
 
         <!-- Add a line break -->
         <tr><td colspan="5">&nbsp;</td></tr>
-
 
         <!-- Button to export donor information to a CSV file -->
         <form action="viewDonor.php" method="GET">

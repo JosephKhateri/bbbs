@@ -240,4 +240,12 @@ There was not a lot in this one since only the bottom function was added for thi
         return $meetsRequirements;
     }
 
+    function validatePhoneNumberFormat($phoneNumber) {
+        //check if the phone number has dashes
+        if (strpos($phoneNumber, '-') !== false) {
+            return false;
+        }
+        return true;
+    }
+
 ?>
