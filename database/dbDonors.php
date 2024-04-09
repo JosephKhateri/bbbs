@@ -13,11 +13,11 @@
     require_once(dirname(__FILE__) . '/../domain/Donor.php');
 
     /*
-     * Parameters:
-     *
-     * Return type:
-     * Pre-condition:
-     * Post-condition:
+     * Parameters: $donor = A Donor object
+     * This function adds a donor to the dbDonors table
+     * Return type: A boolean value (true if the donor was added, false if the donor already exists)
+     * Pre-condition: $donor is a valid Donor object
+     * Post-condition: The donor is added to the dbDonors table if it doesn't already exist
      */
     function add_donor($donor) {
         if (!$donor instanceof Donor)
@@ -47,11 +47,11 @@
     }
 
     /*
-     * Parameters:
-     *
-     * Return type:
-     * Pre-condition:
-     * Post-condition:
+     * Parameters: $email = A string that represents the email of a donor
+     * This function removes a donor from the dbDonors table using the donor's email
+     * Return type: A boolean value (true if the donor was removed, false if the donor doesn't exist)
+     * Pre-condition: $email is a string
+     * Post-condition: The donor is removed from the dbDonors table if it exists
      */
     function remove_donor($email) {
         $con=connect();
@@ -68,11 +68,11 @@
     }
 
     /*
-     * Parameters:
-     *
-     * Return type:
-     * Pre-condition:
-     * Post-condition:
+     * Parameters: $donor = A Donor object
+     * This function updates a donor's info in the dbDonors table
+     * Return type: A boolean value (true if the donor was updated, false if the donor doesn't exist)
+     * Pre-condition: $donor is a valid Donor object
+     * Post-condition: The donor's info is updated in the dbDonors table if it exists
      */
     function update_donor($donor) {
         $con=connect();
