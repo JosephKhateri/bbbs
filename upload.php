@@ -41,11 +41,15 @@ function parseCSV($csvFilePath){
 
     fgetcsv($file); // Skip header row
 
-    //$line = fgetcsv($file);
-    //$x = implode(" ", $line);
-    //echo $x;
-
     while (($line = fgetcsv($file)) !== false) {
+        // Check for a valid email in the expected column (index 7 based on your CSV structure)
+        if (!filter_var(trim($line[7]), FILTER_VALIDATE_EMAIL)) {
+            error_log("Invalid or missing email for row: " . implode(",", $line));
+            continue; // Skip rows with invalid or missing emails
+        }
+
+        // Process donor data
+        processDonorData($line, $con);
 
         // Process each line of the CSV file
         $date = trim($line[0]);
@@ -134,9 +138,33 @@ function parseCSV($csvFilePath){
 
     // Close the CSV file
     fclose($file);
-    
+
     // Redirect with success message
     header('Location: index.php?fileSuccess');
     exit;
 }
+
+function processDonorData($donorData, $con) {
+    // Assuming donorData has the email as the unique identifier in the 6th position -- KEY WORD IS ASSUMING!!!
+    $donorEmail = $donorData[7];
+    if (empty($donorEmail)) {
+        // Handle rows without email or log an error
+        error_log("Email column is empty for a row, skipping...");
+        return;
+    }
+
+    // Check if donor exists
+    $donorExists = checkDonorExists($donorEmail, $con);
+
+    if (!$donorExists) {
+        // Add new donor
+        addDonor($donorData, $con);
+    } else {
+        // Combine donor data
+        combineDonor($donorData, $con);
+    }
+}
+
+// Call the parseCSV function with the CSV file path
+parseCSV($_FILES['file']['tmp_name']);
 ?>
