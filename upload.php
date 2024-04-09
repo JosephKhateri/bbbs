@@ -41,14 +41,19 @@ function parseCSV($csvFilePath){
 
     fgetcsv($file); // Skip header row
 
-    //$line = fgetcsv($file);
-    //$x = implode(" ", $line);
-    //echo $x;
-
     while (($line = fgetcsv($file)) !== false) {
+        // Check for a valid email in the expected column (index 7 based on your CSV structure)
+        if (!filter_var(trim($line[7]), FILTER_VALIDATE_EMAIL)) {
+            error_log("Invalid or missing email for row: " . implode(",", $line));
+            continue; // Skip rows with invalid or missing emails
+        }
+
+        // Process donor data
+        processDonorData($line, $con);
+        processDonationData($line, $con);
 
         // Process each line of the CSV file
-        $date = trim($line[0]);
+        /*$date = trim($line[0]);
         $contributed_support = trim($line[1]);
         $contribution_category = trim($line[2]);
         $amount = trim($line[3]);
@@ -113,6 +118,8 @@ function parseCSV($csvFilePath){
         }
 
         // Retrieve the max donation ID to determine if the donation should be added or updated
+        // *******This needs to be changed to use the retrieve function that uses ami, date, and amount to check if the donation exists
+        // what is currently here is incorrect and was a mistake when some of the code was being restructured
         if (getMaxDonationID() < $newID) {
             $donation_result = add_donation($donation);
         } else {
@@ -127,14 +134,38 @@ function parseCSV($csvFilePath){
             // If the donation wasn't successfully added/updated, redirect with an error message
             header('Location: uploadForm.php?uploadFail');
             exit;
-        }
+        }*/
     }
 
     // Close the CSV file
     fclose($file);
-    
+
     // Redirect with success message
     header('Location: index.php?fileSuccess');
     exit;
 }
+
+function processDonorData($donorData, $con) {
+    // Assuming donorData has the email as the unique identifier in the 6th position -- KEY WORD IS ASSUMING!!!
+    $donorEmail = $donorData[7];
+    if (empty($donorEmail)) {
+        // Handle rows without email or log an error
+        error_log("Email column is empty for a row, skipping...");
+        return;
+    }
+
+    // Check if donor exists
+    $donorExists = checkDonorExists($donorEmail, $con);
+
+    if (!$donorExists) {
+        // Add new donor
+        addDonor($donorData, $con);
+    } else {
+        // Combine donor data
+        combineDonor($donorData, $con);
+    }
+}
+
+// Call the parseCSV function with the CSV file path
+parseCSV($_FILES['file']['tmp_name']);
 ?>

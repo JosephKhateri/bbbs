@@ -98,6 +98,14 @@
                         <img src="images/add-person.svg">
                         <span>Add User</span>
                     </div>
+                    <div class="dashboard-item" data-link="editDonorInfo.php">
+                        <img src="images/delete.svg">
+                        <span>Edit Donor Information</span>
+                    </div>
+                    <div class="dashboard-item" data-link="editDonationsInfo.php">
+                        <img src="images/delete.svg">
+                        <span>Edit Donations Information</span>
+                    </div>
                     <div class="dashboard-item" data-link="adminResetPassword.php">
                         <img src="images/settings.png">
                         <span>Reset User Password</span>
