@@ -113,6 +113,8 @@ function parseCSV($csvFilePath){
         }
 
         // Retrieve the max donation ID to determine if the donation should be added or updated
+        // *******This needs to be changed to use the retrieve function that uses ami, date, and amount to check if the donation exists
+        // what is currently here is incorrect and was a mistake when some of the code was being restructured
         if (getMaxDonationID() < $newID) {
             $donation_result = add_donation($donation);
         } else {
