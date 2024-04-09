@@ -50,9 +50,10 @@ function parseCSV($csvFilePath){
 
         // Process donor data
         processDonorData($line, $con);
+        processDonationData($line, $con);
 
         // Process each line of the CSV file
-        $date = trim($line[0]);
+        /*$date = trim($line[0]);
         $contributed_support = trim($line[1]);
         $contribution_category = trim($line[2]);
         $amount = trim($line[3]);
@@ -133,7 +134,7 @@ function parseCSV($csvFilePath){
             // If the donation wasn't successfully added/updated, redirect with an error message
             header('Location: uploadForm.php?uploadFail');
             exit;
-        }
+        }*/
     }
 
     // Close the CSV file
