@@ -91,26 +91,11 @@
 
             echo('<li><a class="nav-link active" aria-current="page" href="' . $path . 'index.php">Home</a></li>');
 
-            /*
+            echo('<li><a class="nav-link active" aria-current="page" href="' . $path . 'UploadForm.php">Upload</a></li>');
 
-            //How to make new dropdown bars and links
-            echo('<li class="nav-item dropdown">');
-            echo('<a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown Name</a>');
-            echo('<div class="dropdown-menu">');
-	        echo('<a class="dropdown-item" href="' . $path . 'changePassword.php">Change Password</a>');
-
-            echo('</div>');
-            echo('</li>');
-
-            */
-            //echo('<span class="nav-divider">|</span>');
-            echo('<li class="nav-item dropdown">');
-            echo('<a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Others</a>');
-            echo('<div class="dropdown-menu">');
-	        echo('<a class="dropdown-item" href="' . $path . 'changePassword.php">Change Password</a>');
-
-            echo('</div>');
-            echo('</li>');
+            echo('<li><a class="nav-link active" aria-current="page" href="' . $path . 'viewAllDonors.php">Donors</a></li>');
+            
+            echo('<li><a class="nav-link active" aria-current="page" href="' . $path . 'report.php">Reports</a></li>');
 
 	        echo('<li><a class="nav-link active" aria-current="page" href="' . $path . 'logout.php">Log out</a></li>');
             echo '</ul></nav>';
