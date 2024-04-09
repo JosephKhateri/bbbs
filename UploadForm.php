@@ -1,4 +1,13 @@
 <?php
+
+    // UploadForm.php
+    // Overall Grading:
+    // 1. Program specifications/correctness: Excellent - Only accepts csv files and does so without any errors
+    // 2. Readability: Excellent - Variables are named accordingly and make code pretty easy to read, but need more documentation
+    // 3. Code efficiency: Excellent - Code is very efficient and achieves the task perfectly
+    // 4. Documentation: Adequate - Add some documentation about what each section of code does
+    // 5. Assigned Task: Excellent - Only accepts csv files and does so without any errors
+
     session_cache_expire(30);
     session_start();
 
@@ -13,30 +22,28 @@
         $userID = $_SESSION['_id'];
     }
 
-    if ($accessLevel < 2) {
-        header('Location: index.php');
-        die();
-      }
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Get the temporary file path
         $tmpFilePath = $_FILES['file']['tmp_name'];
         $fileType = mime_content_type($tmpFilePath);
         //Filepath printing for debugging
         //echo $tmpFilePath;
-        if ($fileType !== 'text/csv') {
-            echo 'Only CSV files are allowed.';
-        } else {
+        //echo $fileType;
+        if (($fileType == 'text/csv') || ($fileType == 'text/plain')) {
             require 'upload.php';
             parseCSV($tmpFilePath);
+        } else {
+            echo $fileType;
+            header('Location: index.php?fileTypeFail');
         }
-    }
+    }    
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
     <?php require('universal.inc'); ?>
-    <title>CSV File Upload</title>
+    <title>BBBS | Upload CSV File</title>
     <style>
             .fileSelect{
                 display: flex;
@@ -67,6 +74,20 @@
 <body>
     <?php require('header.php'); ?>
     <h1>Upload File</h1>
+
+    <!-- Error handling for invalid data -->
+    <?php if (isset($_GET['phoneFormatFail'])): ?>
+        <div class="error-toast">Invalid phone number format. Make sure the phone number contains no dashes and is 10 characters long</div>
+    <?php elseif (isset($_GET['dateFormatFail'])): ?>
+        <div class="error-toast">Invalid date format. Make sure the date is in YYYY-MM-DD format.</div>
+    <?php elseif (isset($_GET['emailFormatFail'])): ?>
+        <div class="error-toast">Invalid email. Try again with a correct email.</div>
+    <?php elseif (isset($_GET['zipFormatFail'])): ?>
+        <div class="error-toast">Invalid zip code. Make sure the Zip is only 5 numbers long.</div>
+    <?php elseif (isset($_GET['uploadFail'])): ?>
+        <div class="error-toast">There was an issue with uploading the data. Please try again later.</div>
+    <?php endif ?>
+
     <main class="upload"> 
     <h2>Please select a CSV file to upload </h2>
         

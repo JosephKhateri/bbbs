@@ -1,33 +1,52 @@
 <?php
-/*
- * Copyright 2013 by Jerrick Hoang, Ivy Xing, Sam Roberts, James Cook, 
- * Johnny Coster, Judy Yang, Jackson Moniaga, Oliver Radwan, 
- * Maxwell Palmer, Nolan McNair, Taylor Talmage, and Allen Tucker. 
- * This program is part of RMH Homebase, which is free software.  It comes with 
- * absolutely no warranty. You can redistribute and/or modify it under the terms 
- * of the GNU General Public License as published by the Free Software Foundation
- * (see <http://www.gnu.org/licenses/ for more information).
- * 
- */
+    /*
+     * Copyright 2013 by Jerrick Hoang, Ivy Xing, Sam Roberts, James Cook,
+     * Johnny Coster, Judy Yang, Jackson Moniaga, Oliver Radwan,
+     * Maxwell Palmer, Nolan McNair, Taylor Talmage, and Allen Tucker.
+     * This program is part of RMH Homebase, which is free software.  It comes with
+     * absolutely no warranty. You can redistribute and/or modify it under the terms
+     * of the GNU General Public License as published by the Free Software Foundation
+     * (see <http://www.gnu.org/licenses/ for more information).
+     *
+     */
 
-/*
- * dataSearch page for RMH homebase.
- * @author Johnny Coster
- * @version April 2, 2012
- */
-// Disable error display, log errors instead
-ini_set('display_errors', 0);
-error_reporting(E_ALL);
-ini_set('log_errors', 1);
-ini_set('error_log', 'path/to/error.log'); // Specify the error log file
+    /*
+     * dataSearch page for RMH homebase.
+     * @author Johnny Coster
+     * @version April 2, 2012
+     */
 
-ob_start(); // Start output buffering
-if (session_status() == PHP_SESSION_NONE) {
-    session_cache_expire(30); // Optional: Set session cache expire time if needed
-    session_start();
-}
-//session_start();
-//session_cache_expire(30);
+
+    /**
+         * Reviewed by Zack
+         * Program Specifications/Correctness - Excellent
+         * Readability - Good
+         * Code Efficiency - Excellent
+         * Documentation - Adequate
+         * Assigned Task - Excellent
+         */
+
+
+
+    // Disable error display, log errors instead
+    ini_set('display_errors', 0);
+    error_reporting(E_ALL);
+    ini_set('log_errors', 1);
+    ini_set('error_log', 'path/to/error.log'); // Specify the error log file
+
+    ob_start(); // Start output buffering
+    if (session_status() == PHP_SESSION_NONE) {
+        session_cache_expire(30); // Optional: Set session cache expire time if needed
+        session_start();
+    }
+    //session_start();
+    //session_cache_expire(30);
+
+    require_once('database/dbinfo.php');
+    require_once('database/dbDonations.php');
+    require_once('database/dbDonors.php');
+    require_once('domain/Donor.php');
+    require_once('domain/Donation.php');
 ?>
 <html>
 <head>
@@ -45,11 +64,14 @@ include_once('database/dbPersons.php');
 if ($_POST['_form_submit'] != 1 && $_POST['_form_submit'] != 2 && $_POST['_form_submit'] != 3)
 include('dataSearch.inc.php'); // the form has not been submitted, so show it
 
+//User has decided to export a Report and now all these if statements are checking
+//which report it is and using the appropiate method for the specific report.
 if (isset($_POST['action']) && $_POST['action'] == 'export_donors_over_10000') {
 	ob_end_clean();
     exportDonorsOver10000();
 	exit();
 }
+//FOG=Frequency of Giving
 if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG') {
 	ob_end_clean();
     exportDonorsFOG();
@@ -68,6 +90,36 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_retention') {
     retentionRate();
 	exit();
 
+//FOG_GTY=Frequncy of Giving Greater Than Yearly
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG_GTY') {
+	ob_end_clean();
+    exportDonorsFOGGTY();
+	exit();
+}
+//L3Y=Less Than 3 Years No Events
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_L3YNE') {
+	ob_end_clean();
+    exportDonorsL3YNE();
+	exit();
+}
+//L3Y=Less Than 3 Years Events
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_L3YE') {
+	ob_end_clean();
+    exportDonorsL3YE();
+	exit();
+}
+//T10=Top 10 Donors
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_T10') {
+	ob_end_clean();
+    exportDonorsT10();
+	exit();
+}
+//DSF= Donation Stage Funnel
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_DSF') {
+    ob_end_clean();
+    exportDonorsDSF();
+    exit();
+}
 process_form();
 //pull_shift_data();
 include('footer.inc');
@@ -184,6 +236,7 @@ function process_form() {
 		exportDonorsOver10000();
 	}
 }
+
 // Define the function to handle the export
 function exportDonorsOver10000() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
@@ -219,7 +272,7 @@ function exportDonorsOver10000() {
     //exit();
 }
 
-// Define the function to handle the export
+// Export Function for the Frequency of Giving Report
 function exportDonorsFOG() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
     $connection = connect();  // This should be your function to establish a database connection
@@ -244,24 +297,12 @@ function exportDonorsFOG() {
     while ($row = mysqli_fetch_assoc($result)) {
 		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
 		
-		//Calculate the FOG by taking the days and determing the ratio 
-		$FOG="";
-        $ratio=$row['Number_Of_Donations']/($row['DateDiff']/365);
-        if($ratio<1){
-            $FOG="Less Than Yearly";
-        }elseif($ratio<6 && $ratio>=1){
-            $FOG="Yearly";
-        }elseif($ratio>=6 && $ratio<12){
-            $FOG="Bi-Monthly";
-        }elseif($ratio>=12){
-           $FOG="Monthly";
-        }
-		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone,$FOG,$row['DateDiff']));
+		// Get the current donor's frequency of giving
+        $FOG = get_donation_frequency($row["Email"]);
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $FOG, $row['DateDiff']));
 	}
 	
-    
     fclose($output);
-    //exit();
 }
 
 //Export report for donations less than 2 years
@@ -284,6 +325,20 @@ function exportDonorsLessThanTwoYears() {
 						GROUP BY d.Email
 						ORDER BY d.LastName";
 
+    // Modified SQL query to join Donations with Donors table and fetch required details
+    // Get the current date
+    $currentDate = date("Y-m-d");
+
+    // Define the threshold date (two years ago from current date)
+    $thresholdDate = date('Y-m-d', strtotime('-2 years', strtotime($currentDate)));
+
+    $query = "SELECT d.FirstName, d.LastName, d.Email, MAX(dd.DateOfContribution) AS LastDonation
+                FROM DbDonors d
+                LEFT JOIN DbDonations dd ON d.Email = dd.Email
+                GROUP BY d.Email
+                HAVING LastDonation < '$thresholdDate' OR LastDonation IS NULL
+                ORDER BY d.LastName;
+                ";
     $result = mysqli_query($connection, $query);
 	
     header('Content-Type: text/csv');
@@ -298,7 +353,7 @@ function exportDonorsLessThanTwoYears() {
     while ($row = mysqli_fetch_assoc($result)) {
 		 // Format the total donation to include a dollar sign and commas
 		$formattedTotalDonation = '$' . number_format($row['AmountGiven'], 2, '.', ',');
-		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $row['DateOfContribution'], $formattedTotalDonation));
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $row['LastDonation'], $formattedTotalDonation));
 	}
 	
     
@@ -358,6 +413,189 @@ function retentionRate() {
     //exit();
 }
 
+// Export Function for the Report on Donors whose Frequency of Giving is Greater than Yearly
+function exportDonorsFOGGTY() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
+                    DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    GROUP BY d.Email";
+    $result = mysqli_query($connection, $query);
+	
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving_GTY.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Frequency of Giving', 'Days From Earliest Donation'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+		
+		// Frequency of Giving
+		$FOG = get_donation_frequency($row["Email"]);
+		if ($FOG == "Monthly"){
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $FOG, $row['DateDiff']));
+		}
+	}
+    fclose($output);
+}
+// Export Function for the Report on Donor's in the Past Three Years who haven't donated to an Event
+function exportDonorsL3YNE() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    //Get current date
+	$currentDate = date("Y-m-d");
+	//Define the threshold date (two years ago from current date)
+	$thresholdDate = date('Y-m-d', strtotime('-3 years', strtotime($currentDate)));
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
+                      MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    WHERE (d.DateOfContribution IS NULL 
+                        OR  d.DateOfContribution > '$thresholdDate')
+                        AND d.email NOT IN (SELECT Email FROM dbdonations WHERE ContributionCategory='Event Sponsorship')						
+                    GROUP BY d.Email ";
+            $result = mysqli_query($connection, $query);
+	
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Donors_From_Past_Three_Years_No_Events.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Earliest Donation','Type of Donation'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $row['EarliestDonation'], $row['ContributionCategory']));
+	}
+    fclose($output);
+}
+// Export Function for the Report on Donor's in the Past Three Years who have donated to Events
+function exportDonorsL3YE() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    //Get current date
+	$currentDate = date("Y-m-d");
+	//Define the threshold date (two years ago from current date)
+	$thresholdDate = date('Y-m-d', strtotime('-3 years', strtotime($currentDate)));
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
+                      MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
+                    FROM dbdonations AS d
+                    JOIN dbdonors AS p ON d.Email = p.Email
+                    WHERE (d.DateOfContribution IS NULL
+                          OR d.DateOfContribution > '$thresholdDate')
+                          AND ContributionCategory='Event Sponsorship'
+                    GROUP BY d.Email ";
+            $result = mysqli_query($connection, $query);
+	
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Donors_From_Past_Three_Years_Events.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Earliest Donation','Event Sponsored'));
+    
+    // Write rows
+    while ($row = mysqli_fetch_assoc($result)) {
+		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $row['EarliestDonation'], $row['ContributionCategory']));
+	}
+    fclose($output);
+}
+// Export Function for the Report on Top 10 Donors
+function exportDonorsT10() {
+    include_once('database/dbinfo.php'); // Your database connection setup
+    $connection = connect();  // Establishing a database connection
+
+    // Retrieve the number of top donors from the form submission
+    $topXDonors = isset($_POST['topXDonors']) ? (int)$_POST['topXDonors'] : 10; // Default to 10 if not specified
+
+    // Adjust your SQL query to use the $topXDonors variable
+    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, SUM(d.AmountGiven) AS Sum_Of_Donations
+              FROM dbdonations AS d
+              JOIN dbdonors AS p ON d.Email = p.Email
+              GROUP BY d.Email
+              ORDER BY Sum_Of_Donations DESC
+              LIMIT ?";
+    
+    // Prepare, bind and execute the query with the dynamic limit
+    if ($stmt = mysqli_prepare($connection, $query)) {
+        mysqli_stmt_bind_param($stmt, "i", $topXDonors);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="donors_Top_'.$topXDonors.'_Donors.csv"');
+        
+        $output = fopen("php://output", "w");
+        
+        // CSV header
+        fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Sum of Donation'));
+        
+        // Fetch and write each row
+        while ($row = mysqli_fetch_assoc($result)) {
+            $formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
+            $formattedSum = '$' . number_format($row['Sum_Of_Donations'], 2);
+            fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $formattedSum));
+        }
+        
+        fclose($output);
+    } else {
+        echo "Error preparing the query.";
+    }
+}
+// Export Function for the Report on Donor's Stage/Funnel
+function exportDonorsDSF() {
+
+
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Donors_Stage.csv"');
+    
+    $output = fopen("php://output", "w");
+    
+    // Write the CSV header
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Donation Funnel'));
+
+    // Get all donors
+    $donors = get_all_donors();
+    
+    // Write rows
+    if (count($donors) > 0) { // If we have donors, create the file
+            foreach ($donors as $donor) {
+            // Get the donor details
+            $donor_first_name = $donor->get_first_name();
+            $donor_last_name = $donor->get_last_name();
+            $donor_email = $donor->get_email();
+            $phone = $donor->get_phone();
+
+            // Format the phone number
+            $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+
+            // get the donor's donations
+            $donations = retrieve_donations_by_email($donor_email);
+
+            // If the donor has donations, then determine their donation funnel and display the donor
+            if (!empty($donations)) {
+                // Get the donor's donation funnel
+                $funnel = determine_donation_funnel($donor_email);
+                fputcsv($output, array($donor_email, $donor_first_name, $donor_last_name, $formattedPhone, $funnel));
+            }
+        }
+    }
+    fclose($output);
+}
 //End of export
 function export_data($current_time, $search_attr, $export_data) {
 	$filename = "dataexport.csv";

@@ -1,4 +1,11 @@
 <?php
+/* Code Review by Joseph
+Program Specifications/Correctness - Excellent
+Readability - Good - Could be cleaned up a little
+Code Efficiency - Excellent
+Documentation - Excellent
+Assigned Task - Excellent
+*/
     // Template for new VMS pages. Base your new page on this one
 
     // Make session information accessible, allowing us to associate
@@ -27,7 +34,8 @@
             dateChecker();
             $username = strtolower($args['username']);
             $password = $args['password'];
-            $user = retrieve_user($username);
+            $login = true; // value to signify a login attempt that the User constructor will evaluate
+            $user = retrieve_user($username, $login);
             if (!$user) {
                 // User doesn't exist
                 $badLogin = true;
@@ -43,7 +51,7 @@
                 }*/
                 $_SESSION['logged_in'] = true;
                 $types = $user->get_access_level();
-                if (in_array('superadmin', $types)) {
+                if (in_array('super admin', $types)) {
                     $_SESSION['access_level'] = 3;
                 } else if (in_array('admin', $types)) {
                     $_SESSION['access_level'] = 2;
@@ -68,7 +76,6 @@
                     header('Location: index.php');
                     die();
                 }
-                die();
             } else {
                 // The user's password was incorrect
                 $badLogin = true;
@@ -83,6 +90,13 @@
     <head>
         <?php require_once('universal.inc') ?>
         <title>BBBS Donor Information System | Log In</title>
+        <style>
+
+            select, option, input {
+            color: white; /* Setting the font color to white */
+            background-color: #333; /* A darker background for contrast */
+        }
+        </style>
     </head>
     <body>
         <?php require_once('header.php') ?>

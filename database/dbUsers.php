@@ -1,4 +1,12 @@
 <?php
+/* Code Review by Joseph
+Program Specifications/Correctness - Excellent
+Readability - Good - Might be better to put comments directly in the code instead of before each function
+Code Efficiency - Excellent
+Documentation - Excellent
+Assigned Task - Excellent
+*/
+
 /*
  * Copyright 2013 by Jerrick Hoang, Ivy Xing, Sam Roberts, James Cook, 
  * Johnny Coster, Judy Yang, Jackson Moniaga, Oliver Radwan, 
@@ -13,7 +21,17 @@
 /**
  * @version March 1, 2012
  * @author Oliver Radwan and Allen Tucker
+ * Edited by Megan and Noor for BBBS in Spring 2024
  */
+
+ /**
+  * Review for Noor by Conor Gill
+  * Program Specificness/Correctness: Execellent, I tested adding a user and since I can login into the system I know everything is working correctly
+  * Readbility: Excellent, There was plenty of documentation and there were headers detailing what I needed to know
+  * Code Efficency:Excellent, Didn't see any big errors or ineffecincies in the code
+  * Documentation: Excellent, Didn't see any errors and there was plenty of documentation
+  * Assigned Tasked: Completed all her tasks
+  */
 include_once('dbinfo.php');
 include_once(dirname(__FILE__).'/../domain/User.php');
 
@@ -67,28 +85,29 @@ function remove_user($id) {
 }
 
 /*
- * Parameters: $id = A string that represents the identifying email of a User
+ * Parameters: $id = A string that represents the identifying email of a User, $login = boolean value that signifies if the User object is being created during a login attempt; is an optional argument
  * This function retrieves a User from the dbUsers table that matches the given id
  * Return type: A User object or a boolean value of "false"
- * Pre-condition: $id is a string
+ * Pre-condition: $id is a string and $login is a boolean value if passed
  * Post-condition: A User object is returned or the boolean "false" is returned if no user exists with the given id
  */
-function retrieve_user($id) {
+function retrieve_user($id, $login = null) {
     $con=connect();
     $query = "SELECT * FROM dbUsers WHERE id = '" . $id . "'";
     $result = mysqli_query($con,$query);
     if (mysqli_num_rows($result) !== 1) {
         mysqli_close($con);
-        return false;
+        return false; // need to handle this properly in any code that calls this function
     }
     $result_row = mysqli_fetch_assoc($result);
-    $calltype = "login";
-    $theUser = make_a_user($result_row, $calltype);
+    $theUser = make_a_user($result_row, $login);
 //    mysqli_close($con);
     return $theUser;
 }
+
 // Name is first concat with last name. Example 'James Jones'
 // return array of Users.
+//Conor: Not a lot of documentation compared to other methods either. 
 function retrieve_users_by_name ($name) {
 	$users = array();
 	if (!isset($name) || $name == "" || $name == null) return $users;
@@ -105,18 +124,25 @@ function retrieve_users_by_name ($name) {
     return $users;	
 }
 
+/*
+ * Parameters: $id = A string that represents the identifying email of a User, $newPass = A string that represents the new password
+ * This function changes the password of a User in the dbUsers table that matches the given id
+ * Return type: A boolean value of "true" or "false"
+ * Pre-condition: $id and $newPass are strings
+ * Post-condition: The password of a User is changed in the dbUsers table if the User exists with the given id
+ */
 function change_password($id, $newPass) {
     $con=connect();
-    $query = 'UPDATE dbUsers SET password = "' . $newPass . '", force_password_change="0" WHERE id = "' . $id . '"';
-    $result = mysqli_query($con,$query);
+    $query = 'UPDATE dbUsers SET password = "' . $newPass . '" WHERE id = "' . $id . '"';
+    $result = mysqli_query($con, $query);
     mysqli_close($con);
     return $result;
 }
 
 function reset_password($id, $newPass) {
     $con=connect();
-    $query = 'UPDATE dbUsers SET password = "' . $newPass . '", force_password_change="1" WHERE id = "' . $id . '"';
-    $result = mysqli_query($con,$query);
+    $query = 'UPDATE dbUsers SET password = "' . $newPass . '" WHERE id = "' . $id . '"';
+    $result = mysqli_query($con, $query);
     mysqli_close($con);
     return $result;
 }
@@ -148,10 +174,13 @@ function getall_dbUsers($name_from, $name_to, $venue) {
 }
 
 /*
-  @return all rows from dbUsers
-
-*/
-function getall_users() {
+ * Parameters: None
+ * This function retrieves all Users from the dbUsers table except vmsroot
+ * Return type: An array of User objects or a boolean value of "false" in the event that no Users exist in the dbUsers table
+ * Pre-condition: None
+ * Post-condition: An array of User objects is returned or the boolean "false" is returned if no Users exist in the dbUsers table
+ */
+function get_all_users() {
     $con=connect();
     $query = 'SELECT * FROM dbUsers WHERE id != "vmsroot"';
     $result = mysqli_query($con,$query);
@@ -188,13 +217,16 @@ function getall_user_names() {
 }
 
 /*
- * Parameters: $result_row = a row from the dbUsers table, $calltype = a string that represents the type of call being made
+ * Parameters: $result_row = a row from the dbUsers table, $login = boolean value that signifies if the User object is being created during a login attempt; is an optional argument
  * This function constructs a new User object with the row from the dbUsers table
  * Return type: User
- * Pre-condition: $result_row is an associative array
+ * Pre-condition: $result_row is an associative array and $login is a boolean value if passed
  * Post-condition: a new User object is created
  */
-function make_a_user($result_row, $calltype) {
+//Note from Conor: Needed an explanation on the purpose of login. It's not clear from the documentation here
+//the purpose of Login and what it is doing by existing. A further explanation at the end in a comment or in the
+//header would do good.
+function make_a_user($result_row, $login = null) {
     $theUser = new User(
         /*$result_row['first_name'],
         $result_row['last_name'],
@@ -209,7 +241,33 @@ function make_a_user($result_row, $calltype) {
         $result_row['last_name'],
         $result_row['role'],
         $result_row['account_type'],
-        $calltype
+        $login
     );
     return $theUser;
+}
+
+/*
+ * Parameters: None
+ * This function retrieves all standard users from the dbUsers table (role = "user")
+ * Return type: An array of user objects or it's "false" if there's no standard users that get retrieved
+ * Pre-condition: None
+ * Post-condition: An array of user objects is returned or it's "false" if no standard users exist
+ */
+
+function get_all_standard_users() {
+    $con = connect();
+    $query = 'SELECT * FROM dbUsers WHERE account_type = "user"';
+    $result = mysqli_query($con,$query);
+    if ($result == null || mysqli_num_rows($result) == 0) {
+        mysqli_close($con);
+        return false;
+    }
+    $theUsers = array();
+    while ($result_row = mysqli_fetch_assoc($result)) {
+        // Create user object and add to the array
+        $theUser = make_a_user($result_row);
+        $theUsers[] = $theUser;
+    }
+    mysqli_close($con);
+    return $theUsers;
 }

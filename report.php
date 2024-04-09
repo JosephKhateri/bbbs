@@ -1,4 +1,14 @@
 <?php 
+
+    /**
+     * Reviewed by Zack 
+     * Program Specifications/Correctness - Excellent
+     * Readability - Good
+     * Code Efficiency - Excellent
+     * Documentation - Developing
+     * Assigned Task - Excellent
+     */
+
   session_cache_expire(30);
   session_start();
   ini_set("display_errors",1);
@@ -15,10 +25,6 @@
   require_once('include/input-validation.php');
   require_once('database/dbPersons.php');
 
-  if ($accessLevel < 2) {
-    header('Location: index.php');
-    die();
-  }
     // get animal data from database for form
     // Connect to database
     include_once('database/dbinfo.php'); 
@@ -31,7 +37,7 @@
 <html>
     <head>
         <?php require_once('universal.inc') ?>
-        <title>ODHS Medicine Tracker | Reports</title>
+        <title>BBBS | Reports</title>
         <style>
             .report_select{
                 display: flex;
@@ -65,6 +71,14 @@
 		display: block;
   		color: red;
 	    }
+        select, option {
+        color: white; /* This sets the font color to white */
+        }
+
+        /* To ensure the background color of the dropdown is not white and provides enough contrast to see the white text */
+        select {
+            background-color: #333; /* A darker background for contrast */
+        }
         </style>
     </head>
     <body>
@@ -83,22 +97,17 @@
 	<h2>Generate Report</h2>
 	<br>
 
-    <form class="report_select" method="get" action="reportsPage.php">
+    <form class="report_select" method="get" action="newReportsPage.php">
                 <div>
                     <label for="report">Select Report</label>
                     <select id="report" name="report" required>
-                        <option value="report1">Donors who have donated over $10,000</option>
+                        <option value="report1">Donors Who Have Donated Over $10,000</option>
                         <option value="report2">Every Donor's Frequency of Giving</option>
-<<<<<<< Updated upstream
                         <option value="report3">Donors who have not contributed for the last 2 years</option>
-<<<<<<< Updated upstream
-=======
                         <option value="report4">Events Contributed</option>
                         <option value="report5">Donors whose Frequency of Giving is bigger than yearly</option>
                         <option value="report6">Donors who have donated in the past three Years</option>
                         <option value="report7">Donor Retention Rate</option>
->>>>>>> Stashed changes
-=======
                         <option value="report3">Donors Who Have Not Contributed for the Last 2 Years</option>
                         <option value="report4">Event Contributions</option>
                         <option value="report5">Donors Whose Frequency of Giving is Greater than Yearly</option>
@@ -107,7 +116,6 @@
                         <option value="report8">Top X Donors</option>
                         <option value="report9">Donor's Donation Stage/Funnel</option>
                         <option value="report10">Donor's Retention Rate</option>
->>>>>>> Stashed changes
                     </select><br/>
                 </div>
                 <input type="submit" name="submit_click" value="Submit">
