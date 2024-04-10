@@ -151,6 +151,37 @@
         return $theDonors;
     }
 
+    function get_filtered_donors($cityFilters, $stateFilters) : array {
+        $con = connect();
+        $filteredDonors = [];
+
+        $sql = "SELECT * FROM dbDonors WHERE City = ? AND State = ?";
+        $stmt = $con->prepare($sql);
+
+        // Iterate through each pair of city and state filters
+        foreach ($cityFilters as $index => $city) {
+            $state = $stateFilters[$index];
+
+            // Bind the parameters to the SQL statement
+            $stmt->bind_param("ss", $city, $state);
+
+            // Execute the SQL statement
+            $stmt->execute();
+
+            // Get the result of the SQL statement
+            $result = $stmt->get_result();
+
+            // Iterate through each row in the result
+            while ($row = $result->fetch_assoc()) {
+                // Create a donor object and add it to the filtered donors array
+                $donor = make_a_donor($row);
+                $filteredDonors[] = $donor;
+            }
+        }
+
+        return $filteredDonors;
+    }
+
     /*
      * Parameters: $donorEmail = A string that represents the email of a donor
      * This function retrieves all donations made by a donor using the donor's email

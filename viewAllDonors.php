@@ -32,6 +32,17 @@
     // Get all donors to display in the table
     $donors = get_all_donors();
 
+    $locations = array();
+    foreach ($donors as $donor) {
+        $location = $donor->get_city() . ", " . $donor->get_state();
+        // Ensure unique locations
+        if (!in_array($location, $locations) and $location != ", ") {
+            $locations[] = $location;
+        }
+    }
+    // Sort the locations alphabetically
+    sort($locations);
+
     // if $donors is equal to false (meaning no donors were retrieved from the database), redirect to the dashboard
     if (!$donors) {
         header('Location: index.php?noDonors');
@@ -72,6 +83,26 @@
 
         // Update $donors with matching donors
         $donors = $matching_donors;
+    }
+    // Check if city and state filters are set
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['city_state_combos'])) {
+
+        // Sanitize the input data
+        $cityStateFilters = array_map('htmlspecialchars', $_POST['city_state_combos']);
+
+        // Assuming the city and state are separated by a comma in the checkbox values
+        $cityFilters = [];
+        $stateFilters = [];
+        foreach ($cityStateFilters as $filter) {
+            list($city, $state) = explode(', ', $filter);
+            $cityFilters[] = $city;
+            $stateFilters[] = $state;
+        }
+
+        $donors = get_filtered_donors($cityFilters, $stateFilters);
+    } elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        // Handle case when city and state filters are not set
+        $donors = get_all_donors();
     }
 
     /**
@@ -167,14 +198,80 @@
                 text-decoration: underline;
                 cursor: pointer;
             }
+            .filter-group {
+                display: flex;
+                flex-wrap: wrap;
+                margin-bottom: 10px; /* Adjust as needed */
+            }
+
+            .filter-group label {
+                flex: 0 0 25%; /* Each checkbox occupies 25% of the container width */
+                margin-bottom: 5px;
+            }
+
+            .filter-group input[type="checkbox"] {
+                margin-right: 5px;
+            }
+            .popup {
+                display: none;
+                position: fixed;
+                top: 52%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: black;
+                padding: 20px;
+                border: 1px solid #ccc;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                z-index: 9999;
+            }
+            /* Add this CSS to change the color of the close button */
+            #closeFilterPopupButton {
+                background-color: #808080; /* Background color */
+                border: none; /* Remove border */
+                margin-top: 10px;
+                /*padding: 5px 10px; /* Adjust padding if needed */
+                border-radius: 5px; /* Optional: Add border-radius for rounded corners */
+            }
+            /* CSS to lock scrolling */
+            .no-scroll {
+                overflow: hidden;
+            }
+            #searchInput {
+                margin-bottom: -15px; /* Adjust the value as needed */
+            }
         </style>
 
-        <input type="text" id="searchInput" name="query" placeholder="Search donors">
-        <div id="searchResults"></div>
-
-        <!-- Filters the contents of the Donor table based on the search query -->
         <script>
-            $(document).ready(function() {
+            // Execute script after DOM has loaded
+            $(document).ready(function(){
+                // Function to load donor data based on selected filters
+                function loadDonorData() {
+                    // Get selected city and state filters
+                    var filters = $("input[name='city_state_combos[]']:checked").map(function(){
+                        return $(this).val();
+                    }).get();
+
+                    // Make AJAX call to fetch filtered donor data
+                    $.ajax({
+                        url: 'viewAllDonors.php',
+                        type: 'POST',
+                        data: {city_state_combos: filters}, // Send filters as an array
+                        success: function(response) {
+                            // Replace entire content of donor table with filtered data
+                            $("#donorTable").html($(response).find('#donorTable').html());
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(error); // Handle errors if any
+                        }
+                    });
+                }
+
+                // Filter button click event
+                $("#filterButton").click(function(event){
+                    event.preventDefault(); // Prevent default form submission behavior
+                    loadDonorData(); // Call function to load donor data
+                });
+
                 $('#searchInput').on('input', function() {
                     let query = $(this).val();
 
@@ -187,8 +284,89 @@
                         }
                     });
                 });
+
+                // Function to open the filter popup
+                function openFilterPopup() {
+                    $("#filterPopup").show();
+                    $("body").addClass("no-scroll"); // Lock scrolling
+                }
+
+                // Clear Filters button click event
+                $("#clearFiltersButton").click(function(event){
+                    event.preventDefault(); // Prevent default form submission behavior
+                    // Deselect all checkboxes
+                    $("input[name='city_state_combos[]']").prop('checked', false);
+                    // Load all donors
+                    loadAllDonors();
+                    closeFilterPopup(); // Close the filter popup after clearing filters
+                });
+
+                // Function to close the filter popup
+                function closeFilterPopup() {
+                    $("#filterPopup").hide();
+                    $("body").removeClass("no-scroll"); // Unlock scrolling
+                }
+
+                function loadAllDonors() {
+                    // Make AJAX call to fetch all donors
+                    $.ajax({
+                        url: 'viewAllDonors.php',
+                        type: 'POST',
+                        data: {}, // No filters needed
+                        success: function(response) {
+                            // Replace entire content of donor table with all donors
+                            $("#donorTable").html($(response).find('#donorTable').html());
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(error); // Handle errors if any
+                        }
+                    });
+                }
+
+                // Event listener for the filter button
+                $("#filterButton").click(function(event){
+                    event.preventDefault(); // Prevent default form submission behavior
+                    // loadDonorData(); // Call function to load donor data - Uncomment if this function exists
+                    closeFilterPopup(); // Close the filter popup after filtering
+                });
+
+                // Open filter popup when button is clicked
+                $("#popupButton").click(openFilterPopup);
+
+                // Close filter popup when close button is clicked
+                $("#closeFilterPopupButton").click(closeFilterPopup);
+
+                // Close the filter popup if user clicks outside of it
+                $(window).click(function(event) {
+                    if (event.target === document.getElementById('filterPopup')) {
+                        closeFilterPopup();
+                    }
+                });
             });
         </script>
+
+
+        <input type="text" id="searchInput" name="query" placeholder="Search donors" >
+        <div id="searchResults"></div>
+
+        <button id="popupButton" style="border-radius: 5px; margin-bottom: 10px;">Filter Donors</button>
+
+        <!-- Filter popup -->
+        <div id="filterPopup" class="popup style=" style="margin-top: 20px;">
+            <h6 style="color: #00FC87"><b>Locations:</b></h6>
+            <div class="filter-group" style="margin-bottom: 10px;">
+                <?php foreach ($locations as $location): ?>
+                    <label style="margin-bottom: 5px;"><input type="checkbox" name="city_state_combos[]" value="<?= htmlspecialchars($location) ?>"> <?= htmlspecialchars($location) ?></label>
+                <?php endforeach; ?>
+            </div>
+            <form id="filterForm" action="viewAllDonors.php" method="post">
+                <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+                    <button type="button" id="filterButton" style="border-radius: 5px; margin-right: 10px;">Filter</button>
+                    <button type="button" id="clearFiltersButton" style="border-radius: 5px; background-color: red;">Clear All Filters</button>
+                </div>
+                <button type="button" id="closeFilterPopupButton">Close</button> <!-- Adding a close button -->
+            </form>
+        </div>
 
         <!-- Table of all donors -->
         <!-- Display all donors in a table, displaying their emails and names -->
