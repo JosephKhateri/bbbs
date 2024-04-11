@@ -97,6 +97,7 @@
             <input type="submit" value="Upload">
         </form>
     </main>
+    <!--
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var form = document.querySelector('form[name="uploadFile"]');
@@ -134,5 +135,6 @@
         });
     });
 </script>
+/!-->
 </body>
 </html>

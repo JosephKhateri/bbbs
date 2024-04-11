@@ -76,6 +76,7 @@ class Donation {
         return $this->memo;
     }
 
+    /*
     function processDonationData($donationData, $con){
         //     // Assuming donationData has the email as the unique identifier in the first position -- KEY WORD IS ASSUMING!!!
         $x = implode(" ", $donationData);
@@ -96,5 +97,6 @@ class Donation {
         // Update lifetime donation amount
         updateLifetime($donorEmail, $con);
     }
+    */
 }
 ?>
