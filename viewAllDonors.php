@@ -212,6 +212,7 @@
             .filter-group input[type="checkbox"] {
                 margin-right: 5px;
             }
+
             .popup {
                 display: none;
                 position: fixed;
@@ -223,6 +224,10 @@
                 border: 1px solid #ccc;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                 z-index: 9999;
+            }
+            /* CSS to change button color on hover */
+            #clearFiltersButton:hover {
+                background-color: darkred;
             }
             /* Add this CSS to change the color of the close button */
             #closeFilterPopupButton {
@@ -298,7 +303,7 @@
                     $("input[name='city_state_combos[]']").prop('checked', false);
                     // Load all donors
                     loadAllDonors();
-                    closeFilterPopup(); // Close the filter popup after clearing filters
+                    //closeFilterPopup(); // Close the filter popup after clearing filters
                 });
 
                 // Function to close the filter popup
@@ -352,7 +357,7 @@
         <button id="popupButton" style="border-radius: 5px; margin-bottom: 10px;">Filter Donors</button>
 
         <!-- Filter popup -->
-        <div id="filterPopup" class="popup style=" style="margin-top: 20px;">
+        <div id="filterPopup" class="popup style=" style="margin-top: 30px;">
             <h6 style="color: #00FC87"><b>Locations:</b></h6>
             <div class="filter-group" style="margin-bottom: 10px;">
                 <?php foreach ($locations as $location): ?>
@@ -361,10 +366,23 @@
             </div>
             <form id="filterForm" action="viewAllDonors.php" method="post">
                 <div style="display: flex; justify-content: space-between; margin-top: 40px;">
-                    <button type="button" id="filterButton" style="border-radius: 5px; margin-right: 10px;">Filter</button>
-                    <button type="button" id="clearFiltersButton" style="border-radius: 5px; background-color: red;">Clear All Filters</button>
+                    <button type="button" id="filterButton" style="border-radius: 5px; margin-right: 10px;"
+                            onmouseover="this.style.backgroundColor='darkgreen'"
+                            onmouseout="this.style.backgroundColor='#00FC87'">
+                        Filter
+                    </button>
+
+                    <button type="button" id="clearFiltersButton" style="border-radius: 5px; background-color: red;"
+                            onmouseover="this.style.backgroundColor='darkred'"
+                            onmouseout="this.style.backgroundColor='red'">
+                        Clear All Filters
+                    </button>
                 </div>
-                <button type="button" id="closeFilterPopupButton">Close</button> <!-- Adding a close button -->
+                <button type="button" id="closeFilterPopupButton" style="border-radius: 5px;"
+                        onmouseover="this.style.backgroundColor='#696969'"
+                        onmouseout="this.style.backgroundColor='#808080'">
+                    Close
+                </button>
             </form>
         </div>
 
