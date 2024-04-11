@@ -605,9 +605,6 @@ function exportDonorsRR() {
     header('Content-Disposition: attachment; filename="donors_Retention_Rate.csv"');
     
     $output = fopen("php://output", "w");
-    
-    // Write the CSV header
-    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number'));
 
     //Get all Donors
     $donors=get_all_donors();
@@ -619,7 +616,7 @@ function exportDonorsRR() {
         //and add to Multi-Year array if they are and increas the Multi
         //Counter.
         $dmail=$donor->get_email();
-        $type= get_donor_retention($dmail);
+        $type= get_donor_status($dmail);
         if($type=="Multiyear Donor"){
             $MultiYearDonors[]=$donor;
         }
@@ -637,6 +634,9 @@ function exportDonorsRR() {
         fputcsv($output, array());
         fputcsv($output, array());
 
+        // Write the CSV header
+        fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number'));
+
         foreach($MultiYearDonors as $donor){
             // Get the donor details
             $donor_first_name = $donor->get_first_name();
@@ -648,11 +648,9 @@ function exportDonorsRR() {
             $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
             
             //Write Multi-Year Donor's Details to CSV File
-            $funnel = determine_donation_funnel($donor_email);
             fputcsv($output, array($donor_email, $donor_first_name, $donor_last_name, $formattedPhone));
         }  
     }
-
     fclose($output);
 }
 
