@@ -53,7 +53,7 @@ function parseCSV($csvFilePath, $forceInsert = false){
         processDonationData($line, $con, $forceInsert);
 
         // Process each line of the CSV file
-        /*$date = trim($line[0]);
+        $date = trim($line[0]);
         $contributed_support = trim($line[1]);
         $contribution_category = trim($line[2]);
         $amount = trim($line[3]);
@@ -96,7 +96,7 @@ function parseCSV($csvFilePath, $forceInsert = false){
         }
 
         // If validations all pass, then create a new Donor and Donation object with the data from the current line
-        $donor = new Donor ($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip);
+        /*$donor = new Donor ($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip);
 
         $newID = count(get_all_donations()) + 1;
         $donation = new Donation ($newID, $email, $date, $contributed_support, $contribution_category, $amount, $payment_method, $memo);

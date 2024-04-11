@@ -101,6 +101,18 @@ function reportFrequencyOfGiving($connection) {
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
                 echo "<h2 style='text-align: center;'>Donors' Frequency of Giving</h2>";
+                echo "<br>";
+
+                // Display the donation frequency categories
+                /*echo "<h4 style='margin: 0; padding: 0; margin-left: 150px'> Donation Frequency Categories:</h4>";
+                echo "<p style='margin: 0; padding: 0; margin-left: 150px'> 
+                        - Monthly: Donated at least twice each month for the past 2 months</p>";
+                echo "<p style='margin: 0; padding: 0; margin-left: 150px'> 
+                        - Yearly: Donated at least once each year for the past 2 years</p>";
+                echo "<p style='margin: 0; padding: 0; margin-left: 150px'> 
+                        - Sporadic: Donates inconsistently</p>";
+                echo "<br>";*/
+
                 echo "<table>";
                 echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Frequency of Giving</th>
                       <th>Days from Earliest Donation</th></tr>";

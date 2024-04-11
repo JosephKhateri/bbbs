@@ -13,11 +13,11 @@
     require_once(dirname(__FILE__) . '/../domain/Donor.php');
 
     /*
-     * Parameters:
-     *
-     * Return type:
-     * Pre-condition:
-     * Post-condition:
+     * Parameters: $donor = A Donor object
+     * This function adds a donor to the dbDonors table
+     * Return type: A boolean value (true if the donor was added, false if the donor already exists)
+     * Pre-condition: $donor is a valid Donor object
+     * Post-condition: The donor is added to the dbDonors table if it doesn't already exist
      */
     function add_donor($donor) {
         if (!$donor instanceof Donor)
@@ -47,11 +47,11 @@
     }
 
     /*
-     * Parameters:
-     *
-     * Return type:
-     * Pre-condition:
-     * Post-condition:
+     * Parameters: $email = A string that represents the email of a donor
+     * This function removes a donor from the dbDonors table using the donor's email
+     * Return type: A boolean value (true if the donor was removed, false if the donor doesn't exist)
+     * Pre-condition: $email is a string
+     * Post-condition: The donor is removed from the dbDonors table if it exists
      */
     function remove_donor($email) {
         $con=connect();
@@ -68,11 +68,11 @@
     }
 
     /*
-     * Parameters:
-     *
-     * Return type:
-     * Pre-condition:
-     * Post-condition:
+     * Parameters: $donor = A Donor object
+     * This function updates a donor's info in the dbDonors table
+     * Return type: A boolean value (true if the donor was updated, false if the donor doesn't exist)
+     * Pre-condition: $donor is a valid Donor object
+     * Post-condition: The donor's info is updated in the dbDonors table if it exists
      */
     function update_donor($donor) {
         $con=connect();
@@ -151,6 +151,37 @@
         return $theDonors;
     }
 
+    function get_filtered_donors($cityFilters, $stateFilters) : array {
+        $con = connect();
+        $filteredDonors = [];
+
+        $sql = "SELECT * FROM dbDonors WHERE City = ? AND State = ?";
+        $stmt = $con->prepare($sql);
+
+        // Iterate through each pair of city and state filters
+        foreach ($cityFilters as $index => $city) {
+            $state = $stateFilters[$index];
+
+            // Bind the parameters to the SQL statement
+            $stmt->bind_param("ss", $city, $state);
+
+            // Execute the SQL statement
+            $stmt->execute();
+
+            // Get the result of the SQL statement
+            $result = $stmt->get_result();
+
+            // Iterate through each row in the result
+            while ($row = $result->fetch_assoc()) {
+                // Create a donor object and add it to the filtered donors array
+                $donor = make_a_donor($row);
+                $filteredDonors[] = $donor;
+            }
+        }
+
+        return $filteredDonors;
+    }
+
     /*
      * Parameters: $donorEmail = A string that represents the email of a donor
      * This function retrieves all donations made by a donor using the donor's email
@@ -158,7 +189,7 @@
      * Pre-condition: $donorEmail is a string
      * Post-condition: The donor's retention status is returned
      */
-    function get_donor_retention($donorEmail) : string {
+    function get_donor_status($donorEmail) : string {
         $donations = retrieve_donations_by_email($donorEmail);
 
         // If the donor has no donations, return "No Donations"
@@ -169,17 +200,11 @@
         // Sort donations by date
         sort($donations);
 
-
-        // Get the date one year ago
-        $one_year_ago = date('Y-m-d', strtotime('-1 year'));;
-
-        // Get the date two years ago
-        $two_years_ago = date('Y-m-d', strtotime('-2 year'));;
-
-        // Get the date of the earliest donation
-        $earliest_donation_date = end($donations)->get_contribution_date();
-
-        $date_of_last_donation = $donations[0]->get_contribution_date();
+        // Get date variables
+        $one_year_ago = date('Y-m-d', strtotime('-1 year')); // Date of one year ago from today
+        $two_years_ago = date('Y-m-d', strtotime('-2 year')); // Date of two years ago from today
+        $earliest_donation_date = end($donations)->get_contribution_date(); // Date of donor's first donation
+        $date_of_last_donation = $donations[0]->get_contribution_date(); // Date of donor's last donation
 
         // If the donor's first donation was from this year or within the last year
         if ($earliest_donation_date >= $one_year_ago) {
@@ -354,6 +379,45 @@
         }
 
         return $category;
+    }
+
+    /*
+     * Parameters: $term = A string that represents a term
+     * This function retrieves the description of a term from an associated array (dictionary)
+     * Return type: A string that represents the description of the term
+     * Pre-condition: $term is a string
+     * Post-condition: The description of the term is returned
+     */
+    function get_description($term) : string {
+        $descriptions = array(
+            // Retention status descriptions
+            "New Donor" => "Donor made their first donation within the past year",
+            "Multiyear Donor" => "Donor made a donation both within the past year and the year before",
+            "Returning Donor" => "Donor donated over 2 years ago, then started donating again within the last year",
+            "Formerly Active Donor" => "Donor has not donated within the past year, but has donated within the past 2 years",
+            "Inactive Donor" => "Donor has not donated in 2 or more years from today's date",
+
+            // Donation funnel descriptions
+            "Interested" => "Donor has donated at least once in the past 3 years",
+            "Donor" => "Donor has donated at least once a year in the past 3 years",
+            "Engaged" => "Donor has donated at least 3 times in the past 5 years",
+            "Loyal Donor" => "Donor has donated at least 5 times in the past 5 years",
+            "Leadership Donor" => "Donor has donated over $10,000",
+
+            // Donation frequency descriptions
+            "Monthly" => "Donor has donated at least once each month for the past 2 months",
+            "Yearly" => "Donor has donated at least once each year for the past 2 years",
+            "Sporadic" => "Donor donates inconsistently"
+        );
+
+        if (array_key_exists($term, $descriptions)) {
+            // Return the corresponding value
+            return $descriptions[$term];
+        }
+        else {
+            // Return an empty string if the term is not found
+            return "";
+        }
     }
 
     /*
