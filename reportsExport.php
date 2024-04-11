@@ -629,7 +629,14 @@ function exportDonorsRR() {
     if(count($MultiYearDonors)>0){
         $RetentionRate=(count($MultiYearDonors)/count($donors))*100;
         $RetentionRate=$RetentionRate."%";
-        
+        //Put the Number of Multi-Year Donors and Retention Rate in the CSV as well
+        fputcsv($output, array('Number of Multi-Year Donors', 'Retention Rate'));
+        fputcsv($output, array(count($MultiYearDonors), $RetentionRate));
+        //Add a few blank lines to make the thing easier to read
+        fputcsv($output, array());
+        fputcsv($output, array());
+        fputcsv($output, array());
+
         foreach($MultiYearDonors as $donor){
             // Get the donor details
             $donor_first_name = $donor->get_first_name();
@@ -643,9 +650,7 @@ function exportDonorsRR() {
             //Write Multi-Year Donor's Details to CSV File
             $funnel = determine_donation_funnel($donor_email);
             fputcsv($output, array($donor_email, $donor_first_name, $donor_last_name, $formattedPhone));
-        }
-        fputcsv($output, array('Number of Multi-Year Donors', 'Retention Rate'));
-        fputcsv($output, array(count($MultiYearDonors), $RetentionRate));
+        }  
     }
 
     fclose($output);

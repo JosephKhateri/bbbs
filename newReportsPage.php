@@ -498,13 +498,15 @@ function reportMultiDonors(){
             //Generate Table and Calculate Retention Rate of Multi Year Donors
             if(count($MultiYearDonors)>0){
                 $RetentionRate=(count($MultiYearDonors)/count($donors))*100;
+                $RetentionRate=$RetentionRate."%";
+                $RetentionRate=substr($RetentionRate,0,5);
                 //Display Number of Multi-Year Donors
                 echo "<h2 style='text-align: center;'>Number of Multi-Year Donors: " .htmlspecialchars(count($MultiYearDonors)). "</h2>";
 
                 echo "<br>";
 
                 //Calculate Retention Rate and Dispaly it to User
-                echo "<h2 style='text-align: center;'>Retention Rate: " .htmlspecialchars($RetentionRate). "%</h2>";
+                echo "<h2 style='text-align: center;'>Retention Rate: " .htmlspecialchars($RetentionRate). "</h2>";
                 
                 echo "<br>";
                 //Create a Table of all the Multi-Year Donors
