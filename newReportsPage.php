@@ -436,7 +436,7 @@ function reportDonationStage(){
     $donors = get_all_donors();
 
     if (count($donors) > 0) { // If we have donors, display the report
-        echo "<h2 style='text-align: center;'>Donation Stage of Donors</h2>";
+        echo "<h2 style='text-align: center;'>Donors' Donation Funnels</h2>";
         echo "<table>";
         echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Donation Funnel</th></tr>";
         foreach ($donors as $donor) {
@@ -500,15 +500,23 @@ function reportMultiDonors(){
                 $RetentionRate=(count($MultiYearDonors)/count($donors))*100;
                 $RetentionRate=substr($RetentionRate,0,5);
                 $RetentionRate=$RetentionRate."%";
-                //Display Number of Multi-Year Donors
-                echo "<h2 style='text-align: center;'>Number of Multi-Year Donors: " .htmlspecialchars(count($MultiYearDonors)). "</h2>";
 
-                echo "<br>";
+                // Add a line break
+                echo "<tr><td colspan=\"5\">&nbsp;</td></tr>";
 
-                //Calculate Retention Rate and Dispaly it to User
-                echo "<h2 style='text-align: center;'>Retention Rate: " .htmlspecialchars($RetentionRate). "</h2>";
-                
-                echo "<br>";
+                // Display # of multiyear donors and retention rate
+                echo "<div style='text-align: center;'>";
+                    echo "<div style='display: inline-block; margin-right: 50px;'>";
+                        echo "<h2>Number of Multi-Year Donors: " . count($MultiYearDonors) . "</h2>";
+                    echo "</div>";
+                    echo "<div style='display: inline-block; padding-left: 50px;'>"; // Added padding-left for spacing
+                        echo "<h2>Retention Rate: $RetentionRate</h2>";
+                    echo "</div>";
+                echo "</div>";
+
+                // Add line breaks for increased spacing
+                echo "<br><br><br>"; // Add multiple <br> tags for increased line break
+
                 //Create a Table of all the Multi-Year Donors
                 echo "<h2 style='text-align: center;'>Multi-Year Donors</h2>";
                 echo "<table>";
