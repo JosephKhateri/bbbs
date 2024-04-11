@@ -437,7 +437,6 @@
             return ['status' => 'success', 'message' => 'Donation added successfully'];
         }
             
-        
     }
 ?>
 

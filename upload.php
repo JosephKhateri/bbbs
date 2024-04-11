@@ -48,9 +48,6 @@ function parseCSV($csvFilePath, $forceInsert = false){
             continue; // Skip rows with invalid or missing emails
         }
 
-        // Process donor data
-        processDonorData($line, $con);
-        processDonationData($line, $con, $forceInsert);
 
         // Process each line of the CSV file
         $date = trim($line[0]);
@@ -94,6 +91,10 @@ function parseCSV($csvFilePath, $forceInsert = false){
             header('Location: uploadForm.php?zipFormatFail');
             exit;
         }
+
+        // Process donor data
+        processDonorData($line, $con);
+        processDonationData($line, $con, $forceInsert);
 
         // If validations all pass, then create a new Donor and Donation object with the data from the current line
         /*$donor = new Donor ($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip);
