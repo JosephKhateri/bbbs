@@ -93,9 +93,17 @@
 
             echo('<li><a class="nav-link active" aria-current="page" href="' . $path . 'UploadForm.php">Upload</a></li>');
 
-            echo('<li><a class="nav-link active" aria-current="page" href="' . $path . 'viewAllDonors.php">Donors</a></li>');
+            echo('<li><a class="nav-link active" aria-current="page" href="' . $path . 'viewAllDonors.php">View Donors</a></li>');
             
             echo('<li><a class="nav-link active" aria-current="page" href="' . $path . 'report.php">Reports</a></li>');
+
+            echo('<li class="nav-item dropdown">');
+            echo('<a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Edit</a>');
+            echo('<div class="dropdown-menu">');
+	        echo('<a class="dropdown-item" href="' . $path . 'editDonorInfo.php">Donors</a>');
+            echo('<a class="dropdown-item" href="' . $path . 'editDonationsInfo.php">Donations</a>');
+            echo('</div>');
+            echo('</li>');
 
 	        echo('<li><a class="nav-link active" aria-current="page" href="' . $path . 'logout.php">Log out</a></li>');
             echo '</ul></nav>';
