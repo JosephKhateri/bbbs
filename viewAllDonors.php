@@ -216,7 +216,7 @@
             .popup {
                 display: none;
                 position: fixed;
-                top: 52%;
+                top: 400px;
                 left: 50%;
                 transform: translate(-50%, -50%);
                 background-color: black;
@@ -225,6 +225,7 @@
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                 z-index: 9999;
             }
+
             /* CSS to change button color on hover */
             #clearFiltersButton:hover {
                 background-color: darkred;
@@ -344,14 +345,13 @@
             });
         </script>
 
-
         <input type="text" id="searchInput" name="query" placeholder="Search donors" >
         <div id="searchResults"></div>
 
         <button id="popupButton" style="border-radius: 5px; margin-bottom: 10px;">Filter Donors</button>
 
         <!-- Filter popup -->
-        <div id="filterPopup" class="popup style=" style="margin-top: 30px;">
+        <div id="filterPopup" class="popup">
             <h6 style="color: #00FC87"><b>Locations:</b></h6>
             <div class="filter-group" style="margin-bottom: 10px;">
                 <?php foreach ($locations as $location): ?>
