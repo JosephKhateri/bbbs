@@ -252,7 +252,7 @@
                 // Function to load donor data based on selected filters
                 function loadDonorData() {
                     // Get selected city and state filters
-                    var filters = $("input[name='city_state_combos[]']:checked").map(function(){
+                    let filters = $("input[name='city_state_combos[]']:checked").map(function(){
                         return $(this).val();
                     }).get();
 
@@ -275,6 +275,7 @@
                 $("#filterButton").click(function(event){
                     event.preventDefault(); // Prevent default form submission behavior
                     loadDonorData(); // Call function to load donor data
+                    closeFilterPopup(); // Close the filter popup after filtering
                 });
 
                 $('#searchInput').on('input', function() {
@@ -327,13 +328,6 @@
                         }
                     });
                 }
-
-                // Event listener for the filter button
-                $("#filterButton").click(function(event){
-                    event.preventDefault(); // Prevent default form submission behavior
-                    // loadDonorData(); // Call function to load donor data - Uncomment if this function exists
-                    closeFilterPopup(); // Close the filter popup after filtering
-                });
 
                 // Open filter popup when button is clicked
                 $("#popupButton").click(openFilterPopup);
