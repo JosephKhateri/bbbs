@@ -473,12 +473,12 @@ function reportDonationStage(){
     }
 }
 
-        //report 10
-        // Report:Donors Retention Rate
-        // Pre-Condition: User is logged in to be able to access report functionality
-        // Post-Condition: User will be able to look through the report as a generated table and
-        //                 be able to export the data as a CSV file
-        function reportMultiDonors(){
+//report 10
+// Report:Donors Retention Rate
+// Pre-Condition: User is logged in to be able to access report functionality
+// Post-Condition: User will be able to look through the report as a generated table and
+//                 be able to export the data as a CSV file
+function reportMultiDonors(){
             //Get all Donors
             $donors=get_all_donors();
             //Array for Multi-Year Donors
@@ -489,7 +489,7 @@ function reportDonationStage(){
                 //and add to Multi-Year array if they are and increas the Multi
                 //Counter.
                 $dmail=$donor->get_email();
-                $type= get_donor_retention($dmail);
+                $type= get_donor_status($dmail);
                 if($type=="Multiyear Donor"){
                     $MultiYearDonors[]=$donor;
                 }
