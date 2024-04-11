@@ -114,12 +114,13 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_DSF') {
     exportDonorsDSF();
     exit();
 }
-//Retention Rate Report
+//RR=Retention Rate
 if (isset($_POST['action']) && $_POST['action'] == 'export_donors_RR') {
 	ob_end_clean();
     exportDonorsRR();
 	exit();
 }
+
 process_form();
 //pull_shift_data();
 include('footer.inc');
@@ -559,7 +560,7 @@ function exportDonorsT10() {
     }
 }
 
-// Export Function for the Report on Retention Rate
+// Export Function for the Donor's Stage/Funnel
 function exportDonorsDSF() {
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="donors_Donors_Stage.csv"');
@@ -598,10 +599,10 @@ function exportDonorsDSF() {
     fclose($output);
 }
 
-// Export Function for the Report on Donor's Stage/Funnel
+// Export Function for the Report on Retention Rate
 function exportDonorsRR() {
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="donors_Donors_Stage.csv"');
+    header('Content-Disposition: attachment; filename="donors_Retention_Rate.csv"');
     
     $output = fopen("php://output", "w");
     
