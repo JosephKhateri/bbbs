@@ -436,7 +436,7 @@ function reportDonationStage(){
     $donors = get_all_donors();
 
     if (count($donors) > 0) { // If we have donors, display the report
-        echo "<h2 style='text-align: center;'>Donation Stage of Donors</h2>";
+        echo "<h2 style='text-align: center;'>Donors' Donation Funnels</h2>";
         echo "<table>";
         echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Donation Funnel</th></tr>";
         foreach ($donors as $donor) {
@@ -474,71 +474,77 @@ function reportDonationStage(){
 }
 
 //report 10
-        // Report:Donors Retention Rate
-        // Pre-Condition: User is logged in to be able to access report functionality
-        // Post-Condition: User will be able to look through the report as a generated table and
-        //                 be able to export the data as a CSV file
-        if (isset($_GET['report']) && $_GET['report'] == 'report10') {
-            
-            echo "<h2>Donors Retention Rate Calculator</h2>
-                <form method='post' action='reportsDonorsPage.php'>
-                    <label for='prev_year'>Previous Year:</label>
-                    <input type='number' id='prev_year' name='prev_year' required min='2000' max='2023' style='color:white;'><br><br>
-                    <label for='current_year'>Current Year:</label>
-                    <input type='number' id='current_year' name='current_year' required min='2001' max='2024'  style='color:white;'><br><br>
-                    <input type='submit' value='Submit'>
-                </form>";
-         
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Define the date range (you can adjust the interval as needed)
-        
-        $prev_year = $_POST["prev_year"];
-        $current_year = $_POST["current_year"];
+// Report:Donors Retention Rate
+// Pre-Condition: User is logged in to be able to access report functionality
+// Post-Condition: User will be able to look through the report as a generated table and
+//                 be able to export the data as a CSV file
+function reportMultiDonors(){
+            //Get all Donors
+            $donors=get_all_donors();
+            //Array for Multi-Year Donors
+            $MultiYearDonors=array();
 
-        echo "previous year. $prev_year <br> current year. $current_year <br>";
-
-            
-        // Calculate the number of donors in the previous period
-        $sql_prev_period = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31'";
-        $result_prev_period = $connection->query($sql_prev_period);
-        $num_donors_prev_period = $result_prev_period->num_rows;
-
-        // Calculate the number of donors in the current period
-        $sql_current_period = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31'";
-        $result_current_period = $connection->query($sql_current_period);
-        $num_donors_current_period = $result_current_period->num_rows;
-
-        // Calculate the number of retained donors (donors who contributed in both periods)
-        $sql_retained_donors = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31' AND DonorID IN (SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31')";
-        $result_retained_donors = $connection->query($sql_retained_donors);
-        $num_retained_donors = $result_retained_donors->num_rows;
-
-            // Calculate donor retention rate
-            if ($num_donors_prev_period > 0) {
-                $retention_rate = ($num_retained_donors / $num_donors_prev_period) * 100;
-            } else {
-                $retention_rate = 0; // Default to 0 if no donors in the previous period
+            foreach($donors as $donor){
+                //Go through each donor and see if they are a Multi-Year donor
+                //and add to Multi-Year array if they are and increas the Multi
+                //Counter.
+                $dmail=$donor->get_email();
+                $type= get_donor_status($dmail);
+                if($type=="Multiyear Donor"){
+                    $MultiYearDonors[]=$donor;
+                }
             }
 
+            //Generate Table and Calculate Retention Rate of Multi Year Donors
+            if(count($MultiYearDonors)>0){
+                $RetentionRate=(count($MultiYearDonors)/count($donors))*100;
+                $RetentionRate=substr($RetentionRate,0,5);
+                $RetentionRate=$RetentionRate."%";
 
-        
-        // Display the donor retention rate
-        echo "<table>";
-        echo "<tr><th>Donors this year</th><th>Total donors last year</th><th>Retained Donors</th><th>Donor Retention Rate:</th></tr>";
-        echo "<tr>
-        <td>" . htmlspecialchars($num_donors_current_period) . "</td>
-        <td>" . htmlspecialchars($num_donors_prev_period) . "</td>
-        <td>" . htmlspecialchars($num_retained_donors) . "</td>
-        <td>" . htmlspecialchars(round($retention_rate, 2)) . "%"."</td>
-             
-      </tr>";
-        
-        }
+                // Add a line break
+                echo "<tr><td colspan=\"5\">&nbsp;</td></tr>";
+
+                // Display # of multiyear donors and retention rate
+                echo "<div style='text-align: center;'>";
+                    echo "<div style='display: inline-block; margin-right: 50px;'>";
+                        echo "<h2>Number of Multi-Year Donors: " . count($MultiYearDonors) . "</h2>";
+                    echo "</div>";
+                    echo "<div style='display: inline-block; padding-left: 50px;'>"; // Added padding-left for spacing
+                        echo "<h2>Retention Rate: $RetentionRate</h2>";
+                    echo "</div>";
+                echo "</div>";
+
+                // Add line breaks for increased spacing
+                echo "<br><br><br>"; // Add multiple <br> tags for increased line break
+
+                //Create a Table of all the Multi-Year Donors
+                echo "<h2 style='text-align: center;'>Multi-Year Donors</h2>";
+                echo "<table>";
+                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th></tr>";
+                foreach($MultiYearDonors as $donor){
+                    // Get the donor details
+                    $donor_first_name = $donor->get_first_name();
+                    $donor_last_name = $donor->get_last_name();
+                    $donor_email = $donor->get_email();
+                    $phone = $donor->get_phone();    
+                    
+                    //Format the Phone Number
+                    $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+                    
+                    // Display the Multi-Year Donor's Details
+                    
+                    echo "<tr>
+                    <td>" . htmlspecialchars($donor_email) . "</td>
+                    <td>" . htmlspecialchars($donor_first_name) . "</td>
+                    <td>" . htmlspecialchars($donor_last_name) . "</td>
+                    <td>" . htmlspecialchars($formattedPhone) . "</td>
+                    </tr>";
+                }
+            echo "</table>";
+            }else{
+                echo "<p>Not enough Multi-Year Donors are available to make the report.</p>";
+            }
     }
-
-
-
-
     //End of report 
 
 function displayTopDonorsForm($currentValue) {
@@ -716,6 +722,9 @@ function displayTopDonorsForm($currentValue) {
                 case 'report9':
                     reportDonationStage();
                     break;
+                case 'report10':
+                    reportMultiDonors();
+                    break;
                 default:
                     echo "Unknown report requested.";
                     break;
@@ -755,6 +764,9 @@ function displayTopDonorsForm($currentValue) {
                         break;
                     case 'report9':
                         $formHtml .= "<input type='hidden' name='action' value='export_donors_DSF'>";
+                        break;
+                    case 'report10':
+                        $formHtml .= "<input type='hidden' name='action' value='export_donors_RR'>";
                         break;
                     }
                     $formHtml .= "<input type='submit' value='Export Donors' class='export-btn'></form>";

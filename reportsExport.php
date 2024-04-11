@@ -84,12 +84,6 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_less_2_years')
 	exit();
 }
 
-//Retention Rate Report
-if (isset($_POST['action']) && $_POST['action'] == 'export_donors_retention') {
-	ob_end_clean();
-    retentionRate();
-	exit();
-
 //FOG_GTY=Frequncy of Giving Greater Than Yearly
 if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG_GTY') {
 	ob_end_clean();
@@ -120,6 +114,13 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_DSF') {
     exportDonorsDSF();
     exit();
 }
+//RR=Retention Rate
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_RR') {
+	ob_end_clean();
+    exportDonorsRR();
+	exit();
+}
+
 process_form();
 //pull_shift_data();
 include('footer.inc');
@@ -480,6 +481,7 @@ function exportDonorsL3YNE() {
 	}
     fclose($output);
 }
+
 // Export Function for the Report on Donor's in the Past Three Years who have donated to Events
 function exportDonorsL3YE() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
@@ -514,6 +516,7 @@ function exportDonorsL3YE() {
 	}
     fclose($output);
 }
+
 // Export Function for the Report on Top 10 Donors
 function exportDonorsT10() {
     include_once('database/dbinfo.php'); // Your database connection setup
@@ -556,10 +559,9 @@ function exportDonorsT10() {
         echo "Error preparing the query.";
     }
 }
-// Export Function for the Report on Donor's Stage/Funnel
+
+// Export Function for the Donor's Stage/Funnel
 function exportDonorsDSF() {
-
-
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="donors_Donors_Stage.csv"');
     
@@ -596,6 +598,62 @@ function exportDonorsDSF() {
     }
     fclose($output);
 }
+
+// Export Function for the Report on Retention Rate
+function exportDonorsRR() {
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="donors_Retention_Rate.csv"');
+    
+    $output = fopen("php://output", "w");
+
+    //Get all Donors
+    $donors=get_all_donors();
+    //Array for Multi-Year Donors
+    $MultiYearDonors=array();
+
+    foreach($donors as $donor){
+        //Go through each donor and see if they are a Multi-Year donor
+        //and add to Multi-Year array if they are and increas the Multi
+        //Counter.
+        $dmail=$donor->get_email();
+        $type= get_donor_status($dmail);
+        if($type=="Multiyear Donor"){
+            $MultiYearDonors[]=$donor;
+        }
+    }
+
+    //Generate Table and Calculate Retention Rate of Multi Year Donors
+    if(count($MultiYearDonors)>0){
+        $RetentionRate=(count($MultiYearDonors)/count($donors))*100;
+        $RetentionRate=$RetentionRate."%";
+        //Put the Number of Multi-Year Donors and Retention Rate in the CSV as well
+        fputcsv($output, array('Number of Multi-Year Donors', 'Retention Rate'));
+        fputcsv($output, array(count($MultiYearDonors), $RetentionRate));
+        //Add a few blank lines to make the thing easier to read
+        fputcsv($output, array());
+        fputcsv($output, array());
+        fputcsv($output, array());
+
+        // Write the CSV header
+        fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number'));
+
+        foreach($MultiYearDonors as $donor){
+            // Get the donor details
+            $donor_first_name = $donor->get_first_name();
+            $donor_last_name = $donor->get_last_name();
+            $donor_email = $donor->get_email();
+            $phone = $donor->get_phone();    
+            
+            //Format the Phone Number
+            $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+            
+            //Write Multi-Year Donor's Details to CSV File
+            fputcsv($output, array($donor_email, $donor_first_name, $donor_last_name, $formattedPhone));
+        }  
+    }
+    fclose($output);
+}
+
 //End of export
 function export_data($current_time, $search_attr, $export_data) {
 	$filename = "dataexport.csv";

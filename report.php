@@ -103,19 +103,14 @@
                     <select id="report" name="report" required>
                         <option value="report1">Donors Who Have Donated Over $10,000</option>
                         <option value="report2">Every Donor's Frequency of Giving</option>
-                        <option value="report3">Donors who have not contributed for the last 2 years</option>
+                        <option value="report3">Donors Who Have Not Contributed For the Last 2 Years</option>
                         <option value="report4">Events Contributed</option>
-                        <option value="report5">Donors whose Frequency of Giving is bigger than yearly</option>
-                        <option value="report6">Donors who have donated in the past three Years</option>
-                        <option value="report7">Donor Retention Rate</option>
-                        <option value="report3">Donors Who Have Not Contributed for the Last 2 Years</option>
-                        <option value="report4">Event Contributions</option>
-                        <option value="report5">Donors Whose Frequency of Giving is Greater than Yearly</option>
-                        <option value="report6">Non-Event Donors Who Have Donated in the Past 3 Years</option>
-                        <option value="report7">Event Donors Who Have Donated in the Past 3 Years</option>
+                        <option value="report5">Donors Whose Frequency of Giving is Greater Than Yearly</option>
+                        <option value="report6">Non-Event Donors Who Have Donated in the Past Three Years</option>
+                        <option value="report7">Event Donors Who Have Donated in the Past Three Years</option>
                         <option value="report8">Top X Donors</option>
-                        <option value="report9">Donor's Donation Stage/Funnel</option>
-                        <option value="report10">Donor's Retention Rate</option>
+                        <option value="report9">Donors' Donation Funnels</option>
+                        <option value="report10">Retention Rate</option>
                     </select><br/>
                 </div>
                 <input type="submit" name="submit_click" value="Submit">
