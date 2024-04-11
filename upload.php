@@ -48,9 +48,6 @@ function parseCSV($csvFilePath, $forceInsert = false){
             continue; // Skip rows with invalid or missing emails
         }
 
-        // Process donor data
-        processDonorData($line, $con);
-        processDonationData($line, $con, $forceInsert);
 
         // Process each line of the CSV file
         $date = trim($line[0]);
@@ -68,6 +65,10 @@ function parseCSV($csvFilePath, $forceInsert = false){
         $zip = trim($line[12]);
         $payment_method = trim($line[13]);
         $memo = trim($line[14]);
+
+        // Process donor data
+        processDonorData($line, $con);
+        processDonationData($line, $con, $forceInsert);
 
         //validate phone number format (assuming phone number is in column index 8)
         if (!validatePhoneNumberFormat($line[8])) {
