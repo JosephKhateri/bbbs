@@ -208,6 +208,29 @@
 
     /*
      * Parameters: $donorEmail = A string that represents the email of a donor
+     * This function retrieves all donations made by a donor and the date they donated them
+     * Return type: An array of associative arrays that represent the donations of the donor
+     * Pre-condition: $donorEmail is a string
+     * Post-condition: An array of associative arrays that represent the donations made and their date
+     */
+    function get_all_donations_asc($donorEmail) : array {
+        $con = connect();
+        // Query to get the event donation categories and the total amount donated to each category
+        // I may want to future-proof this to have it look for donations with Contribution Categories that match the names of the events
+        // That would require us to have a list of events in the database
+        $query = "SELECT DateOfContribution, AmountGiven FROM dbDonations WHERE Email = '" . $donorEmail . "' ORDER BY AmountGiven ASC";
+        $result = mysqli_query($con,$query);
+
+        // Create an array of associative arrays that represent the donation categories and the total amount donated to each category
+        $donations = [];
+        while($result_row = mysqli_fetch_assoc($result)) {
+            $donations[] = $result_row;
+        }
+        return $donations;
+    }
+
+    /*
+     * Parameters: $donorEmail = A string that represents the email of a donor
      * This function determines the donation type of the donor (Event, Non-Event, Both, Neither)
      * Return type: A string that represents the donation type of the donor (Event, Non-Event, Both, Neither)
      * Pre-condition: $donorEmail is a string
@@ -391,7 +414,7 @@
         }
     }
 
-    function processDonationData($donationData, $con) {
+    function processDonationData($donationData, $con, $forceInsert = false) {
         $email = trim($donationData[7]);
         $dateOfContribution = date('Y-m-d', strtotime($donationData[0]));
         $amountGiven = $donationData[3];
@@ -406,7 +429,7 @@
         // Check if the donation exists based on email, date, and amount
         $donationExists = checkDonationExists($email, $dateOfContribution, $amountGiven, $con);
     
-        if ($donationExists) {
+        if ($donationExists && !$forceInsert) {
             echo json_encode(['status' => 'duplicate', 'message' => 'Duplicate detected. Do you want to proceed?']);
             exit;
         } else {

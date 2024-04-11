@@ -461,6 +461,74 @@ function reportDonationStage(){
     }
 }
 
+//report 10
+        // Report:Donors Retention Rate
+        // Pre-Condition: User is logged in to be able to access report functionality
+        // Post-Condition: User will be able to look through the report as a generated table and
+        //                 be able to export the data as a CSV file
+        if (isset($_GET['report']) && $_GET['report'] == 'report10') {
+            
+            echo "<h2>Donors Retention Rate Calculator</h2>
+                <form method='post' action='reportsDonorsPage.php'>
+                    <label for='prev_year'>Previous Year:</label>
+                    <input type='number' id='prev_year' name='prev_year' required min='2000' max='2023' style='color:white;'><br><br>
+                    <label for='current_year'>Current Year:</label>
+                    <input type='number' id='current_year' name='current_year' required min='2001' max='2024'  style='color:white;'><br><br>
+                    <input type='submit' value='Submit'>
+                </form>";
+         
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Define the date range (you can adjust the interval as needed)
+        
+        $prev_year = $_POST["prev_year"];
+        $current_year = $_POST["current_year"];
+
+        echo "previous year. $prev_year <br> current year. $current_year <br>";
+
+            
+        // Calculate the number of donors in the previous period
+        $sql_prev_period = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31'";
+        $result_prev_period = $connection->query($sql_prev_period);
+        $num_donors_prev_period = $result_prev_period->num_rows;
+
+        // Calculate the number of donors in the current period
+        $sql_current_period = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31'";
+        $result_current_period = $connection->query($sql_current_period);
+        $num_donors_current_period = $result_current_period->num_rows;
+
+        // Calculate the number of retained donors (donors who contributed in both periods)
+        $sql_retained_donors = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31' AND DonorID IN (SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31')";
+        $result_retained_donors = $connection->query($sql_retained_donors);
+        $num_retained_donors = $result_retained_donors->num_rows;
+
+            // Calculate donor retention rate
+            if ($num_donors_prev_period > 0) {
+                $retention_rate = ($num_retained_donors / $num_donors_prev_period) * 100;
+            } else {
+                $retention_rate = 0; // Default to 0 if no donors in the previous period
+            }
+
+
+        
+        // Display the donor retention rate
+        echo "<table>";
+        echo "<tr><th>Donors this year</th><th>Total donors last year</th><th>Retained Donors</th><th>Donor Retention Rate:</th></tr>";
+        echo "<tr>
+        <td>" . htmlspecialchars($num_donors_current_period) . "</td>
+        <td>" . htmlspecialchars($num_donors_prev_period) . "</td>
+        <td>" . htmlspecialchars($num_retained_donors) . "</td>
+        <td>" . htmlspecialchars(round($retention_rate, 2)) . "%"."</td>
+             
+      </tr>";
+        
+        }
+    }
+
+
+
+
+    //End of report 
+
 function displayTopDonorsForm($currentValue) {
     echo "<form action='' method='get'>
             <input type='hidden' name='report' value='report8'>

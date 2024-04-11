@@ -83,6 +83,13 @@ if (isset($_POST['action']) && $_POST['action'] == 'export_donors_less_2_years')
     exportDonorsLessThanTwoYears();
 	exit();
 }
+
+//Retention Rate Report
+if (isset($_POST['action']) && $_POST['action'] == 'export_donors_retention') {
+	ob_end_clean();
+    retentionRate();
+	exit();
+
 //FOG_GTY=Frequncy of Giving Greater Than Yearly
 if (isset($_POST['action']) && $_POST['action'] == 'export_donors_FOG_GTY') {
 	ob_end_clean();
@@ -303,6 +310,20 @@ function exportDonorsFOG() {
 function exportDonorsLessThanTwoYears() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
     $connection = connect();  // This should be your function to establish a database connection
+    
+	// Get the current date
+	$currentDate = date("Y-m-d");
+
+	// Define the threshold date (two years ago from current date)
+	$thresholdDate = date('Y-m-d', strtotime('-2 years', strtotime($currentDate)));
+    // Your SQL query to fetch the required data
+    $query = "SELECT d.FirstName, d.LastName, d.Email, dd.DateOfContribution, dd.AmountGiven
+						FROM DbDonors d
+						LEFT JOIN DbDonations dd ON d.Email = dd.Email
+						WHERE dd.DateOfContribution IS NULL 
+						  OR dd.DateOfContribution < '$thresholdDate'
+						GROUP BY d.Email
+						ORDER BY d.LastName";
 
     // Modified SQL query to join Donations with Donors table and fetch required details
     // Get the current date
@@ -337,6 +358,58 @@ function exportDonorsLessThanTwoYears() {
 	
     
     fclose($output);
+    //exit();
+}
+
+// Export Function for the Report on Donor's retention rate
+function retentionRate() {
+    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
+    $connection = connect();  // This should be your function to establish a database connection
+    $prev_year = $_POST["prev_year"];
+    $current_year = $_POST["current_year"];
+    // Your SQL query to fetch the required data
+       
+                    // Calculate the number of donors in the previous period
+                    $sql_prev_period = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31'";
+                    $result_prev_period = $connection->query($sql_prev_period);
+                    $num_donors_prev_period = $result_prev_period->num_rows;
+                    
+                    // Calculate the number of donors in the current period
+                    $sql_current_period = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31'";
+                    $result_current_period = $connection->query($sql_current_period);
+                    $num_donors_current_period = $result_current_period->num_rows;
+
+                    // Calculate the number of retained donors (donors who contributed in both periods)
+                    $sql_retained_donors = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31' AND DonorID IN (SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31')";
+                    
+
+                    $result_retained_donors = $connection->query($sql_retained_donors);
+                    $num_retained_donors = $result_retained_donors->num_rows;
+
+                        // Calculate donor retention rate
+                        if ($num_donors_prev_period > 0) {
+                            $retention_rate = ($num_retained_donors / $num_donors_prev_period) * 100;
+                        } else {
+                            $retention_rate = 0; // Default to 0 if no donors in the previous period
+                        }
+					$result = mysqli_query($connection, $num_retained_donors);
+					
+					header('Content-Type: text/csv');
+					header('Content-Disposition: attachment; filename="retentionRate.csv"');
+					
+					$output = fopen("php://output", "w");
+					
+					// Write the CSV header
+					fputcsv($output, array('Donors this year', 'Donors last year', 'Retained Donors', 'Donor Retention Rate'));
+					
+					// Write rows
+					while ($row = mysqli_fetch_assoc($result)) {
+						
+						
+						fputcsv($output, array($sql_current_period, $sql_prev_period, $sql_retained_donors, $retention_rate));
+	
+					}
+					fclose($output);
     //exit();
 }
 

@@ -63,6 +63,12 @@
                 $categories = get_event_donation_categories($donorEmail);
                 $categoryDataJSON = json_encode($categories); // Encode $categories array to JSON for JavaScript
 
+                // Get all Donations in Descending Order
+                // Btw Megan and Noor I'm doing this because I tried to do the same thing with donations
+                // but it didn't work with json_encode or some reason so I just got the array on my own
+                $donnies=get_all_donations_asc($donorEmail);
+                $donnieDataJSON= json_encode($donnies);
+
                 // Check if the export button was clicked
                 if (isset($_GET['export']) && $_GET['export'] === 'true') {
                     // Export the donor's information to a CSV file
@@ -158,6 +164,39 @@ function exportDonorInfo($donor, $donations, $donor_type) {
     }
 </script>
 
+<script>
+    // Javascript function that draws a pie chart using the Google Charts API
+    function drawLineChart() {
+        console.log(categoryData);
+        console.log(donnieData);
+        let data = new google.visualization.DataTable();
+        data.addColumn("string", "Date of Donation");
+        data.addColumn("number", "Amount Donated");
+        
+        donnieData.forEach(function(don) {
+            let amount = parseFloat(don.AmountGiven);
+            data.addRow([don.DateOfContribution, amount]);
+        });
+
+        let options = {
+            chartArea: { width: '80%', height: '80%' }, // Enlarge chart area
+            colors: ['black'],
+            vAxis:{format: 'currency', 
+                viewWindow: {min: 0}
+                }           
+        };
+
+        let formatter = new google.visualization.NumberFormat({
+            prefix: "$", // Add dollar sign as prefix
+            fractionDigits: 2 // Display two decimal places
+        });
+
+        formatter.format(data, 1); // Apply formatting to the "Amount" column
+
+        let chart = new google.charts.Line(document.getElementById('linechart'));
+        chart.draw(data, google.charts.Line.convertOptions(options));
+    }   
+</script>
 <!DOCTYPE html>
 <html>
 <head>
@@ -190,6 +229,7 @@ function exportDonorInfo($donor, $donations, $donor_type) {
     <script>
         // Inject PHP data into JavaScript
         let categoryData = <?php echo $categoryDataJSON; ?>;
+        let donnieData = <?php echo $donnieDataJSON; ?>;
     </script>
 
 </head>
@@ -328,7 +368,25 @@ function exportDonorInfo($donor, $donations, $donor_type) {
 
         <!-- Add a line break -->
         <tr><td colspan="5">&nbsp;</td></tr>
+        
+        <!-- Can't make much of a line graph with only one data point so don't show graph with only one donation -->
+        <?php
+        if(count($donnies)>1){
+            ?>
+            <!-- Line chart to show all donations a donor has made -->
+        <h2 style="text-align: center">Donations Made over time</h2>
+                <div id="linechart" style="width: 700px; height: 450px; margin: auto;"></div>
 
+                <!-- JavaScript to draw the line chart -->
+                <script type="text/javascript">
+                    google.charts.load("current", {"packages":["line"]});
+                    google.charts.setOnLoadCallback(drawLineChart);
+                </script>
+                <?php
+        }?>
+        
+        
+        
         <!-- Button to export donor information to a CSV file -->
         <form action="viewDonor.php" method="GET">
             <!-- For some reason both hidden fields are needed. Not sure why but this is what got the export function to actually work -->

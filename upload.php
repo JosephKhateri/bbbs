@@ -24,7 +24,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-function parseCSV($csvFilePath){
+function parseCSV($csvFilePath, $forceInsert = false){
     require_once("database/dbinfo.php");
     require_once('database/dbDonors.php');
     require_once('database/dbDonations.php');
@@ -50,7 +50,7 @@ function parseCSV($csvFilePath){
 
         // Process donor data
         processDonorData($line, $con);
-        processDonationData($line, $con);
+        processDonationData($line, $con, $forceInsert);
 
         // Process each line of the CSV file
         /*$date = trim($line[0]);
@@ -167,5 +167,9 @@ function processDonorData($donorData, $con) {
 }
 
 // Call the parseCSV function with the CSV file path
-parseCSV($_FILES['file']['tmp_name']);
+if (isset($_POST['forceInsert']) && $_POST['forceInsert'] === 'true') {
+    parseCSV($_FILES['file']['tmp_name'], true);
+} else {
+    parseCSV($_FILES['file']['tmp_name']);
+}
 ?>

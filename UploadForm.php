@@ -118,7 +118,7 @@
                     if (confirm(data.message)) {
                         // If user chooses to proceed, resend data with a flag to force insert
                         formData.append('forceInsert', 'true');
-                        return fetch('upload.php', { // Resend to the same endpoint
+                        fetch('upload.php', { // Resend to the same endpoint
                             method: 'POST',
                             body: formData,
                         })
