@@ -66,10 +66,6 @@ function parseCSV($csvFilePath, $forceInsert = false){
         $payment_method = trim($line[13]);
         $memo = trim($line[14]);
 
-        // Process donor data
-        processDonorData($line, $con);
-        processDonationData($line, $con, $forceInsert);
-
         //validate phone number format (assuming phone number is in column index 8)
         if (!validatePhoneNumberFormat($line[8])) {
             //invalid; redirect with error message
@@ -95,6 +91,10 @@ function parseCSV($csvFilePath, $forceInsert = false){
             header('Location: uploadForm.php?zipFormatFail');
             exit;
         }
+
+        // Process donor data
+        processDonorData($line, $con);
+        processDonationData($line, $con, $forceInsert);
 
         // If validations all pass, then create a new Donor and Donation object with the data from the current line
         /*$donor = new Donor ($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip);
