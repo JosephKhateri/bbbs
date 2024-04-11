@@ -96,7 +96,27 @@
             <input type="file" name="file" accept=".csv">
             <input type="submit" value="Upload">
         </form>
+        <p> CSV File should have the following headers (In order) </p>
+        <p>
+                 Date of Contribution, 
+                 Contributed Support, 
+                 Contribution Category, 
+                 Amount Given, 
+                 Company,                  
+                 First Name, 
+                 Last Name, 
+                 Email, 
+                 Phone Number, 
+                 Address,
+                 City,                  
+                 State,                  
+                 Zip, 
+                 Payment Method, 
+                 Memo 
+        
     </main>
+
+    <!--
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var form = document.querySelector('form[name="uploadFile"]');
@@ -117,7 +137,7 @@
                     if (confirm(data.message)) {
                         // If user chooses to proceed, resend data with a flag to force insert
                         formData.append('forceInsert', 'true');
-                        return fetch('upload.php', { // Resend to the same endpoint
+                        fetch('upload.php', { // Resend to the same endpoint
                             method: 'POST',
                             body: formData,
                         })
@@ -134,5 +154,6 @@
         });
     });
 </script>
+/!-->
 </body>
 </html>

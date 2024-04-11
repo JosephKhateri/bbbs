@@ -37,7 +37,11 @@ Assigned Task - Excellent
         require_once('include/input-validation.php');
         require_once('database/dbUsers.php');
         require_once('domain/User.php');
-        $args = sanitize($_POST, null);
+
+        // Sanitize all input except for 'password'
+        $ignoreList = array('password');
+        $args = sanitize($_POST, $ignoreList);
+
         $required = array(
 			"email", "password", "first_name", "last_name", "account_type", "role" // Required fields for the form
 		);
@@ -56,10 +60,13 @@ Assigned Task - Excellent
                 die();
             }
             $id = $email; // ID and email have the same value
-            $passwordError = false;
+
             if (!validatePassword($args['password'])) {
                 $passwordError = true; // Password doesn't meet requirements
-            } else {
+            } elseif ($args['account_type'] == '') {
+                $accountTypeError = true; // No account type was selected
+            }
+            else {
                 $password = password_hash($args['password'], PASSWORD_BCRYPT);
                 $first_name = $args['first_name'];
                 $last_name = $args['last_name'];
@@ -125,6 +132,8 @@ Assigned Task - Excellent
                 <p class="error-toast">Your form submission contained unexpected input.</p>
             <?php elseif (isset($passwordError)): ?>
                 <p class="error-toast">Password must meet requirements.</p>
+            <?php elseif (isset($accountTypeError)): ?>
+                <p class="error-toast">Select an account type (Admin or User).</p>
             <?php endif ?>
 
             <!-- Form for registering a new user -->

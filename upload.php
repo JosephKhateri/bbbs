@@ -24,7 +24,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-function parseCSV($csvFilePath){
+function parseCSV($csvFilePath, $forceInsert = false){
     require_once("database/dbinfo.php");
     require_once('database/dbDonors.php');
     require_once('database/dbDonations.php');
@@ -48,12 +48,9 @@ function parseCSV($csvFilePath){
             continue; // Skip rows with invalid or missing emails
         }
 
-        // Process donor data
-        processDonorData($line, $con);
-        processDonationData($line, $con);
 
         // Process each line of the CSV file
-        /*$date = trim($line[0]);
+        $date = trim($line[0]);
         $contributed_support = trim($line[1]);
         $contribution_category = trim($line[2]);
         $amount = trim($line[3]);
@@ -95,8 +92,12 @@ function parseCSV($csvFilePath){
             exit;
         }
 
+        // Process donor data
+        processDonorData($line, $con);
+        processDonationData($line, $con, $forceInsert);
+
         // If validations all pass, then create a new Donor and Donation object with the data from the current line
-        $donor = new Donor ($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip);
+        /*$donor = new Donor ($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip);
 
         $newID = count(get_all_donations()) + 1;
         $donation = new Donation ($newID, $email, $date, $contributed_support, $contribution_category, $amount, $payment_method, $memo);
@@ -167,5 +168,9 @@ function processDonorData($donorData, $con) {
 }
 
 // Call the parseCSV function with the CSV file path
-parseCSV($_FILES['file']['tmp_name']);
+if (isset($_POST['forceInsert']) && $_POST['forceInsert'] === 'true') {
+    parseCSV($_FILES['file']['tmp_name'], true);
+} else {
+    parseCSV($_FILES['file']['tmp_name']);
+}
 ?>

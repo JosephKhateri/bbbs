@@ -56,6 +56,15 @@
                     return strtotime($b->get_contribution_date()) - strtotime($a->get_contribution_date());
                 });
 
+                $frequency = get_donation_frequency($donorEmail);
+                $frequency_description = get_description($frequency);
+
+                $status = get_donor_status($donorEmail);
+                $status_description = get_description($status);
+
+                $funnel = determine_donation_funnel($donorEmail);
+                $funnel_description = get_description($funnel);
+
                 // Determine the donor's donation type (event or non-event)
                 $donor_type = determine_donor_donation_type($donorEmail);
 
@@ -84,55 +93,62 @@
         header('Location: viewAllDonors.php?invalidRequest');
     }
 
-function exportDonorInfo($donor, $donations, $donor_type) {
-    require_once('database/dbDonors.php');
-    require_once('database/dbDonations.php');
-    require_once('domain/Donor.php');
-    require_once('domain/Donation.php');
+    /**
+     * Exports the donor's information, donations, and calculated analytics to a CSV file
+     *
+     * @param Donor $donor The donor object
+     * @param Donation[] $donations An array of donation objects
+     * @param string $donor_type The type of donor (event or non-event)
+     */
+    function exportDonorInfo(Donor $donor, array $donations, string $donor_type) : void {
+        require_once('database/dbDonors.php');
+        require_once('database/dbDonations.php');
+        require_once('domain/Donor.php');
+        require_once('domain/Donation.php');
 
-    // Get donor last and first name and make it the file name
-    $donorName = $donor->get_first_name() . '_' . $donor->get_last_name();
+        // Get donor last and first name and make it the file name
+        $donorName = $donor->get_first_name() . '_' . $donor->get_last_name();
 
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="' . $donorName . '.csv"');
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $donorName . '.csv"');
 
-    $output = fopen("php://output", "w");
+        $output = fopen("php://output", "w");
 
-    // Write the CSV header for donor information
-    fputcsv($output, array('First Name', 'Last Name', 'Company', 'Email', 'Phone Number', 'Address', 'City', 'State', 'Zip'));
+        // Write the CSV header for donor information
+        fputcsv($output, array('First Name', 'Last Name', 'Company', 'Email', 'Phone Number', 'Address', 'City', 'State', 'Zip'));
 
-    // Write the donor's information to the CSV file
-    fputcsv($output, array($donor->get_first_name(), $donor->get_last_name(), $donor->get_company(), $donor->get_email(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()), $donor->get_address(), $donor->get_city(), $donor->get_state(), $donor->get_zip()));
+        // Write the donor's information to the CSV file
+        fputcsv($output, array($donor->get_first_name(), $donor->get_last_name(), $donor->get_company(), $donor->get_email(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()), $donor->get_address(), $donor->get_city(), $donor->get_state(), $donor->get_zip()));
 
-    // Write 3 blank lines to separate the donor information from the donations
-    $currLine = 0;
-    $blankLines = 3; // Number of blank lines to write
-    while ($currLine < $blankLines) {
-        fputcsv($output, array());
-        $currLine++;
+        // Write 3 blank lines to separate the donor information from the donations
+        $currLine = 0;
+        $blankLines = 3; // Number of blank lines to write
+        while ($currLine < $blankLines) {
+            fputcsv($output, array());
+            $currLine++;
+        }
+
+        // Write the CSV header for donations
+        fputcsv($output, array('Date', 'Contribution Type', 'Contribution Category', 'Amount', 'Payment Method'));
+
+        // Write the donor's donations to the CSV file
+        foreach ($donations as $donation) {
+            fputcsv($output, array($donation->get_contribution_date(), $donation->get_contribution_type(), $donation->get_contribution_category(), $donation->get_amount(), $donation->get_payment_method()));
+        }
+
+        $currLine = 0;
+        while ($currLine < $blankLines) {
+            fputcsv($output, array());
+            $currLine++;
+        }
+
+        // Write the CSV header for donations
+        fputcsv($output, array('Frequency of Giving', 'Lifetime Value', 'Retention', 'Donation Funnel', 'Event or Non-Event Donor'));
+        fputcsv($output, array(get_donation_frequency($donor->get_email()), get_total_amount_donated($donor->get_email()), get_donor_retention($donor->get_email()), determine_donation_funnel($donor->get_email()), $donor_type));
+
+        fclose($output);
+        exit(); // may need to toggle this later. However, if this is left out, then the html below gets printed to file
     }
-
-    // Write the CSV header for donations
-    fputcsv($output, array('Date', 'Contribution Type', 'Contribution Category', 'Amount', 'Payment Method'));
-
-    // Write the donor's donations to the CSV file
-    foreach ($donations as $donation) {
-        fputcsv($output, array($donation->get_contribution_date(), $donation->get_contribution_type(), $donation->get_contribution_category(), $donation->get_amount(), $donation->get_payment_method()));
-    }
-
-    $currLine = 0;
-    while ($currLine < $blankLines) {
-        fputcsv($output, array());
-        $currLine++;
-    }
-
-    // Write the CSV header for donations
-    fputcsv($output, array('Frequency of Giving', 'Lifetime Value', 'Retention', 'Donation Funnel', 'Event or Non-Event Donor'));
-    fputcsv($output, array(get_donation_frequency($donor->get_email()), get_total_amount_donated($donor->get_email()), get_donor_retention($donor->get_email()), determine_donation_funnel($donor->get_email()), $donor_type));
-
-    fclose($output);
-    exit(); // may need to toggle this later. However, if this is left out, then the html below gets printed to file
-}
 
 ?>
 
@@ -165,6 +181,36 @@ function exportDonorInfo($donor, $donations, $donor_type) {
 </script>
 
 <script>
+    // Define a JavaScript function that takes an array of donations and creates a line chart
+    function createLineChart(donations) {
+        <?php echo $donations?>
+        var ctx = document.getElementById('donationsChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: donations.length }, (_, i) => i + 1),
+                datasets: [{
+                    label: 'Donations',
+                    data: donations,
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+</script>
+
+<script>
     // Javascript function that draws a pie chart using the Google Charts API
     function drawLineChart() {
         console.log(categoryData);
@@ -172,6 +218,11 @@ function exportDonorInfo($donor, $donations, $donor_type) {
         let data = new google.visualization.DataTable();
         data.addColumn("string", "Date of Donation");
         data.addColumn("number", "Amount Donated");
+
+        // Sort the data by DateOfContribution before adding it to the chart
+        donnieData.sort(function(a, b) {
+            return new Date(a.DateOfContribution) - new Date(b.DateOfContribution);
+        });
         
         donnieData.forEach(function(don) {
             let amount = parseFloat(don.AmountGiven);
@@ -181,9 +232,13 @@ function exportDonorInfo($donor, $donations, $donor_type) {
         let options = {
             chartArea: { width: '80%', height: '80%' }, // Enlarge chart area
             colors: ['black'],
-            vAxis:{format: 'currency', 
-                viewWindow: {min: 0}
-                }           
+            vAxis: {format: 'currency',
+                viewWindow: {
+                    min: 0,
+                    // Set max value slightly higher than the maximum amount
+                    max: getMaxAmount(donnieData) * 1.1 // Adding 10% padding
+                }
+            }
         };
 
         let formatter = new google.visualization.NumberFormat({
@@ -195,7 +250,18 @@ function exportDonorInfo($donor, $donations, $donor_type) {
 
         let chart = new google.charts.Line(document.getElementById('linechart'));
         chart.draw(data, google.charts.Line.convertOptions(options));
-    }   
+    }
+
+    function getMaxAmount(data) {
+        let max = 0;
+        data.forEach(function(don) {
+            let amount = parseFloat(don.AmountGiven);
+            if (amount > max) {
+                max = amount;
+            }
+        });
+        return max;
+    }
 </script>
 <!DOCTYPE html>
 <html>
@@ -325,67 +391,69 @@ function exportDonorInfo($donor, $donations, $donor_type) {
 
             <!-- Table of additional information -->
             <!-- Pie chart to show which events a donor has sponsored -->
-            <h2 style="text-align: center">Donor Statistics</h2>
+            <h2 style="text-align: center">Donor Analytics</h2>
             <table>
                 <tr>
                     <th>Frequency of Giving</th>
                     <th>Lifetime Value</th>
-                    <th>Retention</th>
+                    <th>Status</th>
                     <th>Donation Funnel</th>
                     <th>Event or Non-Event Donor</th>
                 </tr>
                 <tr>
-                    <td><?php echo get_donation_frequency($donor->get_email()) ?></td>
+                    <td><?php echo $frequency ?>*</td>
                     <td>$<?php echo get_total_amount_donated($donor->get_email()) ?></td>
-                    <td><?php echo get_donor_retention($donor->get_email()) ?></td>
-                    <td><?php echo determine_donation_funnel($donor->get_email()) ?></td>
+                    <td><?php echo $status ?>**</td>
+                    <td><?php echo $funnel ?>***</td>
                     <td><?php echo $donor_type ?></td>
                 </tr>
             </table>
 
+            <!-- Display descriptions for donation frequency, retention, and funnel -->
+            <p style="margin: 0; padding: 0; line-height: 0.75"> <small>* <?php echo $frequency_description ?></small> </p>
+            <p style="margin: 0; padding: 0; line-height: 0.75"> <small>** <?php echo $status_description ?></small> </p>
+            <p style="margin: 0; padding: 0; line-height: 0.75"> <small>*** <?php echo $funnel_description ?></small> </p>
+
+            <!-- Add a line break -->
+            <tr><td colspan="5">&nbsp;</td></tr>
+
             <!-- Display the pie chart of the donor's donations only if the donor has donated to events -->
-            <?php
-            if (!empty($categories)) {
-                ?>
-                <!-- Add a line break -->
-                <tr><td colspan="5">&nbsp;</td></tr>
+            <div style="display: flex; justify-content: space-around;">
+                <?php if (count($donnies) > 1) { ?>
+                    <!-- Line chart to show all donations a donor has made -->
+                    <div style="width: 45%;">
+                        <h2 style="text-align: center">Donation Progress</h2>
+                        <div id="linechart" style="width: 100%; height: 450px; margin: auto;"></div>
 
-                <!-- Pie chart to show which events a donor has sponsored -->
-                <h2 style="text-align: center">Events Donor has Sponsored</h2>
-                <div id="piechart" style="width: 700px; height: 450px; margin: auto;"></div>
+                        <!-- JavaScript to draw the line chart -->
+                        <script type="text/javascript">
+                            google.charts.load("current", {"packages":["line"]});
+                            google.charts.setOnLoadCallback(drawLineChart);
+                        </script>
+                    </div>
+                <?php } ?>
 
-                <!-- JavaScript to draw the pie chart -->
-                <script type="text/javascript">
-                    google.charts.load("current", {"packages":["corechart"]});
-                    google.charts.setOnLoadCallback(drawChart);
-                </script>
-            <?php
-            }
-        } else { // There should be no instances where a donor has no donations, but this is a failsafe in case it happens
+                <?php if (!empty($categories)) { ?>
+                    <!-- Pie chart to show which events a donor has sponsored -->
+                    <div style="width: 45%;">
+                        <h2 style="text-align: center">Events Donor has Sponsored</h2>
+                        <div id="piechart" style="width: 100%; height: 450px; margin: auto;"></div>
+
+                        <!-- JavaScript to draw the pie chart -->
+                        <script type="text/javascript">
+                            google.charts.load("current", {"packages":["corechart"]});
+                            google.charts.setOnLoadCallback(drawChart);
+                        </script>
+                    </div>
+                <?php } ?>
+            </div>
+        <?php } else { // There should be no instances where a donor has no donations, but this is a failsafe in case it happens
             echo "<div style='text-align: center;'>This donor has made no donations.</div>";
         }
         ?>
 
         <!-- Add a line break -->
         <tr><td colspan="5">&nbsp;</td></tr>
-        
-        <!-- Can't make much of a line graph with only one data point so don't show graph with only one donation -->
-        <?php
-        if(count($donnies)>1){
-            ?>
-            <!-- Line chart to show all donations a donor has made -->
-        <h2 style="text-align: center">Donations Made over time</h2>
-                <div id="linechart" style="width: 700px; height: 450px; margin: auto;"></div>
-
-                <!-- JavaScript to draw the line chart -->
-                <script type="text/javascript">
-                    google.charts.load("current", {"packages":["line"]});
-                    google.charts.setOnLoadCallback(drawLineChart);
-                </script>
-                <?php
-        }?>
-        
-        
         
         <!-- Button to export donor information to a CSV file -->
         <form action="viewDonor.php" method="GET">
