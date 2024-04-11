@@ -37,7 +37,11 @@ Assigned Task - Excellent
         require_once('include/input-validation.php');
         require_once('database/dbUsers.php');
         require_once('domain/User.php');
-        $args = sanitize($_POST, null);
+
+        // Sanitize all input except for 'password'
+        $ignoreList = array('password');
+        $args = sanitize($_POST, $ignoreList);
+
         $required = array(
 			"email", "password", "first_name", "last_name", "account_type", "role" // Required fields for the form
 		);

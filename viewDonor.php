@@ -181,6 +181,36 @@
 </script>
 
 <script>
+    // Define a JavaScript function that takes an array of donations and creates a line chart
+    function createLineChart(donations) {
+        <?php echo $donations?>
+        var ctx = document.getElementById('donationsChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: donations.length }, (_, i) => i + 1),
+                datasets: [{
+                    label: 'Donations',
+                    data: donations,
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+</script>
+
+<script>
     // Javascript function that draws a pie chart using the Google Charts API
     function drawLineChart() {
         console.log(categoryData);
@@ -188,6 +218,11 @@
         let data = new google.visualization.DataTable();
         data.addColumn("string", "Date of Donation");
         data.addColumn("number", "Amount Donated");
+
+        // Sort the data by DateOfContribution before adding it to the chart
+        donnieData.sort(function(a, b) {
+            return new Date(a.DateOfContribution) - new Date(b.DateOfContribution);
+        });
         
         donnieData.forEach(function(don) {
             let amount = parseFloat(don.AmountGiven);
@@ -197,9 +232,13 @@
         let options = {
             chartArea: { width: '80%', height: '80%' }, // Enlarge chart area
             colors: ['black'],
-            vAxis:{format: 'currency', 
-                viewWindow: {min: 0}
-                }           
+            vAxis: {format: 'currency',
+                viewWindow: {
+                    min: 0,
+                    // Set max value slightly higher than the maximum amount
+                    max: getMaxAmount(donnieData) * 1.1 // Adding 10% padding
+                }
+            }
         };
 
         let formatter = new google.visualization.NumberFormat({
@@ -211,7 +250,18 @@
 
         let chart = new google.charts.Line(document.getElementById('linechart'));
         chart.draw(data, google.charts.Line.convertOptions(options));
-    }   
+    }
+
+    function getMaxAmount(data) {
+        let max = 0;
+        data.forEach(function(don) {
+            let amount = parseFloat(don.AmountGiven);
+            if (amount > max) {
+                max = amount;
+            }
+        });
+        return max;
+    }
 </script>
 <!DOCTYPE html>
 <html>
@@ -341,7 +391,7 @@
 
             <!-- Table of additional information -->
             <!-- Pie chart to show which events a donor has sponsored -->
-            <h2 style="text-align: center">Donor Statistics</h2>
+            <h2 style="text-align: center">Donor Analytics</h2>
             <table>
                 <tr>
                     <th>Frequency of Giving</th>
@@ -364,49 +414,46 @@
             <p style="margin: 0; padding: 0; line-height: 0.75"> <small>** <?php echo $status_description ?></small> </p>
             <p style="margin: 0; padding: 0; line-height: 0.75"> <small>*** <?php echo $funnel_description ?></small> </p>
 
+            <!-- Add a line break -->
+            <tr><td colspan="5">&nbsp;</td></tr>
+
             <!-- Display the pie chart of the donor's donations only if the donor has donated to events -->
-            <?php
-            if (!empty($categories)) {
-                ?>
-                <!-- Add a line break -->
-                <tr><td colspan="5">&nbsp;</td></tr>
+            <div style="display: flex; justify-content: space-around;">
+                <?php if (count($donnies) > 1) { ?>
+                    <!-- Line chart to show all donations a donor has made -->
+                    <div style="width: 45%;">
+                        <h2 style="text-align: center">Donation Progress</h2>
+                        <div id="linechart" style="width: 100%; height: 450px; margin: auto;"></div>
 
-                <!-- Pie chart to show which events a donor has sponsored -->
-                <h2 style="text-align: center">Events Donor has Sponsored</h2>
-                <div id="piechart" style="width: 700px; height: 450px; margin: auto;"></div>
+                        <!-- JavaScript to draw the line chart -->
+                        <script type="text/javascript">
+                            google.charts.load("current", {"packages":["line"]});
+                            google.charts.setOnLoadCallback(drawLineChart);
+                        </script>
+                    </div>
+                <?php } ?>
 
-                <!-- JavaScript to draw the pie chart -->
-                <script type="text/javascript">
-                    google.charts.load("current", {"packages":["corechart"]});
-                    google.charts.setOnLoadCallback(drawChart);
-                </script>
-            <?php
-            }
-        } else { // There should be no instances where a donor has no donations, but this is a failsafe in case it happens
+                <?php if (!empty($categories)) { ?>
+                    <!-- Pie chart to show which events a donor has sponsored -->
+                    <div style="width: 45%;">
+                        <h2 style="text-align: center">Events Donor has Sponsored</h2>
+                        <div id="piechart" style="width: 100%; height: 450px; margin: auto;"></div>
+
+                        <!-- JavaScript to draw the pie chart -->
+                        <script type="text/javascript">
+                            google.charts.load("current", {"packages":["corechart"]});
+                            google.charts.setOnLoadCallback(drawChart);
+                        </script>
+                    </div>
+                <?php } ?>
+            </div>
+        <?php } else { // There should be no instances where a donor has no donations, but this is a failsafe in case it happens
             echo "<div style='text-align: center;'>This donor has made no donations.</div>";
         }
         ?>
 
         <!-- Add a line break -->
         <tr><td colspan="5">&nbsp;</td></tr>
-        
-        <!-- Can't make much of a line graph with only one data point so don't show graph with only one donation -->
-        <?php
-        if(count($donnies)>1){
-            ?>
-            <!-- Line chart to show all donations a donor has made -->
-        <h2 style="text-align: center">Donations Made over time</h2>
-                <div id="linechart" style="width: 700px; height: 450px; margin: auto;"></div>
-
-                <!-- JavaScript to draw the line chart -->
-                <script type="text/javascript">
-                    google.charts.load("current", {"packages":["line"]});
-                    google.charts.setOnLoadCallback(drawLineChart);
-                </script>
-                <?php
-        }?>
-        
-        
         
         <!-- Button to export donor information to a CSV file -->
         <form action="viewDonor.php" method="GET">
