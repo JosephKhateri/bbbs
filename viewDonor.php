@@ -181,36 +181,6 @@
 </script>
 
 <script>
-    // Define a JavaScript function that takes an array of donations and creates a line chart
-    function createLineChart(donations) {
-        <?php echo $donations?>
-        var ctx = document.getElementById('donationsChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: Array.from({ length: donations.length }, (_, i) => i + 1),
-                datasets: [{
-                    label: 'Donations',
-                    data: donations,
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            }
-        });
-    }
-</script>
-
-<script>
     // Javascript function that draws a pie chart using the Google Charts API
     function drawLineChart() {
         console.log(categoryData);
@@ -327,6 +297,9 @@
             footer {
                 margin-bottom: 5rem;
             }
+            #linechart path {
+                stroke-width: 4px; /* Adjust the value as needed */
+            }
         </style>
 
         <!-- Display the donor's information -->
@@ -436,7 +409,7 @@
                 <?php if (!empty($categories)) { ?>
                     <!-- Pie chart to show which events a donor has sponsored -->
                     <div style="width: 45%;">
-                        <h2 style="text-align: center">Events Donor has Sponsored</h2>
+                        <h2 style="text-align: center">Events Donor Has Sponsored</h2>
                         <div id="piechart" style="width: 100%; height: 450px; margin: auto;"></div>
 
                         <!-- JavaScript to draw the pie chart -->
