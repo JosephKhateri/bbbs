@@ -391,7 +391,7 @@
         }
     }
 
-    function processDonationData($donationData, $con) {
+    function processDonationData($donationData, $con, $forceInsert = false) {
         $email = trim($donationData[7]);
         $dateOfContribution = date('Y-m-d', strtotime($donationData[0]));
         $amountGiven = $donationData[3];
@@ -406,7 +406,7 @@
         // Check if the donation exists based on email, date, and amount
         $donationExists = checkDonationExists($email, $dateOfContribution, $amountGiven, $con);
     
-        if ($donationExists) {
+        if ($donationExists && !$forceInsert) {
             echo json_encode(['status' => 'duplicate', 'message' => 'Duplicate detected. Do you want to proceed?']);
             exit;
         } else {
