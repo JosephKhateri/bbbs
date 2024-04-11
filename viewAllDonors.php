@@ -367,13 +367,13 @@
             <form id="filterForm" action="viewAllDonors.php" method="post">
                 <div style="display: flex; justify-content: space-between; margin-top: 40px;">
                     <button type="button" id="filterButton" style="border-radius: 5px; margin-right: 10px;"
-                            onmouseover="this.style.backgroundColor='darkgreen'"
+                            onmouseover="this.style.backgroundColor='#228B22'"
                             onmouseout="this.style.backgroundColor='#00FC87'">
                         Filter
                     </button>
 
                     <button type="button" id="clearFiltersButton" style="border-radius: 5px; background-color: red;"
-                            onmouseover="this.style.backgroundColor='darkred'"
+                            onmouseover="this.style.backgroundColor='#B22222'"
                             onmouseout="this.style.backgroundColor='red'">
                         Clear All Filters
                     </button>
