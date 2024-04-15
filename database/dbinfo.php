@@ -26,7 +26,7 @@ function connect() {
         $pass = "7f8r0d57ltxn";
     } else if ($_SERVER['SERVER_NAME'] == 'cvhrtrainer.org') {
         $user = "uuzcrymbfztxf";
-        $pass = "R15$4gc2A_#j";
+        $pass = "K;>s521iCbb2";
         $database = "db0annu35rjbqp";
     }
     $con = mysqli_connect($host,$user,$pass,$database);
