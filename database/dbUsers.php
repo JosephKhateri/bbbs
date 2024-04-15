@@ -105,25 +105,6 @@ function retrieve_user($id, $login = null) {
     return $theUser;
 }
 
-// Name is first concat with last name. Example 'James Jones'
-// return array of Users.
-//Conor: Not a lot of documentation compared to other methods either. 
-function retrieve_users_by_name ($name) {
-	$users = array();
-	if (!isset($name) || $name == "" || $name == null) return $users;
-	$con=connect();
-	$name = explode(" ", $name);
-	$first_name = $name[0];
-	$last_name = $name[1];
-    $query = "SELECT * FROM dbUsers WHERE first_name = '" . $first_name . "' AND last_name = '". $last_name ."'";
-    $result = mysqli_query($con,$query);
-    while ($result_row = mysqli_fetch_assoc($result)) {
-        $the_user = make_a_user($result_row);
-        $users[] = $the_user;
-    }
-    return $users;	
-}
-
 /*
  * Parameters: $id = A string that represents the identifying email of a User, $newPass = A string that represents the new password
  * This function changes the password of a User in the dbUsers table that matches the given id
@@ -137,40 +118,6 @@ function change_password($id, $newPass) {
     $result = mysqli_query($con, $query);
     mysqli_close($con);
     return $result;
-}
-
-function reset_password($id, $newPass) {
-    $con=connect();
-    $query = 'UPDATE dbUsers SET password = "' . $newPass . '" WHERE id = "' . $id . '"';
-    $result = mysqli_query($con, $query);
-    mysqli_close($con);
-    return $result;
-}
-
-/*
- * @return all rows from dbUsers table ordered by last name
- * if none there, return false
- */
-
-function getall_dbUsers($name_from, $name_to, $venue) {
-    $con=connect();
-    $query = "SELECT * FROM dbUsers";
-    $query.= " WHERE venue = '" .$venue. "'"; 
-    $query.= " AND last_name BETWEEN '" .$name_from. "' AND '" .$name_to. "'"; 
-    $query.= " ORDER BY last_name,first_name";
-    $result = mysqli_query($con,$query);
-    if ($result == null || mysqli_num_rows($result) == 0) {
-        mysqli_close($con);
-        return false;
-    }
-    $result = mysqli_query($con,$query);
-    $theUsers = array();
-    while ($result_row = mysqli_fetch_assoc($result)) {
-        $theUser = make_a_user($result_row);
-        $theUsers[] = $theUser;
-    }
-
-    return $theUsers;
 }
 
 /*
@@ -196,24 +143,6 @@ function get_all_users() {
     }
 
     return $theUsers;
-}
-
-function getall_user_names() {
-	$con=connect();
-    $type = "volunteer";
-	$query = "SELECT first_name, last_name FROM dbUsers WHERE type LIKE '%" . $type . "%' ";
-    $result = mysqli_query($con,$query);
-    if ($result == null || mysqli_num_rows($result) == 0) {
-        mysqli_close($con);
-        return false;
-    }
-    $result = mysqli_query($con,$query);
-    $names = array();
-    while ($result_row = mysqli_fetch_assoc($result)) {
-        $names[] = $result_row['first_name'].' '.$result_row['last_name'];
-    }
-    mysqli_close($con);
-    return $names;   	
 }
 
 /*
