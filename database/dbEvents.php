@@ -24,18 +24,18 @@ include_once('dbinfo.php');
 include_once(dirname(__FILE__).'/../domain/Event.php');
 
 /*
- * add an event to dbEvents table: if already there, return false
+ * add an event to dbevents table: if already there, return false
  */
 
 function add_event($event) {
     if (!$event instanceof Event)
         die("Error: add_event type mismatch");
     $con=connect();
-    $query = "SELECT * FROM dbEvents WHERE id = '" . $event->get_id() . "'";
+    $query = "SELECT * FROM dbevents WHERE id = '" . $event->get_id() . "'";
     $result = mysqli_query($con,$query);
     //if there's no entry for this id, add it
     if ($result == null || mysqli_num_rows($result) == 0) {
-        mysqli_query($con,'INSERT INTO dbEvents VALUES("' .
+        mysqli_query($con,'INSERT INTO dbevents VALUES("' .
                 $event->get_id() . '","' .
                 $event->get_event_date() . '","' .
                 $event->get_venue() . '","' .
@@ -51,18 +51,18 @@ function add_event($event) {
 }
 
 /*
- * remove an event from dbEvents table.  If already there, return false
+ * remove an event from dbevents table.  If already there, return false
  */
 
 function remove_event($id) {
     $con=connect();
-    $query = 'SELECT * FROM dbEvents WHERE id = "' . $id . '"';
+    $query = 'SELECT * FROM dbevents WHERE id = "' . $id . '"';
     $result = mysqli_query($con,$query);
     if ($result == null || mysqli_num_rows($result) == 0) {
         mysqli_close($con);
         return false;
     }
-    $query = 'DELETE FROM dbEvents WHERE id = "' . $id . '"';
+    $query = 'DELETE FROM dbevents WHERE id = "' . $id . '"';
     $result = mysqli_query($con,$query);
     mysqli_close($con);
     return true;
@@ -70,13 +70,13 @@ function remove_event($id) {
 
 
 /*
- * @return an Event from dbEvents table matching a particular id.
+ * @return an Event from dbevents table matching a particular id.
  * if not in table, return false
  */
 
 function retrieve_event($id) {
     $con=connect();
-    $query = "SELECT * FROM dbEvents WHERE id = '" . $id . "'";
+    $query = "SELECT * FROM dbevents WHERE id = '" . $id . "'";
     $result = mysqli_query($con,$query);
     if (mysqli_num_rows($result) !== 1) {
         mysqli_close($con);
@@ -91,7 +91,7 @@ function retrieve_event($id) {
 
 function retrieve_event2($id) {
     $con=connect();
-    $query = "SELECT * FROM dbEvents WHERE id = '" . $id . "'";
+    $query = "SELECT * FROM dbevents WHERE id = '" . $id . "'";
     $result = mysqli_query($con,$query);
     if (mysqli_num_rows($result) !== 1) {
         mysqli_close($con);
@@ -105,7 +105,7 @@ function retrieve_event2($id) {
 // not in use, may be useful for future iterations in changing how events are edited (i.e. change the remove and create new event process)
 function update_event_date($id, $new_event_date) {
 	$con=connect();
-	$query = 'UPDATE dbEvents SET event_date = "' . $new_event_date . '" WHERE id = "' . $id . '"';
+	$query = 'UPDATE dbevents SET event_date = "' . $new_event_date . '" WHERE id = "' . $id . '"';
 	$result = mysqli_query($con,$query);
 	mysqli_close($con);
 	return $result;
@@ -128,9 +128,9 @@ function make_an_event($result_row) {
 }
 
 // retrieve only those events that match the criteria given in the arguments
-function getonlythose_dbEvents($name, $day, $venue) {
+function getonlythose_dbevents($name, $day, $venue) {
    $con=connect();
-   $query = "SELECT * FROM dbEvents WHERE event_name LIKE '%" . $event_name . "%'" .
+   $query = "SELECT * FROM dbevents WHERE event_name LIKE '%" . $event_name . "%'" .
            " AND event_name LIKE '%" . $name . "%'" .
            " AND venue = '" . $venue . "'" . 
            " ORDER BY event_name";
@@ -148,7 +148,7 @@ function fetch_events_in_date_range($start_date, $end_date) {
     $connection = connect();
     $start_date = mysqli_real_escape_string($connection, $start_date);
     $end_date = mysqli_real_escape_string($connection, $end_date);
-    $query = "select * from dbEvents
+    $query = "select * from dbevents
               where date >= '$start_date' and date <= '$end_date'
               order by startTime asc";
     $result = mysqli_query($connection, $query);
@@ -173,7 +173,7 @@ function fetch_events_in_date_range($start_date, $end_date) {
 function fetch_events_on_date($date) {
     $connection = connect();
     $date = mysqli_real_escape_string($connection, $date);
-    $query = "select * from dbEvents
+    $query = "select * from dbevents
               where date = '$date' order by startTime asc";
     $results = mysqli_query($connection, $query);
     if (!$results) {
@@ -192,7 +192,7 @@ function fetch_events_on_date($date) {
 function fetch_event_by_id($id) {
     $connection = connect();
     $id = mysqli_real_escape_string($connection, $id);
-    $query = "select * from dbEvents where id = '$id'";
+    $query = "select * from dbevents where id = '$id'";
     $result = mysqli_query($connection, $query);
     $event = mysqli_fetch_assoc($result);
     if ($event) {
@@ -219,7 +219,7 @@ function create_event($event) {
     $animal = $event["animal"];
     $completed = "no";
     $query = "
-        insert into dbEvents (name, abbrevName, date, startTime, endTime, description, locationID, capacity, animalID, completed)
+        insert into dbevents (name, abbrevName, date, startTime, endTime, description, locationID, capacity, animalID, completed)
         values ('$name', '$abbrevName', '$date', '$startTime', '$endTime', '$description', '$location', '0', '$animal', '$completed')
     ";
     $result = mysqli_query($connection, $query);
@@ -236,7 +236,7 @@ function create_event($event) {
 function add_services_to_event($eventID, $serviceIDs) {
     $connection = connect();
     foreach($serviceIDs as $serviceID) {
-        $query = "insert into dbEventsServices (eventID, serviceID) values ('$eventID', '$serviceID')";
+        $query = "insert into dbeventsServices (eventID, serviceID) values ('$eventID', '$serviceID')";
         $result = mysqli_query($connection, $query);
         if (!$result) {
             return null;
@@ -259,7 +259,7 @@ function update_event($eventID, $eventDetails) {
     
     $completed = $eventDetails["completed"];
     $query = "
-        update dbEvents set name='$name', abbrevName='$abbrevName', date='$date', startTime='$startTime', description='$description', locationID='$location', completed='$completed'
+        update dbevents set name='$name', abbrevName='$abbrevName', date='$date', startTime='$startTime', description='$description', locationID='$location', completed='$completed'
         where id='$eventID'
     ";
     $result = mysqli_query($connection, $query);
@@ -282,7 +282,7 @@ function update_event2($eventID, $eventDetails) {
     $animalID = $eventDetails["animalID"];
     $completed = $eventDetails["completed"];
     $query = "
-        update dbEvents set name='$name', abbrevName='$abbrevName', date='$date', startTime='$startTime', endTime='$endTime', description='$description', locationID='$location', capacity='$capacity', animalId='$animalID', completed='$completed'
+        update dbevents set name='$name', abbrevName='$abbrevName', date='$date', startTime='$startTime', endTime='$endTime', description='$description', locationID='$location', capacity='$capacity', animalId='$animalID', completed='$completed'
         where id='$eventID'
     ";
     $result = mysqli_query($connection, $query);
@@ -303,14 +303,14 @@ function update_services_for_event($eventID, $serviceIDs) {
     // add new services
     foreach($serviceIDs as $serviceID) {
         if (!in_array($serviceID, $curr_servIDs)) {
-            $query = "insert into dbEventsServices (eventID, serviceID) values ('$eventID', '$serviceID')";
+            $query = "insert into dbeventsServices (eventID, serviceID) values ('$eventID', '$serviceID')";
             $result = mysqli_query($connection, $query);
         }
     }
     // remove old services
     foreach($curr_servIDs as $curr_serv) {
         if (!in_array($curr_serv, $serviceIDs)) {
-            $query = "delete from dbEventsServices where serviceID='$curr_serv'";
+            $query = "delete from dbeventsServices where serviceID='$curr_serv'";
             $result = mysqli_query($connection, $query);
         }
     }
@@ -321,7 +321,7 @@ function update_services_for_event($eventID, $serviceIDs) {
 function find_event($nameLike) {
     $connection = connect();
     $query = "
-        select * from dbEvents
+        select * from dbevents
         where name like '%$nameLike%'
     ";
     $result = mysqli_query($connection, $query);
@@ -337,7 +337,7 @@ function fetch_events_in_date_range_as_array($start_date, $end_date) {
     $connection = connect();
     $start_date = mysqli_real_escape_string($connection, $start_date);
     $end_date = mysqli_real_escape_string($connection, $end_date);
-    $query = "select * from dbEvents
+    $query = "select * from dbevents
               where date >= '$start_date' and date <= '$end_date'
               order by date, startTime asc";
     $result = mysqli_query($connection, $query);
@@ -378,7 +378,7 @@ function get_location($id) {
 
 function get_services($eventID) {
     $connection = connect();
-    $query = "select * from dbServices AS serv JOIN dbEventsServices AS es ON es.serviceID = serv.id
+    $query = "select * from dbServices AS serv JOIN dbeventsServices AS es ON es.serviceID = serv.id
               where es.eventID='$eventID'";
     $result = mysqli_query($connection, $query);
     if (!$result) {
@@ -443,7 +443,7 @@ function detach_media($mediaID) {
 }
 
 function delete_event($id) {
-    $query = "delete from dbEvents where id='$id'";
+    $query = "delete from dbevents where id='$id'";
     $connection = connect();
     $result = mysqli_query($connection, $query);
     $result = boolval($result);

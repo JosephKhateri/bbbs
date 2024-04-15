@@ -217,7 +217,7 @@ function create_service($service) {
 	$type = $service["type"];
     $duration = $service["duration_years"];
     $query = "
-        insert into dbServices (name, type, duration_years)
+        insert into dbservices (name, type, duration_years)
         values ('$name', '$type', '$duration')
     ";
     $result = mysqli_query($connection, $query);
@@ -367,7 +367,7 @@ function find_event($nameLike) {
 function find_service($id) {
     $connection = connect();
     $id = mysqli_real_escape_string($connection, $id);
-    $query = "select * from dbServices where id = '$id'";
+    $query = "select * from dbservices where id = '$id'";
     $result = mysqli_query($connection, $query);
     $service = mysqli_fetch_assoc($result);
     if ($service) {
@@ -382,7 +382,7 @@ function find_service($id) {
 
 function find_allServices() {
     $connection = connect();
-    $query = "select * from dbServices";
+    $query = "select * from dbservices";
     $result = mysqli_query($connection, $query);
     $service = mysqli_fetch_all($result, MYSQLI_ASSOC);
     if ($service) {
@@ -396,7 +396,7 @@ function find_allServices() {
 
 function find_services_for_location($locationID) {
     $connection = connect();
-    $query = "select * from dbServices AS serv JOIN dbLocationsServices AS ls ON ls.serviceID = serv.id
+    $query = "select * from dbservices AS serv JOIN dbLocationsServices AS ls ON ls.serviceID = serv.id
               where ls.locationID='$locationID'";
     $result = mysqli_query($connection, $query);
     if (!$result) {
@@ -517,7 +517,7 @@ function delete_event($id) {
 }
 
 function delete_service($id) {
-    $query = "delete from dbServices where id='$id'";
+    $query = "delete from dbservices where id='$id'";
     $connection = connect();
     $result = mysqli_query($connection, $query);
     $result = boolval($result);
