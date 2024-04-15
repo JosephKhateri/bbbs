@@ -380,7 +380,9 @@
         return count(get_all_donations());
     }
 
-    function addDonation($donationData, $con, $newID) {
+    function addDonation($donationData, $con, $newID, $support, $category) {
+        file_put_contents('output.txt', "Support: " . $currLineSupport . "\n", FILE_APPEND);
+
         $email = trim($donationData[7]);
         $dateOfContribution = date('Y-m-d', strtotime($donationData[0])); // Convert date to MySQL-compatible format
         $amountGiven = $donationData[3]; // Ensure this is captured correctly from our CSV
@@ -390,7 +392,7 @@
         }
         // Prepare the SQL query to insert a new donation
         $query = $con->prepare("INSERT INTO dbdonations (Email, DateOfContribution, ContributedSupportType, ContributionCategory, AmountGiven, PaymentMethod, Memo, DonationID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $query->bind_param("ssssdssi", $donationData[7], $dateOfContribution, $donationData[1], $donationData[2], $donationData[3], $donationData[13], $donationData[14], $newID);
+        $query->bind_param("ssssdssi", $donationData[7], $dateOfContribution, $support, $category, $donationData[3], $donationData[13], $donationData[14], $newID);
         if (!$query->execute()) {
             error_log("Failed to insert donation: " . $query->error);
         } else {
@@ -414,7 +416,7 @@
         }
     }
 
-    function processDonationData($donationData, $con, $forceInsert = false) {
+    function processDonationData($donationData, $con, $support, $category, $forceInsert = false) {
         $email = trim($donationData[7]);
         $dateOfContribution = date('Y-m-d', strtotime($donationData[0]));
         $amountGiven = $donationData[3];
@@ -433,7 +435,7 @@
             echo json_encode(['status' => 'duplicate', 'message' => 'Duplicate detected. Do you want to proceed?']);
             exit;
         } else {
-            addDonation($donationData, $con, $newID);
+            addDonation($donationData, $con, $newID, $support, $category);
             return ['status' => 'success', 'message' => 'Donation added successfully'];
         }
             
