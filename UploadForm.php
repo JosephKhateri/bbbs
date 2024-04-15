@@ -116,7 +116,7 @@
         
     </main>
 
-    <!--
+    
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var form = document.querySelector('form[name="uploadFile"]');
@@ -148,12 +148,14 @@
                     }
                 } else {
                     alert('Donation processed successfully.'); // No duplicates detected
+                    
                 }
             })
+            window.location.href = 'index.php?fileSuccess';
             .catch(error => console.error('Error:', error));
         });
     });
 </script>
-/!-->
+
 </body>
 </html>
