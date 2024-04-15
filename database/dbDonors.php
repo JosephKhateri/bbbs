@@ -283,6 +283,10 @@
 
         sort($donation_dates); // Sort the donations by oldest to newest
 
+        // if donation dates is empty (no donations were made), return an empty string
+        if (empty($donation_dates)) {
+            return "";
+        }
         // Get date of oldest donation
         $oldest_donation = $donation_dates[0];
 
