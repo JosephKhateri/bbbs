@@ -41,6 +41,8 @@ function parseCSV($csvFilePath, $forceInsert = false){
 
     fgetcsv($file); // Skip header row
 
+    $support = '';
+    $category = '';
     while (($line = fgetcsv($file)) !== false) {
         // Check for a valid email in the expected column (index 7 based on your CSV structure)
         if (!filter_var(trim($line[7]), FILTER_VALIDATE_EMAIL)) {
@@ -49,9 +51,6 @@ function parseCSV($csvFilePath, $forceInsert = false){
         }
 
         // Handle potential blank values in "Contributed Support" and "Contribution Category"
-        $support = '';
-        $category = '';
-
         if (!empty($line[1])) {
             $support = $line[1];
         }
@@ -108,7 +107,7 @@ function parseCSV($csvFilePath, $forceInsert = false){
 
         // Process donor data
         processDonorData($line, $con);
-        processDonationData($line, $con, $forceInsert);
+        processDonationData($line, $con, $currLineSupport, $currLineCategory, $forceInsert);
 
         // If validations all pass, then create a new Donor and Donation object with the data from the current line
         /*$donor = new Donor ($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip);
