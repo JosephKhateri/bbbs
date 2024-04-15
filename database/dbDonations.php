@@ -133,7 +133,7 @@
      * Pre-condition: $email is a string
      * Post-condition: An array of Donation objects is returned
      */
-    function retrieve_donations_by_email ($email): array {
+    function retrieve_donations_by_email($email) : array {
         $donations = array();
         if (!isset($email) || $email == "" || $email == null) return $donations;
         $con=connect();
