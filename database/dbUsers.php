@@ -37,20 +37,20 @@ include_once(dirname(__FILE__).'/../domain/User.php');
 
 /*
  * Parameters: $user = A User object
- * This function adds a User to the dbUsers table
- * Return type: A boolean value that represents if the User was added to the dbUsers table
+ * This function adds a User to the dbusers table
+ * Return type: A boolean value that represents if the User was added to the dbusers table
  * Pre-condition: $user is a User object
- * Post-condition: A User is added to the dbUsers table if it doesn't already exist, otherwise nothing happens
+ * Post-condition: A User is added to the dbusers table if it doesn't already exist, otherwise nothing happens
  */
 function add_user($user) {
     if (!$user instanceof User)
         die("Error: add_user type mismatch");
     $con=connect();
-    $query = "SELECT * FROM dbUsers WHERE id = '" . $user->get_id() . "'";
+    $query = "SELECT * FROM dbusers WHERE id = '" . $user->get_id() . "'";
     $result = mysqli_query($con,$query);
     //if there's no entry for this id, add it
     if ($result == null || mysqli_num_rows($result) == 0) {
-        mysqli_query($con,'INSERT INTO dbUsers VALUES("' .
+        mysqli_query($con,'INSERT INTO dbusers VALUES("' .
             $user->get_id() . '","' .
             $user->get_email() . '","' .
             $user->get_password() . '","' .
@@ -67,18 +67,18 @@ function add_user($user) {
 }
 
 /*
- * remove a user from dbUsers table.  If already there, return false
+ * remove a user from dbusers table.  If already there, return false
  */
 
 function remove_user($id) {
     $con=connect();
-    $query = 'SELECT * FROM dbUsers WHERE id = "' . $id . '"';
+    $query = 'SELECT * FROM dbusers WHERE id = "' . $id . '"';
     $result = mysqli_query($con,$query);
     if ($result == null || mysqli_num_rows($result) == 0) {
         mysqli_close($con);
         return false;
     }
-    $query = 'DELETE FROM dbUsers WHERE id = "' . $id . '"';
+    $query = 'DELETE FROM dbusers WHERE id = "' . $id . '"';
     $result = mysqli_query($con,$query);
     mysqli_close($con);
     return true;
@@ -86,14 +86,14 @@ function remove_user($id) {
 
 /*
  * Parameters: $id = A string that represents the identifying email of a User, $login = boolean value that signifies if the User object is being created during a login attempt; is an optional argument
- * This function retrieves a User from the dbUsers table that matches the given id
+ * This function retrieves a User from the dbusers table that matches the given id
  * Return type: A User object or a boolean value of "false"
  * Pre-condition: $id is a string and $login is a boolean value if passed
  * Post-condition: A User object is returned or the boolean "false" is returned if no user exists with the given id
  */
 function retrieve_user($id, $login = null) {
     $con=connect();
-    $query = "SELECT * FROM dbUsers WHERE id = '" . $id . "'";
+    $query = "SELECT * FROM dbusers WHERE id = '" . $id . "'";
     $result = mysqli_query($con,$query);
     if (mysqli_num_rows($result) !== 1) {
         mysqli_close($con);
@@ -107,14 +107,14 @@ function retrieve_user($id, $login = null) {
 
 /*
  * Parameters: $id = A string that represents the identifying email of a User, $newPass = A string that represents the new password
- * This function changes the password of a User in the dbUsers table that matches the given id
+ * This function changes the password of a User in the dbusers table that matches the given id
  * Return type: A boolean value of "true" or "false"
  * Pre-condition: $id and $newPass are strings
- * Post-condition: The password of a User is changed in the dbUsers table if the User exists with the given id
+ * Post-condition: The password of a User is changed in the dbusers table if the User exists with the given id
  */
 function change_password($id, $newPass) {
     $con=connect();
-    $query = 'UPDATE dbUsers SET password = "' . $newPass . '" WHERE id = "' . $id . '"';
+    $query = 'UPDATE dbusers SET password = "' . $newPass . '" WHERE id = "' . $id . '"';
     $result = mysqli_query($con, $query);
     mysqli_close($con);
     return $result;
@@ -122,14 +122,14 @@ function change_password($id, $newPass) {
 
 /*
  * Parameters: None
- * This function retrieves all Users from the dbUsers table except vmsroot
- * Return type: An array of User objects or a boolean value of "false" in the event that no Users exist in the dbUsers table
+ * This function retrieves all Users from the dbusers table except vmsroot
+ * Return type: An array of User objects or a boolean value of "false" in the event that no Users exist in the dbusers table
  * Pre-condition: None
- * Post-condition: An array of User objects is returned or the boolean "false" is returned if no Users exist in the dbUsers table
+ * Post-condition: An array of User objects is returned or the boolean "false" is returned if no Users exist in the dbusers table
  */
 function get_all_users() {
     $con=connect();
-    $query = 'SELECT * FROM dbUsers WHERE id != "vmsroot"';
+    $query = 'SELECT * FROM dbusers WHERE id != "vmsroot"';
     $result = mysqli_query($con,$query);
     if ($result == null || mysqli_num_rows($result) == 0) {
         mysqli_close($con);
@@ -146,8 +146,8 @@ function get_all_users() {
 }
 
 /*
- * Parameters: $result_row = a row from the dbUsers table, $login = boolean value that signifies if the User object is being created during a login attempt; is an optional argument
- * This function constructs a new User object with the row from the dbUsers table
+ * Parameters: $result_row = a row from the dbusers table, $login = boolean value that signifies if the User object is being created during a login attempt; is an optional argument
+ * This function constructs a new User object with the row from the dbusers table
  * Return type: User
  * Pre-condition: $result_row is an associative array and $login is a boolean value if passed
  * Post-condition: a new User object is created
@@ -177,7 +177,7 @@ function make_a_user($result_row, $login = null) {
 
 /*
  * Parameters: None
- * This function retrieves all standard users from the dbUsers table (role = "user")
+ * This function retrieves all standard users from the dbusers table (role = "user")
  * Return type: An array of user objects or it's "false" if there's no standard users that get retrieved
  * Pre-condition: None
  * Post-condition: An array of user objects is returned or it's "false" if no standard users exist
@@ -185,7 +185,7 @@ function make_a_user($result_row, $login = null) {
 
 function get_all_standard_users() {
     $con = connect();
-    $query = 'SELECT * FROM dbUsers WHERE account_type = "user"';
+    $query = 'SELECT * FROM dbusers WHERE account_type = "user"';
     $result = mysqli_query($con,$query);
     if ($result == null || mysqli_num_rows($result) == 0) {
         mysqli_close($con);

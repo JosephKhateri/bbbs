@@ -1,12 +1,12 @@
 <?php
 
-    // dbDonors.php
+    // dbdonors.php
     // Overall Grading:
-    // 1. Program specifications/correctness: Good - Program mostly inserts data into dbDonors properly
+    // 1. Program specifications/correctness: Good - Program mostly inserts data into dbdonors properly
     // 2. Readability: Adequate - Need further documentation. Variables are named accordingly. Need to indent everything within <php> tags
     // 3. Code efficiency: Excellent - Code is very efficient, but isn't working properly as mentioned above
     // 4. Documentation: Adequate - Need further documentation for the functions
-    // 5. Assigned Task: Good - Program mostly inserts data into dbDonors properly but with 1 small error
+    // 5. Assigned Task: Good - Program mostly inserts data into dbdonors properly but with 1 small error
 
 
     require_once('database/dbinfo.php');
@@ -14,20 +14,20 @@
 
     /*
      * Parameters: $donor = A Donor object
-     * This function adds a donor to the dbDonors table
+     * This function adds a donor to the dbdonors table
      * Return type: A boolean value (true if the donor was added, false if the donor already exists)
      * Pre-condition: $donor is a valid Donor object
-     * Post-condition: The donor is added to the dbDonors table if it doesn't already exist
+     * Post-condition: The donor is added to the dbdonors table if it doesn't already exist
      */
     function add_donor($donor) {
         if (!$donor instanceof Donor)
             die("Error: add_donor type mismatch");
         $con=connect();
-        $query = "SELECT * FROM dbDonors WHERE Email = '" . $donor->get_email() . "'";
+        $query = "SELECT * FROM dbdonors WHERE Email = '" . $donor->get_email() . "'";
         $result = mysqli_query($con,$query);
         //if there's no entry for this id, add it
         if ($result == null || mysqli_num_rows($result) == 0) {
-            mysqli_query($con,'INSERT INTO dbDonors VALUES("' .
+            mysqli_query($con,'INSERT INTO dbdonors VALUES("' .
                 $donor->get_email() . '","' .
                 $donor->get_company() . '","' .
                 $donor->get_first_name() . '","' .
@@ -48,20 +48,20 @@
 
     /*
      * Parameters: $email = A string that represents the email of a donor
-     * This function removes a donor from the dbDonors table using the donor's email
+     * This function removes a donor from the dbdonors table using the donor's email
      * Return type: A boolean value (true if the donor was removed, false if the donor doesn't exist)
      * Pre-condition: $email is a string
-     * Post-condition: The donor is removed from the dbDonors table if it exists
+     * Post-condition: The donor is removed from the dbdonors table if it exists
      */
     function remove_donor($email) {
         $con=connect();
-        $query = 'SELECT * FROM dbDonors WHERE Email = "' . $email . '"';
+        $query = 'SELECT * FROM dbdonors WHERE Email = "' . $email . '"';
         $result = mysqli_query($con,$query);
         if ($result == null || mysqli_num_rows($result) == 0) {
             mysqli_close($con);
             return false;
         }
-        $query = 'DELETE FROM dbDonors WHERE Email = "' . $email . '"';
+        $query = 'DELETE FROM dbdonors WHERE Email = "' . $email . '"';
         $result = mysqli_query($con,$query);
         mysqli_close($con);
         return $result;
@@ -69,10 +69,10 @@
 
     /*
      * Parameters: $donor = A Donor object
-     * This function updates a donor's info in the dbDonors table
+     * This function updates a donor's info in the dbdonors table
      * Return type: A boolean value (true if the donor was updated, false if the donor doesn't exist)
      * Pre-condition: $donor is a valid Donor object
-     * Post-condition: The donor's info is updated in the dbDonors table if it exists
+     * Post-condition: The donor's info is updated in the dbdonors table if it exists
      */
     function update_donor($donor) {
         $con=connect();
@@ -89,7 +89,7 @@
         $zip = $donor->get_zip();
 
         // Query is broken up into multiple lines for readability
-        $query = "UPDATE dbDonors SET ";
+        $query = "UPDATE dbdonors SET ";
         $query .= "Email = '" . $email . "', ";
         $query .= "Company = '" . $company . "', ";
         $query .= "FirstName = '" . $first_name . "', ";
@@ -114,7 +114,7 @@
      */
     function retrieve_donor($email) {
         $con=connect();
-        $query = "SELECT * FROM dbDonors WHERE Email = '" . $email . "'";
+        $query = "SELECT * FROM dbdonors WHERE Email = '" . $email . "'";
         $result = mysqli_query($con,$query);
         if (mysqli_num_rows($result) !== 1) {
             mysqli_close($con);
@@ -128,14 +128,14 @@
 
     /*
     * Parameters: None
-    * This function retrieves all donors from the dbDonors table and returns an array of donor objects
+    * This function retrieves all donors from the dbdonors table and returns an array of donor objects
     * Return type: Array of donors
     * Pre-condition: None
     * Post-condition: Array of donors is returned
     */
     function get_all_donors() {
         $con = connect();
-        $query = 'SELECT * FROM dbDonors';
+        $query = 'SELECT * FROM dbdonors';
         $result = mysqli_query($con, $query);
         if ($result == null || mysqli_num_rows($result) == 0) {
             mysqli_close($con);
@@ -155,7 +155,7 @@
         $con = connect();
         $filteredDonors = [];
 
-        $sql = "SELECT * FROM dbDonors WHERE City = ? AND State = ?";
+        $sql = "SELECT * FROM dbdonors WHERE City = ? AND State = ?";
         $stmt = $con->prepare($sql);
 
         // Iterate through each pair of city and state filters
