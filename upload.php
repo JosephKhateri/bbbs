@@ -48,6 +48,20 @@ function parseCSV($csvFilePath, $forceInsert = false){
             continue; // Skip rows with invalid or missing emails
         }
 
+        // Handle potential blank values in "Contributed Support" and "Contribution Category"
+        $support = '';
+        $category = '';
+
+        if (!empty($line[1])) {
+            $support = $line[1];
+        }
+        $currLineSupport = $support;
+
+        if (!empty($line[2])) {
+            $category = $line[2];
+        }
+        $currLineCategory = $category;
+
 
         // Process each line of the CSV file
         $date = trim($line[0]);
