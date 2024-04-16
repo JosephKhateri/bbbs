@@ -57,23 +57,6 @@
             <p>Welcome back, <?php echo $user->get_first_name() ?>!</p>
             <p>Today is <?php echo date('l, F j, Y'); ?>.</p>
             <div id="dashboard">
-                <?php
-                    require_once('database/dbMessages.php');
-                    $unreadMessageCount = get_user_unread_count($user->get_id());
-                    $inboxIcon = 'inbox.svg';
-                    if ($unreadMessageCount) {
-                        $inboxIcon = 'inbox-unread.svg';
-                    }
-                ?>
-                <!--<div class="dashboard-item" data-link="inbox.php">
-                    <img src="images/<?php echo $inboxIcon ?>">
-                    <span>Notifications<?php 
-                        /*if ($unreadMessageCount > 0) {
-                            echo ' (' . $unreadMessageCount . ')';
-                        }*/
-                    ?></span>
-                </div> -->
-
                 <div class="dashboard-item" data-link="viewAllDonors.php">
                     <img src="images/person.svg">
                     <span>View Donor Info</span>
