@@ -29,11 +29,10 @@
         //Filepath printing for debugging
         //echo $tmpFilePath;
         //echo $fileType;
-        if (($fileType == 'text/csv') || ($fileType == 'text/plain')) {
+        if ($fileType == 'text/csv') {
             require 'upload.php';
             parseCSV($tmpFilePath);
         } else {
-            echo $fileType;
             header('Location: index.php?fileTypeFail');
         }
     }    
