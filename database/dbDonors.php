@@ -347,7 +347,7 @@
         // Calculate three months ago from today
         $two_months_ago = date('Y-m-d', strtotime('-2 months', strtotime($current_date)));
 
-        $query = "SELECT DATE_FORMAT(DateOfContribution, '%Y-%m-%d') AS donation_date FROM dbdonations WHERE Email = '" . $donorEmail . "'";
+        $query = "SELECT DATE_FORMAT(DateOfContribution, '%Y-%m-%d') AS donation_date FROM dbDonations WHERE Email = '" . $donorEmail . "'";
         $result = mysqli_query($con, $query);
 
         $donation_dates = array();
