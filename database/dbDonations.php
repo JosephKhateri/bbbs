@@ -381,8 +381,6 @@
     }
 
     function addDonation($donationData, $con, $newID, $support, $category) {
-        file_put_contents('output.txt', "Support: " . $currLineSupport . "\n", FILE_APPEND);
-
         $email = trim($donationData[7]);
         $dateOfContribution = date('Y-m-d', strtotime($donationData[0])); // Convert date to MySQL-compatible format
         $amountGiven = $donationData[3]; // Ensure this is captured correctly from our CSV
