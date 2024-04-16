@@ -11,6 +11,8 @@
     session_cache_expire(30);
     session_start();
 
+    require_once('include/api.php');
+
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
@@ -34,7 +36,7 @@
             parseCSV($tmpFilePath);
         } else {
             echo $fileType;
-            header('Location: index.php?fileTypeFail');
+            redirect('index.php?fileTypeFail');
         }
     }    
 ?>

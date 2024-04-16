@@ -24,18 +24,20 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+require_once("database/dbinfo.php");
+require_once('database/dbDonors.php');
+require_once('database/dbDonations.php');
+require_once('include/input-validation.php');
+require_once('include/api.php');
+
 function parseCSV($csvFilePath, $forceInsert = false){
-    require_once("database/dbinfo.php");
-    require_once('database/dbDonors.php');
-    require_once('database/dbDonations.php');
-    require_once('include/input-validation.php');
     $con = connect(); 
 
     // Open the CSV file
     $file = fopen($csvFilePath, 'r');
     if (!$file) {
         // If the file couldn't be opened, redirect with an error message
-        header('Location: index.php?fileFail');
+        redirect('uploadForm.php?fileFail');
         exit;
     }
 
@@ -82,26 +84,26 @@ function parseCSV($csvFilePath, $forceInsert = false){
         //validate phone number format (assuming phone number is in column index 8)
         if (!validatePhoneNumberFormat($line[8])) {
             //invalid; redirect with error message
-            header('Location: uploadForm.php?phoneFormatFail');
+            redirect('uploadForm.php?phoneFormatFail');
             exit;
         }
 
         //validate date format (assuming date is in column index 0)
         if (!validateDate($line[0])) {
             //invalid; redirect with error message
-            header('Location: uploadForm.php?dateFormatFail');
+            redirect('uploadForm.php?dateFormatFail');
             exit;
         }
 
         // Check for a valid email in the expected column (index 7)
         if (!validateEmail($line[7])) {
-            header('Location: uploadForm.php?emailFormatFail');
+            redirect('uploadForm.php?emailFormatFail');
             exit;
         }
 
         // Check for a valid zip code in the expected column (index 12)
         if (!validateZipcode($line[12])) {
-            header('Location: uploadForm.php?zipFormatFail');
+            redirect('uploadForm.php?zipFormatFail');
             exit;
         }
 
@@ -155,7 +157,7 @@ function parseCSV($csvFilePath, $forceInsert = false){
     fclose($file);
 
     // Redirect with success message
-    header('Location: index.php?fileSuccess');
+    redirect('uploadForm.php?fileSuccess');
     exit;
 }
 

@@ -9,6 +9,13 @@
     ini_set("display_errors",1);
     error_reporting(E_ALL);
 
+    // Include the file that contains the function definition
+    require_once('database/dbDonors.php');
+    require_once('database/dbDonations.php');
+    require_once('domain/Donor.php');
+    require_once('domain/Donation.php');
+    require_once('include/api.php');
+
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
@@ -21,15 +28,10 @@
 
     // Require user privileges
     if ($accessLevel < 1) {
-        header('Location: login.php');
+        //header('Location: login.php');
+        redirect('login.php');
         die();
     }
-
-    // Include the file that contains the function definition
-    require_once('database/dbDonors.php');
-    require_once('database/dbDonations.php');
-    require_once('domain/Donor.php');
-    require_once('domain/Donation.php');
 
     $donor = null;
     $donations = null;
@@ -46,7 +48,7 @@
 
             // If a donor with the provided email is not found, redirect to viewAllDonors.php with an error message
             if (!$donor) {
-                header('Location: viewAllDonors.php?donorNotFound');
+                redirect('viewAllDonors.php?donorNotFound');
             } else {
                 // Retrieve the donor's donations
                 $donations = retrieve_donations_by_email($donorEmail);
@@ -86,11 +88,11 @@
             }
         } else {
             // If the 'donor' parameter is not provided, redirect to viewAllDonors.php with an error message
-            header('Location: viewAllDonors.php?donorNotProvided');
+            redirect('viewAllDonors.php?donorNotProvided');
         }
     } else {
         // If the request method is not GET, redirect to viewAllDonors.php with an error message
-        header('Location: viewAllDonors.php?invalidRequest');
+        redirect('viewAllDonors.php?invalidRequest');
     }
 
     /**
@@ -144,7 +146,7 @@
 
         // Write the CSV header for donations
         fputcsv($output, array('Frequency of Giving', 'Lifetime Value', 'Retention', 'Donation Funnel', 'Event or Non-Event Donor'));
-        fputcsv($output, array(get_donation_frequency($donor->get_email()), get_total_amount_donated($donor->get_email()), get_donor_retention($donor->get_email()), determine_donation_funnel($donor->get_email()), $donor_type));
+        fputcsv($output, array(get_donation_frequency($donor->get_email()), get_total_amount_donated($donor->get_email()), get_donor_status($donor->get_email()), determine_donation_funnel($donor->get_email()), $donor_type));
 
         fclose($output);
         exit(); // may need to toggle this later. However, if this is left out, then the html below gets printed to file

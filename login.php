@@ -16,21 +16,23 @@ Assigned Task - Excellent
     ini_set("display_errors",1);
     error_reporting(E_ALL);
 
+    require_once('domain/User.php');
+    require_once('database/dbUsers.php');
+    require_once('database/dbMessages.php');
+    require_once('include/api.php');
+    require_once('include/input-validation.php');
+
     // redirect to index if already logged in
     if (isset($_SESSION['_id'])) {
-        header('Location: index.php');
+        redirect('index.php');
         die();
     }
     $badLogin = false;
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        require_once('include/input-validation.php');
         $ignoreList = array('password');
         $args = sanitize($_POST, $ignoreList);
         $required = array('username', 'password');
         if (wereRequiredFieldsSubmitted($args, $required)) {
-            require_once('domain/User.php');
-            require_once('database/dbUsers.php');
-            require_once('database/dbMessages.php');
             dateChecker();
             $username = strtolower($args['username']);
             $password = $args['password'];
@@ -70,10 +72,10 @@ Assigned Task - Excellent
                 if ($changePassword) {
                     $_SESSION['access_level'] = 0;
                     $_SESSION['change-password'] = true;
-                    header('Location: changePassword.php');
+                    redirect('changePassword.php');
                     die();
                 } else {
-                    header('Location: index.php');
+                    redirect('index.php');
                     die();
                 }
             } else {
