@@ -158,7 +158,7 @@ function parseCSV($csvFilePath, $forceInsert = false){
     header('Location: index.php?fileSuccess');
     exit;
 }
-
+ 
 function processDonorData($donorData, $con) {
     // Assuming donorData has the email as the unique identifier in the 6th position -- KEY WORD IS ASSUMING!!!
     $donorEmail = $donorData[7];
