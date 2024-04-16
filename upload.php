@@ -45,10 +45,10 @@ function parseCSV($csvFilePath, $forceInsert = false){
     $category = '';
     while (($line = fgetcsv($file)) !== false) {
         // Check for a valid email in the expected column (index 7 based on your CSV structure)
-        if (!filter_var(trim($line[7]), FILTER_VALIDATE_EMAIL)) {
+        /*if (!filter_var(trim($line[7]), FILTER_VALIDATE_EMAIL)) {
             error_log("Invalid or missing email for row: " . implode(",", $line));
             continue; // Skip rows with invalid or missing emails
-        }
+        }*/
 
         // Handle potential blank values in "Contributed Support" and "Contribution Category"
         if (!empty($line[1])) {
@@ -162,11 +162,11 @@ function parseCSV($csvFilePath, $forceInsert = false){
 function processDonorData($donorData, $con) {
     // Assuming donorData has the email as the unique identifier in the 6th position -- KEY WORD IS ASSUMING!!!
     $donorEmail = $donorData[7];
-    /*if (empty($donorEmail)) {
+    if (empty($donorEmail)) {
         // Handle rows without email or log an error
         error_log("Email column is empty for a row, skipping...");
         return;
-    }*/
+    }
 
     // Check if donor exists
     $donorExists = checkDonorExists($donorEmail, $con);
