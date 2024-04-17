@@ -107,7 +107,7 @@ function parseCSV($csvFilePath){
 
         // Process donor data
         processDonorData($line, $con);
-        processDonationData($line, $con, $currLineSupport, $currLineCategory, $forceInsert);
+        processDonationData($line, $con, $currLineSupport, $currLineCategory);
 
         // If validations all pass, then create a new Donor and Donation object with the data from the current line
         /*$donor = new Donor ($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip);
