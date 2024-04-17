@@ -77,8 +77,14 @@
                 // Get all Donations in Descending Order
                 // Btw Megan and Noor I'm doing this because I tried to do the same thing with donations
                 // but it didn't work with json_encode or some reason so I just got the array on my own
-                $donnies=get_all_donations_asc($donorEmail);
-                $donnieDataJSON= json_encode($donnies);
+                //$donnies=get_all_donations_asc($donorEmail);
+                //$donnieDataJSON= json_encode($donnies);
+                $encodedData = json_encode(array_map(function($donation) {
+                    return array(
+                        'amount' => $donation->get_amount(),
+                        'contribution_date' => $donation->get_contribution_date()
+                    );
+                }, $donations));
 
                 // Check if the export button was clicked
                 if (isset($_GET['export']) && $_GET['export'] === 'true') {
@@ -192,13 +198,23 @@
         data.addColumn("number", "Amount Donated");
 
         // Sort the data by DateOfContribution before adding it to the chart
-        donnieData.sort(function(a, b) {
+        /*donnieData.sort(function(a, b) {
             return new Date(a.DateOfContribution) - new Date(b.DateOfContribution);
         });
         
         donnieData.forEach(function(don) {
             let amount = parseFloat(don.AmountGiven);
             data.addRow([don.DateOfContribution, amount]);
+        });*/
+
+        // Sort the data by contribution date before adding it to the chart
+        donnieData.sort(function(a, b) {
+            return new Date(a.contribution_date) - new Date(b.contribution_date);
+        });
+
+        donnieData.forEach(function(don) {
+            let amount = parseFloat(don.amount);
+            data.addRow([don.contribution_date, amount]);
         });
 
         let options = {
@@ -267,7 +283,8 @@
     <script>
         // Inject PHP data into JavaScript
         let categoryData = <?php echo $categoryDataJSON; ?>;
-        let donnieData = <?php echo $donnieDataJSON; ?>;
+        //let donnieData = <?php //echo $donnieDataJSON; ?>;
+        let donnieData = <?php echo $encodedData; ?>;
     </script>
 
 </head>
@@ -394,7 +411,7 @@
 
             <!-- Display the pie chart of the donor's donations only if the donor has donated to events -->
             <div style="display: flex; justify-content: space-around;">
-                <?php if (count($donnies) > 1) { ?>
+                <?php if (count($donations) > 1) { ?>
                     <!-- Line chart to show all donations a donor has made -->
                     <div style="width: 45%;">
                         <h2 style="text-align: center">Donation Progress</h2>
