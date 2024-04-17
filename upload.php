@@ -24,7 +24,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-function parseCSV($csvFilePath, $forceInsert = false){
+function parseCSV($csvFilePath){
     require_once("database/dbinfo.php");
     require_once('database/dbDonors.php');
     require_once('database/dbDonations.php');
