@@ -213,21 +213,22 @@
         });
 
         donnieData.forEach(function(don) {
-            let amount = parseFloat(don.amount);
-            data.addRow([don.contribution_date, amount]);
+            let Amount = parseFloat(don.amount);
+            console.log(Amount);
+            console.log(don.contribution_date);
+            data.addRow([don.contribution_date, Amount]);
         });
 
-        let options = {
-            chartArea: { width: '80%', height: '80%' }, // Enlarge chart area
-            colors: ['black'],
-            vAxis: {format: 'currency',
-                viewWindow: {
-                    min: 0,
-                    // Set max value slightly higher than the maximum amount
-                    max: getMaxAmount(donnieData) * 1.1 // Adding 10% padding
-                }
-            }
-        };
+        let options = {chartArea: { width: '80%', height: '80%' }, // Enlarge chart area
+                       colors: ['black'],
+                       vAxis: {format: 'currency',
+                               viewWindow: {
+                                            min: 0,
+                                            // Set max value slightly higher than the maximum amount
+                                            max: getMaxAmount(donnieData) * 1.1 // Adding 10% padding
+                                            }
+                            }
+                    };
 
         let formatter = new google.visualization.NumberFormat({
             prefix: "$", // Add dollar sign as prefix
@@ -243,7 +244,7 @@
     function getMaxAmount(data) {
         let max = 0;
         data.forEach(function(don) {
-            let amount = parseFloat(don.AmountGiven);
+            let amount = parseFloat(don.amount);
             if (amount > max) {
                 max = amount;
             }
