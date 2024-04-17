@@ -429,12 +429,11 @@
         // Check if the donation exists based on email, date, and amount
         $donationExists = checkDonationExists($email, $dateOfContribution, $amountGiven, $con);
     
-        if ($donationExists && !$forceInsert) {
-            echo json_encode(['status' => 'duplicate', 'message' => 'Duplicate detected. Do you want to proceed?']);
-            exit;
-        } else {
+        if (!empty($email) && !checkDonationExists($email, $dateOfContribution, $amountGiven, $con)) {
+            $newID = getMaxDonationID($con) + 1;
+            $support = trim($donationData[1]);
+            $category = trim($donationData[2]);
             addDonation($donationData, $con, $newID, $support, $category);
-            return ['status' => 'success', 'message' => 'Donation added successfully'];
         }
             
     }
