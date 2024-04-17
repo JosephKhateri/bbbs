@@ -162,10 +162,8 @@ function parseCSV($csvFilePath){
 function processDonorData($donorData, $con) {
     // Assuming donorData has the email as the unique identifier in the 6th position -- KEY WORD IS ASSUMING!!!
     $donorEmail = $donorData[7];
-    if (empty($donorEmail)) {
-        // Handle rows without email or log an error
-        error_log("Email column is empty for a row, skipping...");
-        return;
+    if (empty($donorEmail) || !checkDonorExists($donorEmail, $con)) {
+        addDonor($donorData, $con);
     }
 
     // Check if donor exists
