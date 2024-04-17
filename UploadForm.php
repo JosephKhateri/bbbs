@@ -116,8 +116,8 @@
         
     </main>
 
-    
 <script>
+        // Something in the following script is fucked up
     document.addEventListener('DOMContentLoaded', function() {
         var form = document.querySelector('form[name="uploadFile"]');
         form.addEventListener('submit', function(e) {
