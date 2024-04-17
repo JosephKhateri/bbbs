@@ -414,7 +414,7 @@
         }
     }
 
-    function processDonationData($donationData, $con, $support, $category, $forceInsert = false) {
+    function processDonationData($donationData, $con, $support, $category) {
         $email = trim($donationData[7]);
         $dateOfContribution = date('Y-m-d', strtotime($donationData[0]));
         $amountGiven = $donationData[3];
