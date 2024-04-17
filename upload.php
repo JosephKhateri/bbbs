@@ -181,9 +181,7 @@ function processDonorData($donorData, $con) {
 }
 
 // Call the parseCSV function with the CSV file path
-if (isset($_POST['forceInsert']) && $_POST['forceInsert'] === 'true') {
-    parseCSV($_FILES['file']['tmp_name'], true);
-} else {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     parseCSV($_FILES['file']['tmp_name']);
 }
 ?>
