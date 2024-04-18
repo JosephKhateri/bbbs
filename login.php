@@ -18,7 +18,6 @@ Assigned Task - Excellent
 
     require_once('domain/User.php');
     require_once('database/dbUsers.php');
-    require_once('database/dbMessages.php');
     require_once('include/api.php');
     require_once('include/input-validation.php');
 
@@ -33,7 +32,6 @@ Assigned Task - Excellent
         $args = sanitize($_POST, $ignoreList);
         $required = array('username', 'password');
         if (wereRequiredFieldsSubmitted($args, $required)) {
-            dateChecker();
             $username = strtolower($args['username']);
             $password = $args['password'];
             $login = true; // value to signify a login attempt that the User constructor will evaluate

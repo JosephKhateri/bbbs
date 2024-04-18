@@ -431,8 +431,6 @@
     
         if (!empty($email) && !checkDonationExists($email, $dateOfContribution, $amountGiven, $con)) {
             $newID = getMaxDonationID($con) + 1;
-            $support = trim($donationData[1]);
-            $category = trim($donationData[2]);
             addDonation($donationData, $con, $newID, $support, $category);
         }
             
