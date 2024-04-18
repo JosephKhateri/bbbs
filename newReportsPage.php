@@ -62,8 +62,15 @@ function reportDonorsOver10K($connection) {
         // Check if we have results
         if (mysqli_num_rows($result) > 0) {
             echo "<h2 style='text-align: center;'>Donors Who Donated Over $10,000</h2>";
-            echo "<table>";
-            echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Total Donation</th></tr>";
+            echo "<table id='donorsOver10KTable'>";
+            echo "<tr>
+                    <th onclick='sortTable(\"donorsOver10KTable\", 0)'>Email</th>
+                    <th onclick='sortTable(\"donorsOver10KTable\", 1)'>First Name</th>
+                    <th onclick='sortTable(\"donorsOver10KTable\", 2)'>Last Name</th>
+                    <th onclick='sortTable(\"donorsOver10KTable\", 3)'>Phone Number</th>
+                    <th onclick='sortTable(\"donorsOver10KTable\", 4)'>Total Donation</th>
+                </tr>";
+
             while ($row = mysqli_fetch_assoc($result)) {
                 // Format the phone number
                 $phone = $row['PhoneNumber'];
@@ -112,9 +119,15 @@ function reportFrequencyOfGiving($connection) {
                         - Sporadic: Donates inconsistently</p>";
                 echo "<br>";*/
 
-                echo "<table>";
-                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Frequency of Giving</th>
-                      <th>Days from Earliest Donation</th></tr>";
+                      echo "<table id='FrequencyOfGivingTable'>";
+                      echo "<tr>
+                              <th onclick='sortTable(\"FrequencyOfGivingTable\", 0,)'>Email</th>
+                              <th onclick='sortTable(\"FrequencyOfGivingTable\", 1)'>First Name</th>
+                              <th onclick='sortTable(\"FrequencyOfGivingTable\", 2)'>Last Name</th>
+                              <th onclick='sortTable(\"FrequencyOfGivingTable\", 3)'>Phone Number</th>
+                              <th onclick='sortTable(\"FrequencyOfGivingTable\", 4)'>Frequency of Giving</th>
+                              <th onclick='sortTable(\"FrequencyOfGivingTable\", 5)'>Days from Earliest Donation</th>
+                          </tr>";
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Format the phone number
                     $phone = $row['PhoneNumber'];
@@ -129,8 +142,8 @@ function reportFrequencyOfGiving($connection) {
                             <td>" . htmlspecialchars($row['LastName']) . "</td>
                             <td>" . htmlspecialchars($formattedPhone) . "</td>
                             <td>" . htmlspecialchars($FOG) . "</td>
-                            <td>" . number_format($row['DateDiff']) . "</td>
-                          </tr>";
+                            <td data-sort-value='" . $row['DateDiff'] . "'>" . number_format($row['DateDiff']) . "</td>
+                        </tr>";
                 }
                 
                 echo "</table>";
@@ -163,8 +176,13 @@ function reportDonorsNotDonatedIn2Years($connection) {
         // Check if we have results
         if (mysqli_num_rows($result) > 0) {
             echo "<h2 style='text-align: center;'>Donors Who Have Not Donated for the Last 2 Years</h2>";
-            echo "<table>";
-            echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Date of Last Donation</th></tr>";
+            echo "<table id='DonorsNotDonatedIn2YearsTable'>";
+            echo "<tr>
+                    <th onclick='sortTable(\"DonorsNotDonatedIn2YearsTable\", 0,)'>Email</th>
+                    <th onclick='sortTable(\"DonorsNotDonatedIn2YearsTable\", 1)'>First Name</th>
+                    <th onclick='sortTable(\"DonorsNotDonatedIn2YearsTable\", 2)'>Last Name</th>
+                    <th onclick='sortTable(\"DonorsNotDonatedIn2YearsTable\", 3)'>Last Donation</th>
+                </tr>";
             while ($row = mysqli_fetch_assoc($result)) {
                 // Format the phone number
                  
@@ -247,9 +265,15 @@ function reportFrequencyGreaterThanYearly($connection) {
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
                 echo "<h2 style='text-align: center;'>Donors Whose Frequency of Giving is Greater than Yearly</h2>";
-                echo "<table>";
-                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Frequency of Giving</th>
-                      <th>Days from Earliest Donation</th></tr>";
+                echo "<table id='FrequencyGreaterThanYearlyTable'>";
+                echo "<tr>
+                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 0,)'>Email</th>
+                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 1)'>First Name</th>
+                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 2)'>Last Name</th>
+                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 3)'>Phone Number</th>
+                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 4)'>Frequency of Giving</th>
+                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 5)'>Days from Earliest Donation</th>
+                    </tr>";
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Format the phone number
                     $phone = $row['PhoneNumber'];
@@ -301,9 +325,15 @@ function reportDonorsDonatedNotToEvents($connection) {
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
                 echo "<h2 style='text-align: center;'>Non-Event Donors Who Have Donated in the Past 3 Years</h2>";
-                echo "<table>";
-                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Earliest Donation</th>
-                      <th>Type of Donation</th></tr>";
+                echo "<table id='DonorsDonatedNotToEventsTable'>";
+                echo "<tr>
+                        <th onclick='sortTable(\"DonorsDonatedNotToEventsTable\", 0,)'>Email</th>
+                        <th onclick='sortTable(\"DonorsDonatedNotToEventsTable\", 1)'>First Name</th>
+                        <th onclick='sortTable(\"DonorsDonatedNotToEventsTable\", 2)'>Last Name</th>
+                        <th onclick='sortTable(\"DonorsDonatedNotToEventsTable\", 3)'>Phone Number</th>
+                        <th onclick='sortTable(\"DonorsDonatedNotToEventsTable\", 4)'>Earliest Donation</th>
+                        <th onclick='sortTable(\"DonorsDonatedNotToEventsTable\", 5)'>Type of Donation</th>
+                    </tr>";
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Format the phone number
                     $phone = $row['PhoneNumber'];
@@ -351,9 +381,15 @@ function reportDonorsDonatedToEvents($connection) {
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
                 echo "<h2 style='text-align: center;'>Event Donors Who Have Donated in the Past 3 Years</h2>";
-                echo "<table>";
-                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Earliest Donation</th>
-                      <th>Event Sponsored</th></tr>";
+                echo "<table id='DonorsDonatedToEventsTable'>";
+                echo "<tr>
+                        <th onclick='sortTable(\"DonorsDonatedToEventsTable\", 0,)'>Email</th>
+                        <th onclick='sortTable(\"DonorsDonatedToEventsTable\", 1)'>First Name</th>
+                        <th onclick='sortTable(\"DonorsDonatedToEventsTable\", 2)'>Last Name</th>
+                        <th onclick='sortTable(\"DonorsDonatedToEventsTable\", 3)'>Phone Number</th>
+                        <th onclick='sortTable(\"DonorsDonatedToEventsTable\", 4)'>Earliest Donation</th>
+                        <th onclick='sortTable(\"DonorsDonatedToEventsTable\", 5)'>Type of Donation</th>
+                    </tr>";
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Format the phone number
                     $phone = $row['PhoneNumber'];
@@ -399,19 +435,26 @@ function reportTopXDonors($connection, $topXDonors) {
 
         if (mysqli_num_rows($result) > 0) {
             echo "<h2 style='text-align: center;'>List of Top " . htmlspecialchars($topXDonors) . " Donors</h2>";
-            echo "<table>";
-            echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Sum of Donations</th></tr>";
+            echo "<table id='TopXDonorsTable'>";
+            echo "<tr>
+                    <th onclick='sortTable(\"TopXDonorsTable\", 0,)'>Email</th>
+                    <th onclick='sortTable(\"TopXDonorsTable\", 1)'>First Name</th>
+                    <th onclick='sortTable(\"TopXDonorsTable\", 2)'>Last Name</th>
+                    <th onclick='sortTable(\"TopXDonorsTable\", 3)'>Phone Number</th>
+                    <th onclick='sortTable(\"TopXDonorsTable\", 4)'>Sum of Donations</th>
+                </tr>";
             while ($row = mysqli_fetch_assoc($result)) {
                 $phone = $row['PhoneNumber'];
                 $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
 
                 echo "<tr>
-                        <td>" . htmlspecialchars($row['Email']) . "</td>
-                        <td>" . htmlspecialchars($row['FirstName']) . "</td>
-                        <td>" . htmlspecialchars($row['LastName']) . "</td>
-                        <td>" . htmlspecialchars($formattedPhone) . "</td>
-                        <td>$" . htmlspecialchars(number_format($row['Sum_Of_Donations'], 2)) . "</td>
-                    </tr>";
+                    <td>" . htmlspecialchars($row['Email']) . "</td>
+                    <td>" . htmlspecialchars($row['FirstName']) . "</td>
+                    <td>" . htmlspecialchars($row['LastName']) . "</td>
+                    <td>" . htmlspecialchars($formattedPhone) . "</td>
+                    <td data-sort-value='" . $row['Sum_Of_Donations'] . "'>$" . number_format($row['Sum_Of_Donations'], 2) . "</td>
+                </tr>";
+
             }
             echo "</table>";
         } else {
@@ -436,8 +479,14 @@ function reportDonationStage(){
 
     if (count($donors) > 0) { // If we have donors, display the report
         echo "<h2 style='text-align: center;'>Donors' Donation Funnels</h2>";
-        echo "<table>";
-        echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th><th>Donation Funnel</th></tr>";
+        echo "<table id='DonationStageTable'>";
+        echo "<tr>
+                <th onclick='sortTable(\"DonationStageTable\", 0,)'>Email</th>
+                <th onclick='sortTable(\"DonationStageTable\", 1)'>First Name</th>
+                <th onclick='sortTable(\"DonationStageTable\", 2)'>Last Name</th>
+                <th onclick='sortTable(\"DonationStageTable\", 3)'>Phone Number</th>
+                <th onclick='sortTable(\"DonationStageTable\", 4)'>Donation Funnel</th>
+            </tr>";
         foreach ($donors as $donor) {
             // Get the donor details
             $donor_first_name = $donor->get_first_name();
@@ -518,8 +567,13 @@ function reportMultiDonors(){
 
                 //Create a Table of all the Multi-Year Donors
                 echo "<h2 style='text-align: center;'>Multi-Year Donors</h2>";
-                echo "<table>";
-                echo "<tr><th>Email</th><th>First Name</th><th>Last Name</th><th>Phone Number</th></tr>";
+                echo "<table id='MultiDonorsTable'>";
+                echo "<tr>
+                        <th onclick='sortTable(\"MultiDonorsTable\", 0,)'>Email</th>
+                        <th onclick='sortTable(\"MultiDonorsTable\", 1)'>First Name</th>
+                        <th onclick='sortTable(\"MultiDonorsTable\", 2)'>Last Name</th>
+                        <th onclick='sortTable(\"MultiDonorsTable\", 3)'>Phone Number</th>
+                    </tr>";
                 foreach($MultiYearDonors as $donor){
                     // Get the donor details
                     $donor_first_name = $donor->get_first_name();
@@ -669,6 +723,11 @@ function displayTopDonorsForm($currentValue) {
                 color: white; /* Setting the font color to white */
                 background-color: #333; /* A darker background for contrast */
             }
+            th > img {
+                height: 1.5rem;
+                float: right; /* Aligns the image to the right */
+                margin-left: 8px; /* Adds some space between text and image */
+            }
 	    @media only screen and (min-width: 1024px) {
                 .intro{
                     width: 80%;
@@ -684,6 +743,63 @@ function displayTopDonorsForm($currentValue) {
         }
     </style>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let tables = document.querySelectorAll('table');
+        tables.forEach(table => {
+            let headers = table.getElementsByTagName('th');
+            Array.from(headers).forEach((header, index) => {
+                let img = document.createElement('img');
+                img.style.display = 'none'; // Initially hide the icon
+                header.appendChild(img);
+                header.style.cursor = 'pointer';
+                header.onclick = function() { sortTable(table.id, index); };
+            });
+
+            // Initialize sorting on the first column in descending order
+            if (table.rows.length > 1) { // Ensure table is not empty
+                sortTable(table.id, 0, 'asc'); // Set first column to sort descending initially
+            }
+        });
+    });
+
+    let currentSortColumn = -1; // Track last sorted column index
+    let sortDirection = 'desc'; // Start with a global sort direction set to descending
+
+    function sortTable(tableId, columnIndex, initialDir = null) {
+    var table = document.getElementById(tableId);
+    var rows = Array.from(table.rows).slice(1); // Exclude the header row
+    var dir = initialDir || (currentSortColumn === columnIndex && sortDirection === 'asc' ? 'desc' : 'asc');
+
+    rows.sort((a, b) => {
+        let x = a.cells[columnIndex].getAttribute('data-sort-value') || a.cells[columnIndex].textContent.trim();
+        let y = b.cells[columnIndex].getAttribute('data-sort-value') || b.cells[columnIndex].textContent.trim();
+        // Convert to numeric values if they are digits
+        if (!isNaN(x) && !isNaN(y)) {
+            x = parseFloat(x);
+            y = parseFloat(y);
+        }
+        return (dir === 'asc' ? 1 : -1) * (x > y ? 1 : x < y ? -1 : 0);
+    });
+
+    rows.forEach(row => table.appendChild(row)); // Reattach sorted rows
+
+    currentSortColumn = columnIndex;
+    sortDirection = dir; // Update the sort direction globally
+
+    updateSortingImages(tableId, columnIndex, dir);
+}
+
+    function updateSortingImages(tableId, columnIndex, dir) {
+        let table = document.getElementById(tableId);
+        let headers = table.getElementsByTagName("TH");
+        Array.from(headers).forEach((header, index) => {
+            let img = header.querySelector("img");
+            img.style.display = index === columnIndex ? 'inline' : 'none';
+            img.src = dir === 'desc' ? 'images/sort-ascending.png' : 'images/sort-descending.png';
+        });
+    }
+    </script>
 
     </head>
     <body>
