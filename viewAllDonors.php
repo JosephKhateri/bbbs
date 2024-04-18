@@ -10,6 +10,11 @@
     ini_set("display_errors",1);
     error_reporting(E_ALL);
 
+    // Include necessary files
+    require_once('database/dbDonors.php');
+    require_once('domain/Donor.php');
+    require_once('include/api.php');
+
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
@@ -22,12 +27,9 @@
 
     // Require user privileges
     if ($accessLevel < 1) {
-        header('Location: login.php');
+        redirect('login.php');
         die();
     }
-
-    require_once('database/dbDonors.php');
-    require_once('domain/Donor.php');
 
     // Get all donors to display in the table
     $donors = get_all_donors();
@@ -45,7 +47,7 @@
 
     // if $donors is equal to false (meaning no donors were retrieved from the database), redirect to the dashboard
     if (!$donors) {
-        header('Location: index.php?noDonors');
+        redirect('index.php?noDonors');
         die();
     }
 
@@ -55,7 +57,7 @@
         $donorEmail = $_GET['donor'];
 
         // Redirect to viewDonor.php with the page parameter
-        header("Location: viewDonor.php?donor=$donorEmail");
+        redirect("viewDonor.php?donor=$donorEmail");
         exit();
     } elseif (isset($_GET['export'])) {
         exportAllDonorInfo();

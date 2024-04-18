@@ -18,6 +18,11 @@ Assigned Task - Excellent
     ini_set("display_errors",1);
     error_reporting(E_ALL);
 
+    require_once('include/input-validation.php');
+    require_once('database/dbUsers.php');
+    require_once('domain/User.php');
+    require_once('include/api.php');
+
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
@@ -30,13 +35,10 @@ Assigned Task - Excellent
 
     // Require admin privileges
     if ($accessLevel < 2) {
-        header('Location: login.php');
+        redirect('login.php');
         die();
     }
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        require_once('include/input-validation.php');
-        require_once('database/dbUsers.php');
-        require_once('domain/User.php');
 
         // Sanitize all input except for 'password'
         $ignoreList = array('password');

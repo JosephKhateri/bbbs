@@ -1,13 +1,16 @@
-<?php 
+<?php
 
-function redirect($destination) {
-    if (headers_sent()) {
-        echo "ERROR: Unable to redirect to $destination. Headers already sent!";
-        echo "You must call this function prior to any characters being printed.";
-        die();
+    /*
+     * Redirects the user to the specified URL. If headers have already been sent, uses JavaScript to redirect.
+     */
+    function redirect($url) {
+        if (!headers_sent()) {
+            header('Location: ' . $url);
+            exit;
+        } else {
+            echo "<script>window.location.href = '$url';</script>";
+            exit;
+        }
     }
-    header("Location: $destination");
-    exit();
-}
 
 ?>

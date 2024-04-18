@@ -3,18 +3,20 @@
     session_start();
 
     date_default_timezone_set("America/New_York");
+
+    include_once('database/dbUsers.php');
+    include_once('domain/User.php');
+    include_once('include/api.php');
     
     if (!isset($_SESSION['access_level']) || $_SESSION['access_level'] < 1) {
         if (isset($_SESSION['change-password'])) {
-            header('Location: changePassword.php');
+            redirect('changePassword.php');
         } else {
-            header('Location: login.php');
+            redirect('login.php');
         }
         die();
     }
-        
-    include_once('database/dbUsers.php');
-    include_once('domain/User.php');
+
     // Get date?
     if (isset($_SESSION['_id'])) {
         //$person = retrieve_person($_SESSION['_id']);

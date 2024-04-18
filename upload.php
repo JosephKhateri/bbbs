@@ -24,18 +24,19 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-function parseCSV($csvFilePath, $forceInsert = false){
+function parseCSV($csvFilePath){
     require_once("database/dbinfo.php");
     require_once('database/dbDonors.php');
     require_once('database/dbDonations.php');
     require_once('include/input-validation.php');
+    require_once('include/api.php');
     $con = connect(); 
 
     // Open the CSV file
     $file = fopen($csvFilePath, 'r');
     if (!$file) {
         // If the file couldn't be opened, redirect with an error message
-        header('Location: index.php?fileFail');
+        redirect('uploadForm.php?fileFail');
         exit;
     }
 
@@ -82,32 +83,32 @@ function parseCSV($csvFilePath, $forceInsert = false){
         //validate phone number format (assuming phone number is in column index 8)
         if (!validatePhoneNumberFormat($line[8])) {
             //invalid; redirect with error message
-            header('Location: uploadForm.php?phoneFormatFail');
+            redirect('uploadForm.php?phoneFormatFail');
             exit;
         }
 
         //validate date format (assuming date is in column index 0)
         if (!validateDate($line[0])) {
             //invalid; redirect with error message
-            header('Location: uploadForm.php?dateFormatFail');
+            redirect('uploadForm.php?dateFormatFail');
             exit;
         }
 
         // Check for a valid email in the expected column (index 7)
         if (!validateEmail($line[7])) {
-            header('Location: uploadForm.php?emailFormatFail');
+            redirect('uploadForm.php?emailFormatFail');
             exit;
         }
 
         // Check for a valid zip code in the expected column (index 12)
         if (!validateZipcode($line[12])) {
-            header('Location: uploadForm.php?zipFormatFail');
+            redirect('uploadForm.php?zipFormatFail');
             exit;
         }
 
         // Process donor data
         processDonorData($line, $con);
-        processDonationData($line, $con, $currLineSupport, $currLineCategory, $forceInsert);
+        processDonationData($line, $con, $currLineSupport, $currLineCategory);
 
         // If validations all pass, then create a new Donor and Donation object with the data from the current line
         /*$donor = new Donor ($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip);
@@ -155,17 +156,15 @@ function parseCSV($csvFilePath, $forceInsert = false){
     fclose($file);
 
     // Redirect with success message
-    header('Location: index.php?fileSuccess');
+    redirect('uploadForm.php?fileSuccess');
     exit;
 }
-
+ 
 function processDonorData($donorData, $con) {
     // Assuming donorData has the email as the unique identifier in the 6th position -- KEY WORD IS ASSUMING!!!
     $donorEmail = $donorData[7];
-    if (empty($donorEmail)) {
-        // Handle rows without email or log an error
-        error_log("Email column is empty for a row, skipping...");
-        return;
+    if (empty($donorEmail) || !checkDonorExists($donorEmail, $con)) {
+        addDonor($donorData, $con);
     }
 
     // Check if donor exists
@@ -181,9 +180,7 @@ function processDonorData($donorData, $con) {
 }
 
 // Call the parseCSV function with the CSV file path
-if (isset($_POST['forceInsert']) && $_POST['forceInsert'] === 'true') {
-    parseCSV($_FILES['file']['tmp_name'], true);
-} else {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     parseCSV($_FILES['file']['tmp_name']);
 }
 ?>

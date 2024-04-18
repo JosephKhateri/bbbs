@@ -11,6 +11,8 @@
     session_cache_expire(30);
     session_start();
 
+    require_once('include/api.php');
+
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
@@ -33,7 +35,7 @@
             require 'upload.php';
             parseCSV($tmpFilePath);
         } else {
-            header('Location: index.php?fileTypeFail');
+            redirect('index.php?fileTypeFail');
         }
     }    
 ?>
@@ -115,8 +117,8 @@
         
     </main>
 
-    
 <script>
+        // Something in the following script is fucked up
     document.addEventListener('DOMContentLoaded', function() {
         var form = document.querySelector('form[name="uploadFile"]');
         form.addEventListener('submit', function(e) {
