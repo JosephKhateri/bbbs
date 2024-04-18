@@ -389,6 +389,7 @@
                 <th onclick="sortTable(1)">First Name</th>
                 <th onclick="sortTable(2)">Last Name</th>
                 <th onclick="sortTable(3)">Company</th>
+                <th></th>
             </tr>
             <?php
                 foreach ($donors as $donor) {
@@ -397,7 +398,10 @@
                     echo "<td>" . $donor->get_first_name() . "</td>";
                     echo "<td>" . $donor->get_last_name() . "</td>";
                     echo "<td>" . $donor->get_company() . "</td>";
+                    echo "<td><a href='editDonorInfo.php?donor=" . $donor->get_email() . "'>Edit</a></td>";
+                    
                     echo "</tr>";
+
                 }
             ?>
         </table>
