@@ -29,6 +29,7 @@ function parseCSV($csvFilePath){
     require_once('database/dbDonors.php');
     require_once('database/dbDonations.php');
     require_once('include/input-validation.php');
+    require_once('include/api.php');
     $con = connect(); 
 
     // Open the CSV file
