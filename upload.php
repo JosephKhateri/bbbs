@@ -36,7 +36,7 @@ function parseCSV($csvFilePath){
     $file = fopen($csvFilePath, 'r');
     if (!$file) {
         // If the file couldn't be opened, redirect with an error message
-        redirect('uploadForm.php?fileFail');
+        redirect('index.php?fileFail');
         exit;
     }
 
@@ -83,26 +83,26 @@ function parseCSV($csvFilePath){
         //validate phone number format (assuming phone number is in column index 8)
         if (!validatePhoneNumberFormat($line[8])) {
             //invalid; redirect with error message
-            redirect('uploadForm.php?phoneFormatFail');
+            redirect('index.php?phoneFormatFail');
             exit;
         }
 
         //validate date format (assuming date is in column index 0)
         if (!validateDate($line[0])) {
             //invalid; redirect with error message
-            redirect('uploadForm.php?dateFormatFail');
+            redirect('index.php?dateFormatFail');
             exit;
         }
 
         // Check for a valid email in the expected column (index 7)
         if (!validateEmail($line[7])) {
-            redirect('uploadForm.php?emailFormatFail');
+            redirect('index.php?emailFormatFail');
             exit;
         }
 
         // Check for a valid zip code in the expected column (index 12)
         if (!validateZipcode($line[12])) {
-            redirect('uploadForm.php?zipFormatFail');
+            redirect('index.php?zipFormatFail');
             exit;
         }
 
@@ -156,7 +156,7 @@ function parseCSV($csvFilePath){
     fclose($file);
 
     // Redirect with success message
-    redirect('uploadForm.php?fileSuccess');
+    redirect('index.php?fileSuccess');
     exit;
 }
  
