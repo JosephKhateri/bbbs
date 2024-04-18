@@ -152,8 +152,8 @@ function reportDonorsNotDonatedIn2Years($connection) {
         $thresholdDate = date('Y-m-d', strtotime('-2 years', strtotime($currentDate)));
 
         $query = "SELECT d.FirstName, d.LastName, d.Email, MAX(dd.DateOfContribution) AS LastDonation
-                FROM DbDonors d
-                LEFT JOIN DbDonations dd ON d.Email = dd.Email
+                FROM dbdonors d
+                LEFT JOIN dbdonations dd ON d.Email = dd.Email
                 GROUP BY d.Email
                 HAVING LastDonation < '$thresholdDate' OR LastDonation IS NULL
                 ORDER BY d.LastName;

@@ -109,47 +109,6 @@ function parseCSV($csvFilePath){
         // Process donor data
         processDonorData($line, $con);
         processDonationData($line, $con, $currLineSupport, $currLineCategory);
-
-        // If validations all pass, then create a new Donor and Donation object with the data from the current line
-        /*$donor = new Donor ($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip);
-
-        $newID = count(get_all_donations()) + 1;
-        $donation = new Donation ($newID, $email, $date, $contributed_support, $contribution_category, $amount, $payment_method, $memo);
-
-        // With the following code below, should there be error handling regarding telling the user which lines successfully uploaded and which ones failed?
-
-        // Add or update donor info based on if the donor already exists
-        if (retrieve_donor($email) == null) {
-            $donor_result = add_donor($donor);
-        } else {
-            $donor_result = update_donor($donor);
-        }
-
-        // Check if the donor was successfully added/updated
-        if (!$donor_result) {
-            // If the donor wasn't successfully added/updated, redirect with an error message
-            header('Location: uploadForm.php?uploadFail');
-            exit;
-        }
-
-        // Retrieve the max donation ID to determine if the donation should be added or updated
-        // *******This needs to be changed to use the retrieve function that uses ami, date, and amount to check if the donation exists
-        // what is currently here is incorrect and was a mistake when some of the code was being restructured
-        if (getMaxDonationID() < $newID) {
-            $donation_result = add_donation($donation);
-        } else {
-            $donation_result = update_donation($donation);
-        }
-
-        // Check if the donation was successfully added/updated
-        if ($donation_result) {
-            // If successful, continue to the next line
-            continue;
-        } else {
-            // If the donation wasn't successfully added/updated, redirect with an error message
-            header('Location: uploadForm.php?uploadFail');
-            exit;
-        }*/
     }
 
     // Close the CSV file
