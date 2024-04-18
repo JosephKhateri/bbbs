@@ -24,13 +24,11 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once("database/dbinfo.php");
-require_once('database/dbDonors.php');
-require_once('database/dbDonations.php');
-require_once('include/input-validation.php');
-require_once('include/api.php');
-
-function parseCSV($csvFilePath, $forceInsert = false){
+function parseCSV($csvFilePath){
+    require_once("database/dbinfo.php");
+    require_once('database/dbDonors.php');
+    require_once('database/dbDonations.php');
+    require_once('include/input-validation.php');
     $con = connect(); 
 
     // Open the CSV file
@@ -109,7 +107,7 @@ function parseCSV($csvFilePath, $forceInsert = false){
 
         // Process donor data
         processDonorData($line, $con);
-        processDonationData($line, $con, $currLineSupport, $currLineCategory, $forceInsert);
+        processDonationData($line, $con, $currLineSupport, $currLineCategory);
 
         // If validations all pass, then create a new Donor and Donation object with the data from the current line
         /*$donor = new Donor ($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip);
@@ -160,14 +158,12 @@ function parseCSV($csvFilePath, $forceInsert = false){
     redirect('uploadForm.php?fileSuccess');
     exit;
 }
-
+ 
 function processDonorData($donorData, $con) {
     // Assuming donorData has the email as the unique identifier in the 6th position -- KEY WORD IS ASSUMING!!!
     $donorEmail = $donorData[7];
-    if (empty($donorEmail)) {
-        // Handle rows without email or log an error
-        error_log("Email column is empty for a row, skipping...");
-        return;
+    if (empty($donorEmail) || !checkDonorExists($donorEmail, $con)) {
+        addDonor($donorData, $con);
     }
 
     // Check if donor exists
@@ -183,9 +179,7 @@ function processDonorData($donorData, $con) {
 }
 
 // Call the parseCSV function with the CSV file path
-if (isset($_POST['forceInsert']) && $_POST['forceInsert'] === 'true') {
-    parseCSV($_FILES['file']['tmp_name'], true);
-} else {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     parseCSV($_FILES['file']['tmp_name']);
 }
 ?>
