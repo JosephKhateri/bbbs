@@ -19,6 +19,7 @@
      $userID = 'vmsroot';//$_SESSION['_id'];
  //}
 
+<<<<<<< HEAD
  require_once('include/input-validation.php');
  require_once('database/dbPersons.php');
  require_once('database/dbEvents.php');
@@ -33,6 +34,44 @@
  if (!$connection) {
    die("Connection failed: " . mysqli_connect_error());
  }   
+=======
+    $loggedIn = false;
+    $accessLevel = 0;
+    $userID = null;
+    if (isset($_SESSION['_id'])) {
+        $loggedIn = true;
+        // 0 = not logged in, 1 = standard user, 2 = manager (Admin), 3 super admin (TBI)
+        $accessLevel = $_SESSION['access_level'];
+        $userID = $_SESSION['_id'];
+    }
+
+    // Require user privileges
+    if ($accessLevel < 1) {
+        header('Location: login.php');
+        die();
+    }
+
+    require_once('include/input-validation.php');
+  require_once('database/dbPersons.php');
+  require_once('include/output.php');
+  require_once('database/dbinfo.php');
+  
+  
+  //$connection = connect();
+  $servername = "localhost";
+  $username = "bbbs";
+  $password = "bbbs";
+  $dbname = "bbbs";
+  
+  // Create connection
+  $connection = mysqli_connect($servername, $username, $password, $dbname);
+  
+  // Check connection
+  if (!$connection) {
+    die("Connection failed: " . mysqli_connect_error());
+  }
+    
+>>>>>>> ee00f4d846a1ccfd45fab80769eb701faa885d05
 ?>
 
 <!DOCTYPE html>

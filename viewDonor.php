@@ -9,6 +9,13 @@
     ini_set("display_errors",1);
     error_reporting(E_ALL);
 
+    // Include the file that contains the function definition
+    require_once('database/dbDonors.php');
+    require_once('database/dbDonations.php');
+    require_once('domain/Donor.php');
+    require_once('domain/Donation.php');
+    require_once('include/api.php');
+
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
@@ -21,15 +28,10 @@
 
     // Require user privileges
     if ($accessLevel < 1) {
-        header('Location: login.php');
+        //header('Location: login.php');
+        redirect('login.php');
         die();
     }
-
-    // Include the file that contains the function definition
-    require_once('database/dbDonors.php');
-    require_once('database/dbDonations.php');
-    require_once('domain/Donor.php');
-    require_once('domain/Donation.php');
 
     $donor = null;
     $donations = null;
@@ -46,7 +48,7 @@
 
             // If a donor with the provided email is not found, redirect to viewAllDonors.php with an error message
             if (!$donor) {
-                header('Location: viewAllDonors.php?donorNotFound');
+                redirect('viewAllDonors.php?donorNotFound');
             } else {
                 // Retrieve the donor's donations
                 $donations = retrieve_donations_by_email($donorEmail);
@@ -72,11 +74,13 @@
                 $categories = get_event_donation_categories($donorEmail);
                 $categoryDataJSON = json_encode($categories); // Encode $categories array to JSON for JavaScript
 
-                // Get all Donations in Descending Order
-                // Btw Megan and Noor I'm doing this because I tried to do the same thing with donations
-                // but it didn't work with json_encode or some reason so I just got the array on my own
-                $donnies=get_all_donations_asc($donorEmail);
-                $donnieDataJSON= json_encode($donnies);
+                // Get donation dates and amounts to create Donation Progress line graph
+                $donationDataJSON = json_encode(array_map(function($donation) {
+                    return array(
+                        'amount' => $donation->get_amount(),
+                        'contribution_date' => $donation->get_contribution_date()
+                    );
+                }, $donations));
 
                 // Check if the export button was clicked
                 if (isset($_GET['export']) && $_GET['export'] === 'true') {
@@ -86,11 +90,11 @@
             }
         } else {
             // If the 'donor' parameter is not provided, redirect to viewAllDonors.php with an error message
-            header('Location: viewAllDonors.php?donorNotProvided');
+            redirect('viewAllDonors.php?donorNotProvided');
         }
     } else {
         // If the request method is not GET, redirect to viewAllDonors.php with an error message
-        header('Location: viewAllDonors.php?invalidRequest');
+        redirect('viewAllDonors.php?invalidRequest');
     }
 
     /**
@@ -144,7 +148,7 @@
 
         // Write the CSV header for donations
         fputcsv($output, array('Frequency of Giving', 'Lifetime Value', 'Retention', 'Donation Funnel', 'Event or Non-Event Donor'));
-        fputcsv($output, array(get_donation_frequency($donor->get_email()), get_total_amount_donated($donor->get_email()), get_donor_retention($donor->get_email()), determine_donation_funnel($donor->get_email()), $donor_type));
+        fputcsv($output, array(get_donation_frequency($donor->get_email()), get_total_amount_donated($donor->get_email()), get_donor_status($donor->get_email()), determine_donation_funnel($donor->get_email()), $donor_type));
 
         fclose($output);
         exit(); // may need to toggle this later. However, if this is left out, then the html below gets printed to file
@@ -183,30 +187,29 @@
 <script>
     // Javascript function that draws a pie chart using the Google Charts API
     function drawLineChart() {
-        console.log(categoryData);
-        console.log(donnieData);
         let data = new google.visualization.DataTable();
         data.addColumn("string", "Date of Donation");
         data.addColumn("number", "Amount Donated");
 
-        // Sort the data by DateOfContribution before adding it to the chart
-        donnieData.sort(function(a, b) {
-            return new Date(a.DateOfContribution) - new Date(b.DateOfContribution);
-        });
-        
-        donnieData.forEach(function(don) {
-            let amount = parseFloat(don.AmountGiven);
-            data.addRow([don.DateOfContribution, amount]);
+        // Sort the data by contribution date before adding it to the chart
+        donationDatesAndAmounts.sort(function(a, b) {
+            return new Date(a.contribution_date) - new Date(b.contribution_date);
         });
 
-        let options = {
-            chartArea: { width: '80%', height: '80%' }, // Enlarge chart area
-            colors: ['black'],
-            vAxis: {format: 'currency',
-                viewWindow: {
+        donationDatesAndAmounts.forEach(function(don) {
+            let Amount = parseFloat(don.amount);
+            console.log(Amount);
+            console.log(don.contribution_date);
+            data.addRow([don.contribution_date, Amount]);
+        });
+
+        let options = {chartArea: { width: '80%', height: '80%' }, // Enlarge chart area
+           colors: ['black'],
+           vAxis: {format: 'currency',
+               viewWindow: {
                     min: 0,
                     // Set max value slightly higher than the maximum amount
-                    max: getMaxAmount(donnieData) * 1.1 // Adding 10% padding
+                    max: getMaxAmount(donationDatesAndAmounts) * 1.1 // Adding 10% padding
                 }
             }
         };
@@ -225,7 +228,7 @@
     function getMaxAmount(data) {
         let max = 0;
         data.forEach(function(don) {
-            let amount = parseFloat(don.AmountGiven);
+            let amount = parseFloat(don.amount);
             if (amount > max) {
                 max = amount;
             }
@@ -265,7 +268,7 @@
     <script>
         // Inject PHP data into JavaScript
         let categoryData = <?php echo $categoryDataJSON; ?>;
-        let donnieData = <?php echo $donnieDataJSON; ?>;
+        let donationDatesAndAmounts = <?php echo $donationDataJSON; ?>;
     </script>
 
 </head>
@@ -392,7 +395,7 @@
 
             <!-- Display the pie chart of the donor's donations only if the donor has donated to events -->
             <div style="display: flex; justify-content: space-around;">
-                <?php if (count($donnies) > 1) { ?>
+                <?php if (count($donations) > 1) { ?>
                     <!-- Line chart to show all donations a donor has made -->
                     <div style="width: 45%;">
                         <h2 style="text-align: center">Donation Progress</h2>

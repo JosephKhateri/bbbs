@@ -10,6 +10,11 @@
     ini_set("display_errors",1);
     error_reporting(E_ALL);
 
+    // Include necessary files
+    require_once('database/dbDonors.php');
+    require_once('domain/Donor.php');
+    require_once('include/api.php');
+
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
@@ -22,12 +27,9 @@
 
     // Require user privileges
     if ($accessLevel < 1) {
-        header('Location: login.php');
+        redirect('login.php');
         die();
     }
-
-    require_once('database/dbDonors.php');
-    require_once('domain/Donor.php');
 
     // Get all donors to display in the table
     $donors = get_all_donors();
@@ -45,7 +47,7 @@
 
     // if $donors is equal to false (meaning no donors were retrieved from the database), redirect to the dashboard
     if (!$donors) {
-        header('Location: index.php?noDonors');
+        redirect('index.php?noDonors');
         die();
     }
 
@@ -55,7 +57,7 @@
         $donorEmail = $_GET['donor'];
 
         // Redirect to viewDonor.php with the page parameter
-        header("Location: viewDonor.php?donor=$donorEmail");
+        redirect("viewDonor.php?donor=$donorEmail");
         exit();
     } elseif (isset($_GET['export'])) {
         exportAllDonorInfo();
@@ -198,6 +200,19 @@
                 text-decoration: underline;
                 cursor: pointer;
             }
+            th > img {
+                height: 1.5rem;
+                float: right; /* Aligns the image to the right */
+                margin-left: 8px; /* Adds some space between text and image */
+            }
+
+            #donorTable th,
+            #donorTable td {
+                width: 150px; /* Adjust the width as per your design */
+                /* You can also use percentages for responsive design */
+                /* width: 25%; */
+            }
+
             .filter-group {
                 display: flex;
                 flex-wrap: wrap;
@@ -385,54 +400,58 @@
         <!-- When a donor is clicked, then will redirect to viewDonor.php with that donor's email passed as a parameter -->
         <table id="donorTable">
             <tr>
-                <th onclick="sortTable(0)">Email</th>
+                <th onclick="sortTable(0)">
+                    Email
+                    <img id="emailSortImg" src="images/sort-ascending.png">
+                </th>
                 <th onclick="sortTable(1)">First Name</th>
                 <th onclick="sortTable(2)">Last Name</th>
                 <th onclick="sortTable(3)">Company</th>
             </tr>
             <?php
-                foreach ($donors as $donor) {
-                    echo "<tr>";
-                    echo "<td><a href='viewDonor.php?donor=" . $donor->get_email() . "'>" . $donor->get_email() . "</a></td>";
-                    echo "<td>" . $donor->get_first_name() . "</td>";
-                    echo "<td>" . $donor->get_last_name() . "</td>";
-                    echo "<td>" . $donor->get_company() . "</td>";
-                    echo "</tr>";
-                }
+            foreach ($donors as $donor) {
+                echo "<tr>";
+                echo "<td><a href='viewDonor.php?donor=" . $donor->get_email() . "'>" . $donor->get_email() . "</a></td>";
+                echo "<td>" . $donor->get_first_name() . "</td>";
+                echo "<td>" . $donor->get_last_name() . "</td>";
+                echo "<td>" . $donor->get_company() . "</td>";
+                echo "</tr>";
+            }
             ?>
         </table>
 
         <script>
+            let currentSortColumn = 0; // Default sorting column (email column)
+            let sortDirection = "desc"; // Default sorting direction for email column is descending
+
             function sortTable(n) {
-                let table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+                console.log("Sorting table...");
+                let table, rows, switching, i, x, y, shouldSwitch;
                 table = document.getElementById("donorTable");
                 switching = true;
-                // Set the sorting direction to ascending:
-                dir = "asc";
                 /* Make a loop that will continue until
                 no switching has been done: */
                 while (switching) {
-                    // Start by saying: no switching is done:
+                    // Start by assuming no switching is done:
                     switching = false;
                     rows = table.rows;
                     /* Loop through all table rows (except the
                     first, which contains table headers): */
                     for (i = 1; i < (rows.length - 1); i++) {
-                        // Start by saying there should be no switching:
                         shouldSwitch = false;
                         /* Get the two elements you want to compare,
-                        one from current row and one from the next: */
-                        x = rows[i].getElementsByTagName("TD")[n];
-                        y = rows[i + 1].getElementsByTagName("TD")[n];
+                        one from the current row and one from the next: */
+                        x = rows[i].getElementsByTagName("td")[n];
+                        y = rows[i + 1].getElementsByTagName("td")[n];
                         /* Check if the two rows should switch place,
-                        based on the direction, asc or desc: */
-                        if (dir === "asc") {
+                        based on the sorting direction: */
+                        if (sortDirection === "asc") {
                             if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
                                 // If so, mark as a switch and break the loop:
                                 shouldSwitch = true;
                                 break;
                             }
-                        } else if (dir === "desc") {
+                        } else if (sortDirection === "desc") {
                             if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
                                 // If so, mark as a switch and break the loop:
                                 shouldSwitch = true;
@@ -441,22 +460,48 @@
                         }
                     }
                     if (shouldSwitch) {
-                        /* If a switch has been marked, make the switch
-                        and mark that a switch has been done: */
+                        // If a switch is needed, perform the switch and mark the switch as done:
                         rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
                         switching = true;
-                        // Each time a switch is done, increase this count by 1:
-                        switchcount ++;
+                    }
+                }
+                // Toggle the sorting direction for the clicked column:
+                if (currentSortColumn === n) {
+                    sortDirection = (sortDirection === "asc") ? "desc" : "asc";
+                } else {
+                    currentSortColumn = n;
+                    sortDirection = (n === 0) ? "desc" : "asc"; // Set initial sorting direction to descending for email column, ascending for others
+                }
+                console.log("Sorting completed.");
+                // Update sorting images after sorting:
+                updateSortingImages();
+            }
+
+            function updateSortingImages() {
+                console.log("Updating sorting images...");
+                let tableHeaders = document.getElementsByTagName("th");
+                for (let i = 0; i < tableHeaders.length; i++) {
+                    let img = tableHeaders[i].querySelector("img");
+                    if (i === currentSortColumn) {
+                        if (img) {
+                            img.src = (sortDirection === "asc") ? "images/sort-ascending.png" : "images/sort-descending.png";
+                        } else {
+                            tableHeaders[i].innerHTML += '<img src="images/sort-ascending.png" alt="Sorting">';
+                        }
                     } else {
-                        /* If no switching has been done AND the direction is "asc",
-                        set the direction to "desc" and run the while loop again. */
-                        if (switchcount === 0 && dir === "asc") {
-                            dir = "desc";
-                            switching = true;
+                        if (img) {
+                            img.remove();
                         }
                     }
                 }
+                console.log("Sorting images updated.");
             }
+
+            // Set initial images based on current order of the columns
+            window.addEventListener('DOMContentLoaded', (event) => {
+                console.log("DOM fully loaded and parsed");
+                updateSortingImages();
+            });
         </script>
 
         <br>

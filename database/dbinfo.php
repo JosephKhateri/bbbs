@@ -24,10 +24,10 @@ function connect() {
         $user = 'uc1op8sb8zdqp';
         $database = 'dbjyzu1z500h5e';
         $pass = "7f8r0d57ltxn";
-    } else if ($_SERVER['SERVER_NAME'] == 'gwynethsgiftvms.org') {
-        $user = "uybhc603shfl5";
-        $pass = "f11kwvhy4yic";
-        $database = "dbwgyuabseaoih";
+    } else if ($_SERVER['SERVER_NAME'] == 'cvhrtrainer.org') {
+        $user = "uuzcrymbfztxf";
+        $pass = "K;>s521iCbb2";
+        $database = "dbgzgs8zt6q1mh";
     }
     $con = mysqli_connect($host,$user,$pass,$database);
     if (!$con) { echo "not connected to server"; return mysqli_error($con);}

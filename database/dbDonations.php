@@ -21,20 +21,20 @@
 
     /*
      * Parameters: $user = A Donation object
-     * This function adds a Donation to the dbDonations table
-     * Return type: A boolean value that represents if the Donation was added to the dbDonations table
+     * This function adds a Donation to the dbdonations table
+     * Return type: A boolean value that represents if the Donation was added to the dbdonations table
      * Pre-condition: $donation is a Donation object
-     * Post-condition: A Donation is added to the dbDonations table if its ID doesn't already exist in the table, otherwise nothing happens
+     * Post-condition: A Donation is added to the dbdonations table if its ID doesn't already exist in the table, otherwise nothing happens
      */
     function add_donation($donation) : bool {
         if (!$donation instanceof Donation)
             die("Error: add_donation type mismatch");
         $con=connect();
-        $query = "SELECT * FROM dbDonations WHERE DonationID = '" . $donation->get_id() . "'";
+        $query = "SELECT * FROM dbdonations WHERE DonationID = '" . $donation->get_id() . "'";
         $result = mysqli_query($con,$query);
         //if there's no entry for this id, add it
         if ($result == null || mysqli_num_rows($result) == 0) {
-            mysqli_query($con,'INSERT INTO dbDonations VALUES("' .
+            mysqli_query($con,'INSERT INTO dbdonations VALUES("' .
                 $donation->get_id() . '","' .
                 $donation->get_email() . '","' .
                 $donation->get_contribution_date() . '","' .
@@ -53,20 +53,20 @@
 
     /*
      * Parameters: $id = A string that represents the ID number of a donation
-     * This function removes a donation from the dbDonations table using the ID of the donation
-     * Return type: A boolean value that represents if the Donation was removed from the dbDonations table
+     * This function removes a donation from the dbdonations table using the ID of the donation
+     * Return type: A boolean value that represents if the Donation was removed from the dbdonations table
      * Pre-condition: $id is a string
-     * Post-condition: A Donation is removed from the dbDonations table if it exists, otherwise nothing happens
+     * Post-condition: A Donation is removed from the dbdonations table if it exists, otherwise nothing happens
      */
     function remove_donation($id) : bool {
         $con=connect();
-        $query = 'SELECT * FROM dbDonations WHERE id = "' . $id . '"';
+        $query = 'SELECT * FROM dbdonations WHERE id = "' . $id . '"';
         $result = mysqli_query($con,$query);
         if ($result == null || mysqli_num_rows($result) == 0) {
             mysqli_close($con);
             return false;
         }
-        $query = 'DELETE FROM dbDonations WHERE id = "' . $id . '"';
+        $query = 'DELETE FROM dbdonations WHERE id = "' . $id . '"';
         $result = mysqli_query($con,$query);
         mysqli_close($con);
         return $result;
@@ -74,10 +74,10 @@
 
     /*
      * Parameters: $donation = A Donation object with updated information
-     * This function updates a donation in the dbDonations table
-     * Return type: A boolean value that represents if the Donation was updated in the dbDonations table
+     * This function updates a donation in the dbdonations table
+     * Return type: A boolean value that represents if the Donation was updated in the dbdonations table
      * Pre-condition: $donation is a Donation object
-     * Post-condition: The donation is updated in the dbDonations table if it exists, otherwise nothing happens
+     * Post-condition: The donation is updated in the dbdonations table if it exists, otherwise nothing happens
      */
     function update_donation($donation) : bool {
         $con=connect();
@@ -93,7 +93,7 @@
         $memo = $donation->get_memo();
 
         // Query is broken up into multiple lines for readability
-        $query = "UPDATE dbDonations SET ";
+        $query = "UPDATE dbdonations SET ";
         $query .= "Email = '" . $email . "', ";
         $query .= "DateOfContribution = '" . $date . "', ";
         $query .= "ContributedSupportType = '" . $type . "', ";
@@ -109,14 +109,14 @@
 
     /*
      * Parameters: $id = A string that represents the ID number of a donation
-     * This function retrieves a donation from the dbDonations table using the ID of the donation
+     * This function retrieves a donation from the dbdonations table using the ID of the donation
      * Return type: A Donation object
      * Pre-condition: $id is a string
      * Post-condition: A Donation object is returned if it exists, otherwise nothing is returned
      */
     function retrieve_donation($id) : Donation {
         $con=connect();
-        $query = "SELECT * FROM dbDonations WHERE DonationID = '" . $id . "'";
+        $query = "SELECT * FROM dbdonations WHERE DonationID = '" . $id . "'";
         $result = mysqli_query($con,$query);
         $result_row = mysqli_fetch_assoc($result);
 
@@ -128,16 +128,16 @@
 
     /*
      * Parameters: $email = A string that represents the email a donation is associated with
-     * This function retrieves an array of Donations from the dbDonations table that match the given email
+     * This function retrieves an array of Donations from the dbdonations table that match the given email
      * Return type: An array of Donation objects
      * Pre-condition: $email is a string
      * Post-condition: An array of Donation objects is returned
      */
-    function retrieve_donations_by_email ($email): array {
+    function retrieve_donations_by_email($email) : array {
         $donations = array();
         if (!isset($email) || $email == "" || $email == null) return $donations;
         $con=connect();
-        $query = "SELECT * FROM dbDonations WHERE email = '" . $email ."'";
+        $query = "SELECT * FROM dbdonations WHERE email = '" . $email ."'";
         $result = mysqli_query($con,$query);
         while ($result_row = mysqli_fetch_assoc($result)) {
             $the_donation = make_a_donation($result_row);
@@ -148,14 +148,14 @@
 
     /*
      * Parameters: None
-     * This function retrieves all donations from the dbDonations table
+     * This function retrieves all donations from the dbdonations table
      * Return type: An array of Donation objects
      * Pre-condition: None
      * Post-condition: An array of Donation objects is returned
      */
     function get_all_donations() : array {
         $con=connect();
-        $query = 'SELECT * FROM dbDonations';
+        $query = 'SELECT * FROM dbdonations';
         $result = mysqli_query($con,$query);
 
         // Create array of donations
@@ -176,7 +176,7 @@
      */
     function get_total_amount_donated($donorEmail) : float {
         $con = connect();
-        $query = "SELECT SUM(AmountGiven) AS totalAmount FROM dbDonations WHERE Email = '" . $donorEmail . "'";
+        $query = "SELECT SUM(AmountGiven) AS totalAmount FROM dbdonations WHERE Email = '" . $donorEmail . "'";
         $result = mysqli_query($con,$query);
         $totalAmount = mysqli_fetch_assoc($result);
         $totalAmount = (float) $totalAmount['totalAmount']; // Cast the total amount to a float that is returned
@@ -195,7 +195,7 @@
         // Query to get the event donation categories and the total amount donated to each category
         // I may want to future-proof this to have it look for donations with Contribution Categories that match the names of the events
         // That would require us to have a list of events in the database
-        $query = "SELECT ContributionCategory, SUM(AmountGiven) AS TotalAmount FROM dbDonations WHERE ContributedSupportType = 'Fundraising Events' AND Email = '" . $donorEmail . "' GROUP BY ContributionCategory";
+        $query = "SELECT ContributionCategory, SUM(AmountGiven) AS TotalAmount FROM dbdonations WHERE ContributedSupportType = 'Fundraising Events' AND Email = '" . $donorEmail . "' GROUP BY ContributionCategory";
         $result = mysqli_query($con,$query);
 
         // Create an array of associative arrays that represent the donation categories and the total amount donated to each category
@@ -218,7 +218,7 @@
         // Query to get the event donation categories and the total amount donated to each category
         // I may want to future-proof this to have it look for donations with Contribution Categories that match the names of the events
         // That would require us to have a list of events in the database
-        $query = "SELECT DateOfContribution, AmountGiven FROM dbDonations WHERE Email = '" . $donorEmail . "' ORDER BY AmountGiven ASC";
+        $query = "SELECT DateOfContribution, AmountGiven FROM dbdonations WHERE Email = '" . $donorEmail . "' ORDER BY AmountGiven ASC";
         $result = mysqli_query($con,$query);
 
         // Create an array of associative arrays that represent the donation categories and the total amount donated to each category
@@ -265,7 +265,7 @@
         // I may want to future-proof this to have it look for donations with Contribution Categories that match the names of the events
         // That would require us to have a list of events in the database
         $con = connect();
-        $query = "SELECT * FROM dbDonations WHERE ContributedSupportType = 'Fundraising Events' AND Email = '" . $donorEmail . "' GROUP BY ContributionCategory";
+        $query = "SELECT * FROM dbdonations WHERE ContributedSupportType = 'Fundraising Events' AND Email = '" . $donorEmail . "' GROUP BY ContributionCategory";
         $result = mysqli_query($con,$query);
 
         // Count the number of event donations
@@ -289,7 +289,7 @@
         // I may want to future-proof this to have it look for donations with Contribution Categories that don't match the names of the events
         // That would require us to have a list of events in the database
         $con = connect();
-        $query = "SELECT * FROM dbDonations WHERE ContributedSupportType != 'Fundraising Events' AND Email = '" . $donorEmail . "' GROUP BY ContributionCategory";
+        $query = "SELECT * FROM dbdonations WHERE ContributedSupportType != 'Fundraising Events' AND Email = '" . $donorEmail . "' GROUP BY ContributionCategory";
         $result = mysqli_query($con,$query);
 
         // Count the number of non-event donations
@@ -340,7 +340,7 @@
     }
 
     /*
-     * Parameters: $result_row = An associative array that represents a row in the dbDonations table
+     * Parameters: $result_row = An associative array that represents a row in the dbdonations table
      * This function constructs a new Donation object with the given parameters
      * Return type: A Donation object
      * Pre-condition: $result_row is a valid associative array
@@ -359,14 +359,14 @@
         );
         return $theDonation;
     }
-// dbDonations.php
+// dbdonations.php
 // Overall Grading:
-// 1. Program specifications/correctness: Adequate - Program doesn't insert data into dbDonations properly
+// 1. Program specifications/correctness: Adequate - Program doesn't insert data into dbdonations properly
 // 2. Readability: Adequate - Need further documentation for the functions. Variables are named accordingly.
     // Need to indent everything within <php> tags
 // 3. Code efficiency: Good - Code is very efficient, but there are some issues with the code actually working properly
 // 4. Documentation: Adequate - Need further documentation for the functions
-// 5. Assigned Task: Adequate - Program doesn't insert data into dbDonations properly
+// 5. Assigned Task: Adequate - Program doesn't insert data into dbdonations properly
     function checkDonationExists($email, $date, $amount, $con) {
         $query = $con->prepare("SELECT Email, DateOfContribution, AmountGiven FROM dbdonations WHERE Email = ? AND DateOfContribution = ? AND AmountGiven = ?");
         $query->bind_param("ssd", $email, $date, $amount);
@@ -380,7 +380,7 @@
         return count(get_all_donations());
     }
 
-    function addDonation($donationData, $con, $newID) {
+    function addDonation($donationData, $con, $newID, $support, $category) {
         $email = trim($donationData[7]);
         $dateOfContribution = date('Y-m-d', strtotime($donationData[0])); // Convert date to MySQL-compatible format
         $amountGiven = $donationData[3]; // Ensure this is captured correctly from our CSV
@@ -390,7 +390,7 @@
         }
         // Prepare the SQL query to insert a new donation
         $query = $con->prepare("INSERT INTO dbdonations (Email, DateOfContribution, ContributedSupportType, ContributionCategory, AmountGiven, PaymentMethod, Memo, DonationID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $query->bind_param("ssssdssi", $donationData[7], $dateOfContribution, $donationData[1], $donationData[2], $donationData[3], $donationData[13], $donationData[14], $newID);
+        $query->bind_param("ssssdssi", $donationData[7], $dateOfContribution, $support, $category, $donationData[3], $donationData[13], $donationData[14], $newID);
         if (!$query->execute()) {
             error_log("Failed to insert donation: " . $query->error);
         } else {
@@ -414,7 +414,7 @@
         }
     }
 
-    function processDonationData($donationData, $con, $forceInsert = false) {
+    function processDonationData($donationData, $con, $support, $category) {
         $email = trim($donationData[7]);
         $dateOfContribution = date('Y-m-d', strtotime($donationData[0]));
         $amountGiven = $donationData[3];
@@ -429,12 +429,9 @@
         // Check if the donation exists based on email, date, and amount
         $donationExists = checkDonationExists($email, $dateOfContribution, $amountGiven, $con);
     
-        if ($donationExists && !$forceInsert) {
-            echo json_encode(['status' => 'duplicate', 'message' => 'Duplicate detected. Do you want to proceed?']);
-            exit;
-        } else {
-            addDonation($donationData, $con, $newID);
-            return ['status' => 'success', 'message' => 'Donation added successfully'];
+        if (!empty($email) && !checkDonationExists($email, $dateOfContribution, $amountGiven, $con)) {
+            $newID = getMaxDonationID($con) + 1;
+            addDonation($donationData, $con, $newID, $support, $category);
         }
             
     }

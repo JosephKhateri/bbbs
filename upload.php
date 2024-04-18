@@ -24,29 +24,43 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-function parseCSV($csvFilePath, $forceInsert = false){
+function parseCSV($csvFilePath){
     require_once("database/dbinfo.php");
     require_once('database/dbDonors.php');
     require_once('database/dbDonations.php');
     require_once('include/input-validation.php');
+    require_once('include/api.php');
     $con = connect(); 
 
     // Open the CSV file
     $file = fopen($csvFilePath, 'r');
     if (!$file) {
         // If the file couldn't be opened, redirect with an error message
-        header('Location: index.php?fileFail');
+        redirect('index.php?fileFail');
         exit;
     }
 
     fgetcsv($file); // Skip header row
 
+    $support = '';
+    $category = '';
     while (($line = fgetcsv($file)) !== false) {
         // Check for a valid email in the expected column (index 7 based on your CSV structure)
-        if (!filter_var(trim($line[7]), FILTER_VALIDATE_EMAIL)) {
+        /*if (!filter_var(trim($line[7]), FILTER_VALIDATE_EMAIL)) {
             error_log("Invalid or missing email for row: " . implode(",", $line));
             continue; // Skip rows with invalid or missing emails
+        }*/
+
+        // Handle potential blank values in "Contributed Support" and "Contribution Category"
+        if (!empty($line[1])) {
+            $support = $line[1];
         }
+        $currLineSupport = $support;
+
+        if (!empty($line[2])) {
+            $category = $line[2];
+        }
+        $currLineCategory = $category;
 
 
         // Process each line of the CSV file
@@ -69,90 +83,47 @@ function parseCSV($csvFilePath, $forceInsert = false){
         //validate phone number format (assuming phone number is in column index 8)
         if (!validatePhoneNumberFormat($line[8])) {
             //invalid; redirect with error message
-            header('Location: uploadForm.php?phoneFormatFail');
+            redirect('index.php?phoneFormatFail');
             exit;
         }
 
         //validate date format (assuming date is in column index 0)
         if (!validateDate($line[0])) {
             //invalid; redirect with error message
-            header('Location: uploadForm.php?dateFormatFail');
+            redirect('index.php?dateFormatFail');
             exit;
         }
 
         // Check for a valid email in the expected column (index 7)
         if (!validateEmail($line[7])) {
-            header('Location: uploadForm.php?emailFormatFail');
+            redirect('index.php?emailFormatFail');
             exit;
         }
 
         // Check for a valid zip code in the expected column (index 12)
         if (!validateZipcode($line[12])) {
-            header('Location: uploadForm.php?zipFormatFail');
+            redirect('index.php?zipFormatFail');
             exit;
         }
 
         // Process donor data
         processDonorData($line, $con);
-        processDonationData($line, $con, $forceInsert);
-
-        // If validations all pass, then create a new Donor and Donation object with the data from the current line
-        /*$donor = new Donor ($email, $company, $first_name, $last_name, $phone, $address, $city, $state, $zip);
-
-        $newID = count(get_all_donations()) + 1;
-        $donation = new Donation ($newID, $email, $date, $contributed_support, $contribution_category, $amount, $payment_method, $memo);
-
-        // With the following code below, should there be error handling regarding telling the user which lines successfully uploaded and which ones failed?
-
-        // Add or update donor info based on if the donor already exists
-        if (retrieve_donor($email) == null) {
-            $donor_result = add_donor($donor);
-        } else {
-            $donor_result = update_donor($donor);
-        }
-
-        // Check if the donor was successfully added/updated
-        if (!$donor_result) {
-            // If the donor wasn't successfully added/updated, redirect with an error message
-            header('Location: uploadForm.php?uploadFail');
-            exit;
-        }
-
-        // Retrieve the max donation ID to determine if the donation should be added or updated
-        // *******This needs to be changed to use the retrieve function that uses ami, date, and amount to check if the donation exists
-        // what is currently here is incorrect and was a mistake when some of the code was being restructured
-        if (getMaxDonationID() < $newID) {
-            $donation_result = add_donation($donation);
-        } else {
-            $donation_result = update_donation($donation);
-        }
-
-        // Check if the donation was successfully added/updated
-        if ($donation_result) {
-            // If successful, continue to the next line
-            continue;
-        } else {
-            // If the donation wasn't successfully added/updated, redirect with an error message
-            header('Location: uploadForm.php?uploadFail');
-            exit;
-        }*/
+        processDonationData($line, $con, $currLineSupport, $currLineCategory);
     }
 
     // Close the CSV file
     fclose($file);
 
     // Redirect with success message
-    header('Location: index.php?fileSuccess');
+    redirect('index.php?fileSuccess');
     exit;
 }
-
+ 
 function processDonorData($donorData, $con) {
     // Assuming donorData has the email as the unique identifier in the 6th position -- KEY WORD IS ASSUMING!!!
     $donorEmail = $donorData[7];
-    if (empty($donorEmail)) {
-        // Handle rows without email or log an error
-        error_log("Email column is empty for a row, skipping...");
-        return;
+    if (empty($donorEmail) || !checkDonorExists($donorEmail, $con)) {
+        addDonor($donorData, $con);
     }
 
     // Check if donor exists
@@ -168,9 +139,7 @@ function processDonorData($donorData, $con) {
 }
 
 // Call the parseCSV function with the CSV file path
-if (isset($_POST['forceInsert']) && $_POST['forceInsert'] === 'true') {
-    parseCSV($_FILES['file']['tmp_name'], true);
-} else {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     parseCSV($_FILES['file']['tmp_name']);
 }
 ?>
