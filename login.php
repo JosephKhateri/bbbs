@@ -18,7 +18,6 @@ Assigned Task - Excellent
 
     require_once('domain/User.php');
     require_once('database/dbUsers.php');
-    require_once('database/dbMessages.php');
     require_once('include/api.php');
     require_once('include/input-validation.php');
 
