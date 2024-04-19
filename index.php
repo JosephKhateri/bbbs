@@ -19,10 +19,8 @@
 
     // Get date?
     if (isset($_SESSION['_id'])) {
-        //$person = retrieve_person($_SESSION['_id']);
         $user = retrieve_user($_SESSION['_id']);
     }
-    //$notRoot = $person->get_id() != 'vmsroot';
     $notRoot = $user->get_id() != 'vmsroot';
 ?>
 <!DOCTYPE html>

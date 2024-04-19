@@ -33,7 +33,10 @@ Assigned Task - Excellent
         $userID = $_SESSION['_id'];
     }
     // Require admin privileges
-    if ($accessLevel < 2) {
+    if ($accessLevel == 1) {
+        redirect('index.php');
+        die();
+    } elseif ($accessLevel < 1) { // If not logged in, redirect to login page
         redirect('login.php');
         die();
     }

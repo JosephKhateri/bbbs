@@ -24,6 +24,12 @@
         $userID = $_SESSION['_id'];
     }
 
+    // Require user privileges
+    if ($accessLevel < 1) {
+        redirect('login.php');
+        die();
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Get the temporary file path
         $tmpFilePath = $_FILES['file']['tmp_name'];

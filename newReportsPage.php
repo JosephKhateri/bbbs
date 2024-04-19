@@ -14,6 +14,13 @@
      * Assigned Task - Excellent
      */
 
+    require_once('include/input-validation.php');
+    require_once('include/api.php');
+    require_once('database/dbinfo.php');
+    require_once('database/dbDonations.php');
+    require_once('database/dbDonors.php');
+    require_once('domain/Donor.php');
+    require_once('domain/Donation.php');
 
     session_cache_expire(30);
     session_start();
@@ -29,15 +36,11 @@
       $userID = $_SESSION['_id'];
     }
 
-    require_once('include/input-validation.php');
-    require_once('database/dbPersons.php');
-    require_once('database/dbEvents.php');
-    require_once('include/output.php');
-    require_once('database/dbinfo.php');
-    require_once('database/dbDonations.php');
-    require_once('database/dbDonors.php');
-    require_once('domain/Donor.php');
-    require_once('domain/Donation.php');
+    // Require user privileges
+    if ($accessLevel < 1) {
+        redirect('login.php');
+        die();
+    }
 
     $connection = connect();
     $donorsOver10K = [];
