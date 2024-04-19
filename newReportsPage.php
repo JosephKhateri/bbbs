@@ -19,7 +19,16 @@
     session_start();
     ini_set("display_errors",1);
     error_reporting(E_ALL);
-    $loggedIn = false;
+
+    require_once('include/input-validation.php');
+    require_once 'include/api.php';
+    require_once('database/dbinfo.php');
+    require_once('database/dbDonations.php');
+    require_once('database/dbDonors.php');
+    require_once('domain/Donor.php');
+    require_once('domain/Donation.php');
+
+$loggedIn = false;
     $accessLevel = 0;
     $userID = null;
     if (isset($_SESSION['_id'])) {
@@ -29,14 +38,11 @@
       $userID = $_SESSION['_id'];
     }
 
-    require_once('include/input-validation.php');
-    require_once('database/dbPersons.php');
-    require_once('include/output.php');
-    require_once('database/dbinfo.php');
-    require_once('database/dbDonations.php');
-    require_once('database/dbDonors.php');
-    require_once('domain/Donor.php');
-    require_once('domain/Donation.php');
+    // Require user privileges
+    if ($accessLevel < 1) {
+        redirect('login.php');
+        die();
+    }
 
     $connection = connect();
     $donorsOver10K = [];

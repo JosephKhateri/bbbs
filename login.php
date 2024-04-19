@@ -26,6 +26,7 @@ Assigned Task - Excellent
         redirect('index.php');
         die();
     }
+
     $badLogin = false;
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $ignoreList = array('password');

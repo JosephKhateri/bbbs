@@ -25,8 +25,11 @@
         $userID = $_SESSION['_id'];
     }
 
-    // require admin privileges
-    if ($accessLevel < 2) {
+    // Require admin privileges
+    if ($accessLevel == 1) {
+        redirect('index.php');
+        die();
+    } elseif ($accessLevel < 1) { // If not logged in, redirect to login page
         redirect('login.php');
         die();
     }

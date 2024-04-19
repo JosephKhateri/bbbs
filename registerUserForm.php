@@ -34,10 +34,14 @@ Assigned Task - Excellent
     }
 
     // Require admin privileges
-    if ($accessLevel < 2) {
+    if ($accessLevel == 1) {
+        redirect('index.php');
+        die();
+    } elseif ($accessLevel < 1) { // If not logged in, redirect to login page
         redirect('login.php');
         die();
     }
+
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Sanitize all input except for 'password'

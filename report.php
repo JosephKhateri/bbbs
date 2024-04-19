@@ -9,29 +9,31 @@
      * Assigned Task - Excellent
      */
 
-  session_cache_expire(30);
-  session_start();
-  ini_set("display_errors",1);
-  error_reporting(E_ALL);
-  $loggedIn = false;
-  $accessLevel = 0;
-  $userID = null;
-  if (isset($_SESSION['_id'])) {
+    session_cache_expire(30);
+    session_start();
+    ini_set("display_errors",1);
+    error_reporting(E_ALL);
+
+    require_once('include/input-validation.php');
+    require_once('database/dbPersons.php');
+    require_once ('include/api.php');
+    include_once('database/dbinfo.php');
+
+    $loggedIn = false;
+    $accessLevel = 0;
+    $userID = null;
+    if (isset($_SESSION['_id'])) {
       $loggedIn = true;
       // 0 = not logged in, 1 = standard user, 2 = manager (Admin), 3 super admin (TBI)
       $accessLevel = $_SESSION['access_level'];
       $userID = $_SESSION['_id'];
-  }
-  require_once('include/input-validation.php');
-  require_once('database/dbPersons.php');
+    }
 
-    // get animal data from database for form
-    // Connect to database
-    include_once('database/dbinfo.php'); 
-    $con=connect();  
-    // Get all the animals from animal table
-    $sql = "SELECT * FROM `dbAnimals`";
-    $all_animals = mysqli_query($con,$sql); 
+    // Require user privileges
+    if ($accessLevel < 1) {
+        redirect('login.php');
+        die();
+    }
 ?>
 <!DOCTYPE html>
 <html>
@@ -105,15 +107,9 @@
                         <option value="report2">Every Donor's Frequency of Giving</option>
                         <option value="report3">Donors Who Have Not Contributed For the Last 2 Years</option>
                         <option value="report4">Events Contributed</option>
-<<<<<<< Updated upstream
                         <option value="report5">Donors Whose Frequency of Giving is Greater Than Yearly</option>
                         <option value="report6">Non-Event Donors Who Have Donated in the Past Three Years</option>
                         <option value="report7">Event Donors Who Have Donated in the Past Three Years</option>
-=======
-                        <option value="report5">Donors whose Frequency of Giving is bigger than yearly</option>
-                        <option value="report6">Donors who have donated in the past three Years</option>
-                        <option value="report7">Event Donors Who Have Donated in the Past 3 Years</option>
->>>>>>> Stashed changes
                         <option value="report8">Top X Donors</option>
                         <option value="report9">Donors' Donation Funnels</option>
                         <option value="report10">Retention Rate</option>

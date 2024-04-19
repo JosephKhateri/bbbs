@@ -33,6 +33,9 @@ Assigned Task - Excellent
 
     // Prohibit vmsroot from accessing this page
     if ($accessLevel > 2) {
+        redirect('index.php');
+        die();
+    } elseif ($accessLevel < 1) { // If not logged in, redirect to login page
         redirect('login.php');
         die();
     }
