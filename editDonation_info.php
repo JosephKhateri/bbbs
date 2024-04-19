@@ -112,22 +112,21 @@
 // Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Retrieve form data
-    $DonationID = $_POST['DonationID'];
-    $Email = $_POST['Email'];
-    $DateOfContribution = $_POST['DateOfContribution'];
-    $ContributionSupportType = $_POST['ContributionSupportType'];
-    $ContributionCategory = $_POST['Con tributionCategory'];
-    $AmountGiven = $_POST['AmountGiven'];
-    $PaymentMethod = $_POST['PaymentMethod'];
-    $Memo = $_POST['Memo'];
+    $donationID = $_POST["DonationID"];
+    $email = $_POST['Email'];
+    $dateOfContribution = $_POST['DateOfContribution'];
+    $contributedSupportType = $_POST['ContributedSupportType'] ?? '';
+    $contributionCategory = $_POST['ContributionCategory'];
+    $amountGiven = $_POST['AmountGiven'];
+    $paymentMethod = $_POST['PaymentMethod'];
+    $memo = $_POST['Memo'];
+
     // Add other fields as needed
 
     // Update donor details in the database
-    $query = "UPDATE dbdonations SET Email='$Email', DateOfContribution='$DateOfContribution', 
-    ContributionSupportType='$ContributionSupportType', 
-    Con tributionCategory='$ContributionCategory', AmountGiven='$AmountGiven', 
-    DateOfContribution='$DateOfContribution', PaymentMethod='$PaymentMethod', Memo='$Memo' WHERE DonorID=$donorID";
-    // Add other fields to the query if needed
+    $query = "UPDATE dbdonations SET Email='$email', DateOfContribution='$dateOfContribution', ContributedSupportType='$contributedSupportType', ContributionCategory='$contributionCategory', AmountGiven='$amountGiven', PaymentMethod='$paymentMethod', Memo='$memo' WHERE DonationID=$donationID";
+
+   
 
     if (mysqli_query($connection, $query)) {
         echo "Donation details updated successfully.";

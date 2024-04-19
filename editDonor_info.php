@@ -1,15 +1,40 @@
 <?php
-    // Edited by Megan and Noor for BBBS in Spring 2024
-    // Purpose: Allows users to view all donors
+ /**
+ * @version April 6, 2023
+ * @author Joel
+ */
 
-    // Make session information accessible, allowing us to associate
-    // data with the logged-in user.
-    session_cache_expire(30);
-    session_start();
 
-    ini_set("display_errors",1);
-    error_reporting(E_ALL);
+ session_cache_expire(30);
+ session_start();
+ ini_set("display_errors",1);
+ error_reporting(E_ALL);
+ $loggedIn = false;
+ $accessLevel = 0;
+ $userID = null;
+ //if (isset($_SESSION['_id'])) {
+     $loggedIn = true;
+     // 0 = not logged in, 1 = standard user, 2 = manager (Admin), 3 super admin (TBI)
+     $accessLevel = 3;//$_SESSION['access_level'];
+     $userID = 'vmsroot';//$_SESSION['_id'];
+ //}
 
+<<<<<<< HEAD
+ require_once('include/input-validation.php');
+ require_once('database/dbPersons.php');
+ require_once('database/dbEvents.php');
+ require_once('include/output.php');
+ require_once('database/dbinfo.php');
+ 
+ 
+ // Create connection
+ $connection = connect();
+ 
+ // Check connection
+ if (!$connection) {
+   die("Connection failed: " . mysqli_connect_error());
+ }   
+=======
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
@@ -46,13 +71,14 @@
     die("Connection failed: " . mysqli_connect_error());
   }
     
+>>>>>>> ee00f4d846a1ccfd45fab80769eb701faa885d05
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
     <?php require_once('universal.inc') ?>
-    <title>BBBS | Edit Donor Info</title>
+    <title>BBBS | Edit Donation Details</title>
     <style>
         /* Targeting the select element and option elements */
         select, option, input {
@@ -108,29 +134,54 @@
                 margin-bottom: 5rem;
             }
         </style>
-<?php
-// Check if form is submitted
+ <?php
+// Ensure that the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Retrieve form data
-    $donorID = $_POST['donorID'];
-    $firstName = $_POST['firstName'];
-    $lastName = $_POST['lastName'];
-    // Add other fields as needed
-
-    // Update donor details in the database
-    $query = "UPDATE dbdonors SET FirstName='$firstName', LastName='$lastName' WHERE DonorID=$donorID";
-    // Add other fields to the query if needed
-
-    if (mysqli_query($connection, $query)) {
-        echo "Donor details updated successfully.";
+    // Check if all required fields are set
+    if (isset($_POST['Email']) && isset($_POST['firstName']) && isset($_POST['lastName']) && isset($_POST['Company']) && isset($_POST['PhoneNumber']) && isset($_POST['Address']) && isset($_POST['City']) && isset($_POST['State']) && isset($_POST['Zip'])) {
+        // Database connection
+        require_once('database/dbinfo.php'); // Include your database connection file here
+        
+        // Create connection
+        $connection = connect();
+        
+        // Check connection
+        if (!$connection) {
+            die("Connection failed: " . mysqli_connect_error());
+        }
+        
+        // Prepare SQL statement to update donor information
+        $email = $_POST['Email'];
+        $firstName = $_POST['firstName'];
+        $lastName = $_POST['lastName'];
+        $company = $_POST['Company'];
+        $phoneNumber = $_POST['PhoneNumber'];
+        $address = $_POST['Address'];
+        $city = $_POST['City'];
+        $state = $_POST['State'];
+        $zip = $_POST['Zip'];
+        
+        $sql = "UPDATE dbdonors SET FirstName='$firstName', LastName='$lastName', Company='$company', PhoneNumber='$phoneNumber', Address='$address', City='$city', State='$state', Zip='$zip' WHERE Email='$email'";
+        
+        if (mysqli_query($connection, $sql)) {
+            // Success message
+            echo "Donor information updated successfully<br>";
+            // Link to return to dashboard
+            echo "<a href='viewAllDonors.php'>Return to Dashboard</a>";
+        } else {
+            // Error message
+            echo "Error updating donor information: " . mysqli_error($connection);
+            // Link to return to dashboard
+            echo "<br><a href='viewAllDonors.php'>Return to Dashboard</a>";
+        }
+        
+        // Close connection
+        mysqli_close($connection);
     } else {
-        echo "Error updating donor details: " . mysqli_error($connection);
+        echo "All fields are required";
     }
+} else {
+    echo "Invalid request";
 }
 ?>
 
-        <br>
-        <a class="button cancel" href="index.php" style="margin-top: -.5rem">Return to Dashboard</a>
-    </main>
-</body>
-</html>

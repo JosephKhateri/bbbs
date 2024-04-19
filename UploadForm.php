@@ -36,13 +36,12 @@
         $fileType = mime_content_type($tmpFilePath);
         //Filepath printing for debugging
         //echo $tmpFilePath;
-        //echo $fileType;
+        echo $fileType;
         if (($fileType == 'text/csv') || ($fileType == 'text/plain')) {
             require 'upload.php';
             parseCSV($tmpFilePath);
         } else {
-            echo $fileType;
-            redirect('index.php?fileTypeFail');
+            //redirect('index.php?fileTypeFail');
         }
     }    
 ?>
@@ -82,20 +81,6 @@
 <body>
     <?php require('header.php'); ?>
     <h1>Upload File</h1>
-
-    <!-- Error handling for invalid data -->
-    <?php if (isset($_GET['phoneFormatFail'])): ?>
-        <div class="error-toast">Invalid phone number format. Make sure the phone number contains no dashes and is 10 characters long</div>
-    <?php elseif (isset($_GET['dateFormatFail'])): ?>
-        <div class="error-toast">Invalid date format. Make sure the date is in YYYY-MM-DD format.</div>
-    <?php elseif (isset($_GET['emailFormatFail'])): ?>
-        <div class="error-toast">Invalid email. Try again with a correct email.</div>
-    <?php elseif (isset($_GET['zipFormatFail'])): ?>
-        <div class="error-toast">Invalid zip code. Make sure the Zip is only 5 numbers long.</div>
-    <?php elseif (isset($_GET['uploadFail'])): ?>
-        <div class="error-toast">There was an issue with uploading the data. Please try again later.</div>
-    <?php endif ?>
-
     <main class="upload"> 
     <h2>Please select a CSV file to upload </h2>
         
@@ -124,8 +109,8 @@
         
     </main>
 
-    
 <script>
+        // Something in the following script is fucked up
     document.addEventListener('DOMContentLoaded', function() {
         var form = document.querySelector('form[name="uploadFile"]');
         form.addEventListener('submit', function(e) {

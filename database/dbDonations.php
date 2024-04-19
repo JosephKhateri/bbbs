@@ -414,7 +414,7 @@
         }
     }
 
-    function processDonationData($donationData, $con, $support, $category, $forceInsert = false) {
+    function processDonationData($donationData, $con, $support, $category) {
         $email = trim($donationData[7]);
         $dateOfContribution = date('Y-m-d', strtotime($donationData[0]));
         $amountGiven = $donationData[3];
@@ -429,12 +429,9 @@
         // Check if the donation exists based on email, date, and amount
         $donationExists = checkDonationExists($email, $dateOfContribution, $amountGiven, $con);
     
-        if ($donationExists && !$forceInsert) {
-            echo json_encode(['status' => 'duplicate', 'message' => 'Duplicate detected. Do you want to proceed?']);
-            exit;
-        } else {
+        if (!empty($email) && !checkDonationExists($email, $dateOfContribution, $amountGiven, $con)) {
+            $newID = getMaxDonationID($con) + 1;
             addDonation($donationData, $con, $newID, $support, $category);
-            return ['status' => 'success', 'message' => 'Donation added successfully'];
         }
             
     }
