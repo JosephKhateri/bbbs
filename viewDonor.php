@@ -58,12 +58,15 @@
                     return strtotime($b->get_contribution_date()) - strtotime($a->get_contribution_date());
                 });
 
+                // Get the donor's donation frequency and the description of the frequency
                 $frequency = get_donation_frequency($donorEmail);
                 $frequency_description = get_description($frequency);
 
+                // Get the donor's retention status and the description of the status
                 $status = get_donor_status($donorEmail);
                 $status_description = get_description($status);
 
+                // Get the donor's donation funnel and the description of the funnel
                 $funnel = determine_donation_funnel($donorEmail);
                 $funnel_description = get_description($funnel);
 
@@ -380,7 +383,9 @@
                     <td><?php echo $frequency ?>*</td>
                     <td>$<?php echo get_total_amount_donated($donor->get_email()) ?></td>
                     <td><?php echo $status ?>**</td>
-                    <td><?php echo $funnel ?>***</td>
+                    <td>
+                        <?php echo ($funnel !== "N/A") ? $funnel . '***' : $funnel ?>
+                    </td>
                     <td><?php echo $donor_type ?></td>
                 </tr>
             </table>
@@ -388,7 +393,9 @@
             <!-- Display descriptions for donation frequency, retention, and funnel -->
             <p style="margin: 0; padding: 0; line-height: 0.75"> <small>* <?php echo $frequency_description ?></small> </p>
             <p style="margin: 0; padding: 0; line-height: 0.75"> <small>** <?php echo $status_description ?></small> </p>
-            <p style="margin: 0; padding: 0; line-height: 0.75"> <small>*** <?php echo $funnel_description ?></small> </p>
+            <?php if ($funnel !== "N/A"): ?> <!-- Only display funnel description if $funnel isn't "N/A" -->
+                <p style="margin: 0; padding: 0; line-height: 0.75"> <small>*** <?php echo $funnel_description ?></small> </p>
+            <?php endif; ?>
 
             <!-- Add a line break -->
             <tr><td colspan="5">&nbsp;</td></tr>
