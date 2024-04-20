@@ -155,10 +155,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <option value="">Select Donation</option>
         <?php
         // Display donor names in dropdown list
-        $query = "SELECT * FROM dbdonations";
+        $query = "SELECT do.DonationID, do.DateOfContribution, do.AmountGiven, 
+        d.FirstName, d.LastName
+        FROM dbDonations do
+        INNER JOIN dbDonors d ON do.Email = d.Email";
         $result = mysqli_query($connection, $query);
         while ($row = mysqli_fetch_assoc($result)) {
-            echo "<option value='" . $row['DonationID'] . "'>" . $row['Email'] .  "</option>";
+            echo "<option value='" . $row['DonationID'] . "'>" . $row['FirstName'] . " &nbsp " . $row['LastName'] . " &nbsp &nbsp " . $row['DateOfContribution'] . " &nbsp &nbsp " . $row['AmountGiven'] . "</option>";
         }
         ?>
     </select>

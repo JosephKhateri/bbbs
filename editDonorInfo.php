@@ -128,11 +128,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
-<h2>Select a Donation to Edit</h2>
+<h2>Select a Donor to Edit</h2>
 <form method="get" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
     <label for="donor">Select Donor:</label>
     <select name="donor" id="donor" onchange="toggleSubmit()">
-        <option value="">Select Donation</option>
+        <option value="">Select Donor</option>
         <?php
         // Display donor names in dropdown list
         $query = "SELECT * FROM dbdonors";
