@@ -127,13 +127,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (mysqli_query($connection, $sql)) {
             // Success message
             echo "Donor information updated successfully<br>";
-            // Link to return to dashboard
-            echo "<a href='viewAllDonors.php'>Return to Dashboard</a>";
+             
         } else {
             // Error message
             echo "Error updating donor information: " . mysqli_error($connection);
-            // Link to return to dashboard
-            echo "<br><a href='viewAllDonors.php'>Return to Dashboard</a>";
+             
         }
         
         // Close connection
@@ -145,4 +143,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo "Invalid request";
 }
 ?>
+
+<br>
+         <a class="button cancel" href="index.php" style="margin-top: -.5rem">Return to Dashboard</a>
+     </main>
+ </body>
+ </html>
 
