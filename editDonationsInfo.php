@@ -63,6 +63,23 @@
         }*/
     </style>
 
+<script>
+    /*Script making the Get button inactive if no donor is selected*/
+    function toggleSubmit() {
+        var donorSelect = document.getElementById("donor");
+        var submitButton = document.getElementById("submitButton");
+        
+        // Check if a donor has been selected
+        if (donorSelect.value !== "") {
+            submitButton.disabled = false; // Enable the submit button
+        } else {
+            submitButton.disabled = true; // Disable the submit button
+        }
+    }
+</script>
+
+    
+
 </head>
 <body>
     <?php require_once('header.php') ?>
@@ -133,18 +150,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <h2>Select a Donation to Edit</h2>
 <form method="get" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
     <label for="donor">Select Donation:</label>
-    <select name="donor" id="donor">
+    <select name="donor" id="donor" onchange="toggleSubmit()">
         <option value="">Select Donation</option>
         <?php
         // Display donor names in dropdown list
-        $query = "SELECT * FROM dbdonations";
+        $query = "SELECT do.DonationID, do.DateOfContribution, do.AmountGiven, 
+        d.FirstName, d.LastName
+        FROM dbDonations do
+        INNER JOIN dbDonors d ON do.Email = d.Email";
         $result = mysqli_query($connection, $query);
         while ($row = mysqli_fetch_assoc($result)) {
-            echo "<option value='" . $row['DonationID'] . "'>" . $row['Email'] .  "</option>";
+            echo "<option value='" . $row['DonationID'] . "'>" . $row['FirstName'] . " &nbsp " . $row['LastName'] . " &nbsp &nbsp " . $row['DateOfContribution'] . " &nbsp &nbsp " . $row['AmountGiven'] . "</option>";
         }
         ?>
     </select>
-    <input type="submit" value="Get">
+    <input type="submit" value="Get" id="submitButton" disabled>
 </form>
 
 <?php

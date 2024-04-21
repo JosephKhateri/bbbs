@@ -1,10 +1,11 @@
+ 
 <?php
  /**
  * @version April 6, 2023
  * @author Joel
  */
 
-/*
+
  session_cache_expire(30);
  session_start();
  ini_set("display_errors",1);
@@ -18,7 +19,7 @@
      $accessLevel = 3;//$_SESSION['access_level'];
      $userID = 'vmsroot';//$_SESSION['_id'];
  //}
-*/
+
 
  require_once('include/input-validation.php');
  require_once('database/dbPersons.php');
@@ -34,19 +35,7 @@
      die("Connection failed: " . mysqli_connect_error());
  }
  
- // Fetch donor details from the database
- $query = "SELECT Email, FirstName, LastName, Company, PhoneNumber, Address, City, State, Zip FROM dbdonors";
- $result = mysqli_query($connection, $query);
  
- // Check if any donor found
- if ($result && mysqli_num_rows($result) > 0) {
-     $donor = mysqli_fetch_assoc($result);
- } else {
-     echo "No donor found.";
- }
- 
- // Close connection
- mysqli_close($connection);
  ?>
  
  <!DOCTYPE html>
@@ -75,6 +64,21 @@
              background-size: .65em auto;
          }*/
      </style>
+
+<script>
+    /*Script making the Get button inactive if no donor is selected*/
+    function toggleSubmit() {
+        var donorSelect = document.getElementById("donor");
+        var submitButton = document.getElementById("submitButton");
+        
+        // Check if a donor has been selected
+        if (donorSelect.value !== "") {
+            submitButton.disabled = false; // Enable the submit button
+        } else {
+            submitButton.disabled = true; // Disable the submit button
+        }
+    }
+</script>
  
  </head>
  <body>
@@ -86,41 +90,95 @@
              /* Define your styles here */
          </style>
  
-         <?php
-         // Display selected donor details for editing
-         if (!empty($donor)) {
-             ?>
-             <h2>Edit Donor Details</h2>
-             <form method="post" action="editDonor_info.php">
-                 <!-- Populate form fields with donor details -->
-                 <input type="hidden" name="Email" value="<?php echo $donor['Email']; ?>">
-                 <label for="firstName">First Name:</label>
-                 <input type="text" name="firstName" id="firstName" value="<?php echo $donor['FirstName']; ?>"><br><br>
-                 <label for="lastName">Last Name:</label>
-                 <input type="text" name="lastName" id="lastName" value="<?php echo $donor['LastName']; ?>"><br><br>
-                 <label for="Company">Company:</label>
-                 <input type="text" name="Company" id="Company" value="<?php echo $donor['Company']; ?>"><br><br>
-                 <label for="PhoneNumber">Phone Number:</label>
-                 <input type="text" name="PhoneNumber" id="PhoneNumber" value="<?php echo $donor['PhoneNumber']; ?>"><br><br>
-                 <label for="Address">Address:</label>
-                 <input type="text" name="Address" id="Address" value="<?php echo $donor['Address']; ?>"><br><br>
-                 <label for="City">City:</label>
-                 <input type="text" name="City" id="City" value="<?php echo $donor['City']; ?>"><br><br>
-                 <label for="State">State:</label>
-                 <input type="text" name="State" id="State" value="<?php echo $donor['State']; ?>"><br><br>
-                 <label for="Zip">Zip Code:</label>
-                 <input type="text" name="Zip" id="Zip" value="<?php echo $donor['Zip']; ?>"><br><br>
-                 <input type="submit" value="Update">
-             </form>
-             <?php
-         } else {
-             echo "No donor found.";
-         }
-         ?>
+ <?php
+
+// Fetch donor details from the database
+$query = "SELECT Email FROM dbdonors";
+$result = mysqli_query($connection, $query);
+
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['donor'])) {
+    $Email = $_GET['donor'];
+
+    echo "Selected donor: ".$Email;
+
+    // Fetch the selected donor's details from the database
+    $query = "SELECT * FROM dbdonors WHERE Email = '$Email'"; // Add single quotes around $Email
+    $result = mysqli_query($connection, $query);
+
+    // Check if any donors found
+    if ($result && mysqli_num_rows($result) > 0) {
+        $donor = mysqli_fetch_assoc($result);
+    } else {
+        echo "No donors found.";
+    }
+}
+
+// Check if the form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Check if a donor is selected
+    if (!empty($_POST['donor'])) {
+        $Email = $_POST['donor'];
+
+        // Fetch the selected donor's details from the database
+        $query = "SELECT * FROM dbdonors WHERE Email = '$Email'"; // Add single quotes around $Email
+        $result = mysqli_query($connection, $query);
+        $donor = mysqli_fetch_assoc($result);
+    }
+}
+?>
+
+<h2>Select a Donor to Edit</h2>
+<form method="get" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+    <label for="donor">Select Donor:</label>
+    <select name="donor" id="donor" onchange="toggleSubmit()">
+        <option value="">Select Donor</option>
+        <?php
+        // Display donor names in dropdown list
+        $query = "SELECT * FROM dbdonors";
+        $result = mysqli_query($connection, $query);
+        while ($row = mysqli_fetch_assoc($result)) {
+            echo "<option value='" . $row['Email'] . "'>" . $row['Email'] .  "</option>";
+        }
+        ?>
+    </select>
+    <input type="submit" value="Get" id="submitButton" disabled>
+</form>
+
+<?php
+// Display selected donor details for editing
+if (!empty($donor)) {
+    ?>
+    <h2>Edit Donor Details</h2>
+    <form method="post" action="editDonor_info.php">
+        <!-- Populate form fields with donor details -->
+        <input type="hidden" name="Email" value="<?php echo $donor['Email']; ?>">
+        <label for="firstName">First Name:</label>
+        <input type="text" name="firstName" id="firstName" value="<?php echo $donor['FirstName']; ?>"><br><br>
+        <label for="lastName">Last Name:</label>
+        <input type="text" name="lastName" id="lastName" value="<?php echo $donor['LastName']; ?>"><br><br>
+        <label for="Company">Company:</label>
+        <input type="text" name="Company" id="Company" value="<?php echo $donor['Company']; ?>"><br><br>
+        <label for="PhoneNumber">Phone Number:</label>
+        <input type="text" name="PhoneNumber" id="PhoneNumber" value="<?php echo $donor['PhoneNumber']; ?>"><br><br>
+        <label for="Address">Address:</label>
+        <input type="text" name="Address" id="Address" value="<?php echo $donor['Address']; ?>"><br><br>
+        <label for="City">City:</label>
+        <input type="text" name="City" id="City" value="<?php echo $donor['City']; ?>"><br><br>
+        <label for="State">State:</label>
+        <input type="text" name="State" id="State" value="<?php echo $donor['State']; ?>"><br><br>
+        <label for="Zip">Zip Code:</label>
+        <input type="text" name="Zip" id="Zip" value="<?php echo $donor['Zip']; ?>"><br><br>
+        <input type="submit" value="Update">
+    </form>
+    <?php
+}
+?>
+
  
          <br>
          <a class="button cancel" href="index.php" style="margin-top: -.5rem">Return to Dashboard</a>
      </main>
  </body>
  </html>
+ 
  
