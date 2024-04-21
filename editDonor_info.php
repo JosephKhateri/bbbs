@@ -19,22 +19,6 @@
      $userID = 'vmsroot';//$_SESSION['_id'];
  //}
 
-<<<<<<< HEAD
- require_once('include/input-validation.php');
- require_once('database/dbPersons.php');
- require_once('database/dbEvents.php');
- require_once('include/output.php');
- require_once('database/dbinfo.php');
- 
- 
- // Create connection
- $connection = connect();
- 
- // Check connection
- if (!$connection) {
-   die("Connection failed: " . mysqli_connect_error());
- }   
-=======
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
@@ -71,7 +55,6 @@
     die("Connection failed: " . mysqli_connect_error());
   }
     
->>>>>>> ee00f4d846a1ccfd45fab80769eb701faa885d05
 ?>
 
 <!DOCTYPE html>
