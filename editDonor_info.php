@@ -36,7 +36,6 @@
     }
 
     require_once('include/input-validation.php');
-  require_once('database/dbPersons.php');
   require_once('include/output.php');
   require_once('database/dbinfo.php');
   

@@ -15,7 +15,6 @@
     error_reporting(E_ALL);
 
     require_once('include/input-validation.php');
-    require_once('database/dbPersons.php');
     require_once ('include/api.php');
     include_once('database/dbinfo.php');
 
