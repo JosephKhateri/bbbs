@@ -116,14 +116,13 @@ function reportFrequencyOfGiving($connection) {
                 echo "<br>";
 
                 // Display the donation frequency categories
-                /*echo "<h4 style='margin: 0; padding: 0; margin-left: 150px'> Donation Frequency Categories:</h4>";
-                echo "<p style='margin: 0; padding: 0; margin-left: 150px'> 
-                        - Monthly: Donated at least twice each month for the past 2 months</p>";
-                echo "<p style='margin: 0; padding: 0; margin-left: 150px'> 
-                        - Yearly: Donated at least once each year for the past 2 years</p>";
-                echo "<p style='margin: 0; padding: 0; margin-left: 150px'> 
-                        - Sporadic: Donates inconsistently</p>";
-                echo "<br>";*/
+                echo "<h4 style='margin: 0; padding: 0; margin-left: 150px'> Donation Frequency Categories:</h4>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Monthly: Donated at least twice each month for the past 2 months</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Yearly: Donated at least once each year for the past 2 years</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Sporadic: Donates inconsistently</p>";
 
                       echo "<table id='FrequencyOfGivingTable'>";
                       echo "<tr>
@@ -485,6 +484,18 @@ function reportDonationStage(){
 
     if (count($donors) > 0) { // If we have donors, display the report
         echo "<h2 style='text-align: center;'>Donors' Donation Funnels</h2>";
+        // Display the donation funnels
+        echo "<h4 style='margin: 0; padding: 0; margin-left: 150px'> Donation Funnels:</h4>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Interested: Donor has donated at least once in the past 3 years</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Donor: Donor has donated at least once a year in the past 3 years</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Engaged: Donor has donated at least 3 times in the past 5 years</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Loyal Donor: Donor has donated at least 5 times in the past 5 years</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Leadership Donor: Donor has donated over $10,000</p>";
         echo "<table id='DonationStageTable'>";
         echo "<tr>
                 <th onclick='sortTable(\"DonationStageTable\", 0,)'>Email</th>
@@ -561,15 +572,17 @@ function reportMultiDonors(){
                 // Display # of multiyear donors and retention rate
                 echo "<div style='text-align: center;'>";
                     echo "<div style='display: inline-block; margin-right: 50px;'>";
-                        echo "<h2>Number of Multi-Year Donors: " . count($MultiYearDonors) . "</h2>";
+                        echo "<h2 style='text-align: center'>Number of Multi-Year<br>Donors: " . count($MultiYearDonors) . "</h2>";
+                        echo "<p><small>Donors who have donated both in the current year and the previous year</small></p>";
                     echo "</div>";
                     echo "<div style='display: inline-block; padding-left: 50px;'>"; // Added padding-left for spacing
-                        echo "<h2>Retention Rate: $RetentionRate</h2>";
+                        echo "<h2 style='text-align: center'>Retention Rate: $RetentionRate</h2>";
+                        echo "<p><small>Percentage of donors who have donated both in the current year and the previous year</small></p>";
                     echo "</div>";
                 echo "</div>";
 
                 // Add line breaks for increased spacing
-                echo "<br><br><br>"; // Add multiple <br> tags for increased line break
+                echo "<br>"; // Add multiple <br> tags for increased line break
 
                 //Create a Table of all the Multi-Year Donors
                 echo "<h2 style='text-align: center;'>Multi-Year Donors</h2>";
@@ -643,6 +656,18 @@ function displayTopDonorsForm($currentValue) {
                 text-align: left;
                 padding: 8px;
 		        font-weight: 500;
+            }
+            th > img {
+                height: 1.5rem;
+                float: right; /* Aligns the image to the right */
+                margin-left: 8px; /* Adds some space between text and image */
+            }
+
+            #donorTable th,
+            #donorTable td {
+                width: 150px; /* Adjust the width as per your design */
+                /* You can also use percentages for responsive design */
+                /* width: 25%; */
             }
           
             tr:nth-child(even) {
