@@ -212,9 +212,7 @@
 
             #donorTable th,
             #donorTable td {
-                width: 150px; /* Adjust the width as per your design */
-                /* You can also use percentages for responsive design */
-                /* width: 25%; */
+                width: 150px; /* Adjust the width of each column */
             }
 
             /* CSS for the filter popup */
@@ -418,12 +416,11 @@
             <?php
                 foreach ($donors as $donor) {
                     echo "<tr>";
-                    echo "<td><a href='viewDonor.php?donor=" . $donor->get_email() . "'>" . $donor->get_email() . "</a></td>";
-                    echo "<td>" . $donor->get_first_name() . "</td>";
-                    echo "<td>" . $donor->get_last_name() . "</td>";
-                    echo "<td>" . $donor->get_company() . "</td>";
-                    echo "<td><a href='editDonorInfo.php?donor=" . $donor->get_email() . "'>Edit</a></td>";
-                    
+                        echo "<td><a href='viewDonor.php?donor=" . $donor->get_email() . "'>" . $donor->get_email() . "</a></td>";
+                        echo "<td>" . $donor->get_first_name() . "</td>";
+                        echo "<td>" . $donor->get_last_name() . "</td>";
+                        echo "<td>" . $donor->get_company() . "</td>";
+                        echo "<td><a href='editDonorInfo.php?donor=" . $donor->get_email() . "'>Edit</a></td>";
                     echo "</tr>";
 
                 }
