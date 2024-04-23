@@ -626,7 +626,7 @@ function reportMultiDonors(){
             echo "Inactive Donor: ".get_description("Inactive Donor")."<br>";
             
             }else{
-                echo "<p>Not enough Multi-Year Donors are available to make the report.</p>";
+                echo "<p>Not enough Donors are available to make the report.</p>";
             }
     }
     //End of report 
