@@ -41,7 +41,7 @@
             require 'upload.php';
             parseCSV($tmpFilePath);
         } else {
-            //redirect('index.php?fileTypeFail');
+            redirect('index.php?fileTypeFail');
         }
     }    
 ?>
