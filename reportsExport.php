@@ -610,45 +610,59 @@ function exportDonorsRR() {
     $donors=get_all_donors();
     //Array for Multi-Year Donors
     $MultiYearDonors=array();
-
+    //Counter for Multi-Year Donors
+    $MultiCounter=0;
     foreach($donors as $donor){
         //Go through each donor and see if they are a Multi-Year donor
         //and add to Multi-Year array if they are and increas the Multi
         //Counter.
         $dmail=$donor->get_email();
         $type= get_donor_status($dmail);
+        $MultiYearDonors[]=$donor;
         if($type=="Multiyear Donor"){
-            $MultiYearDonors[]=$donor;
+            $MultiCounter++;
         }
     }
 
     //Generate Table and Calculate Retention Rate of Multi Year Donors
     if(count($MultiYearDonors)>0){
-        $RetentionRate=(count($MultiYearDonors)/count($donors))*100;
+        $RetentionRate=($MultiCounter/count($donors))*100;
         $RetentionRate=$RetentionRate."%";
         //Put the Number of Multi-Year Donors and Retention Rate in the CSV as well
         fputcsv($output, array('Number of Multi-Year Donors', 'Retention Rate'));
-        fputcsv($output, array(count($MultiYearDonors), $RetentionRate));
+        fputcsv($output, array($MultiCounter, $RetentionRate));
         //Add a few blank lines to make the thing easier to read
         fputcsv($output, array());
         fputcsv($output, array());
         fputcsv($output, array());
+        
+        //Descriptions of Every type
+        fputcsv($output, array('New Year Donor', get_description("New Donor")));
+        fputcsv($output, array('Multi-Year Donors', get_description("Multiyear Donor")));
+        fputcsv($output, array('Returning Donors', get_description("Returning Donor")));
+        fputcsv($output, array('Formely Active Donors', get_description("Formerly Active Donor")));
+        fputcsv($output, array('Inactive  Donors', get_description("Inactive Donor")));
 
+        //Add a few blank lines to make the thing easier to read
+        fputcsv($output, array());
+        fputcsv($output, array());
+        fputcsv($output, array());
+        
         // Write the CSV header
-        fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number'));
+        fputcsv($output, array('Email', 'First Name', 'Last Name', 'Donor Status', 'Phone Number'));
 
         foreach($MultiYearDonors as $donor){
             // Get the donor details
             $donor_first_name = $donor->get_first_name();
             $donor_last_name = $donor->get_last_name();
             $donor_email = $donor->get_email();
-            $phone = $donor->get_phone();    
-            
+            $phone = $donor->get_phone();
+
             //Format the Phone Number
             $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
             
             //Write Multi-Year Donor's Details to CSV File
-            fputcsv($output, array($donor_email, $donor_first_name, $donor_last_name, $formattedPhone));
+            fputcsv($output, array($donor_email, $donor_first_name, $donor_last_name, get_donor_status($donor_email), $formattedPhone));
         }  
     }
     fclose($output);

@@ -548,21 +548,24 @@ function reportMultiDonors(){
             $donors=get_all_donors();
             //Array for Multi-Year Donors
             $MultiYearDonors=array();
-
+            //Counter for Multi Year Donors
+            $MultiCounter=0;
             foreach($donors as $donor){
                 //Go through each donor and see if they are a Multi-Year donor
                 //and add to Multi-Year array if they are and increas the Multi
                 //Counter.
                 $dmail=$donor->get_email();
                 $type= get_donor_status($dmail);
+                $MultiYearDonors[]=$donor;
+                
                 if($type=="Multiyear Donor"){
-                    $MultiYearDonors[]=$donor;
+                    $MultiCounter++;
                 }
             }
 
             //Generate Table and Calculate Retention Rate of Multi Year Donors
             if(count($MultiYearDonors)>0){
-                $RetentionRate=(count($MultiYearDonors)/count($donors))*100;
+                $RetentionRate=($MultiCounter/count($donors))*100;
                 $RetentionRate=substr($RetentionRate,0,5);
                 $RetentionRate=$RetentionRate."%";
 
@@ -572,7 +575,7 @@ function reportMultiDonors(){
                 // Display # of multiyear donors and retention rate
                 echo "<div style='text-align: center;'>";
                     echo "<div style='display: inline-block; margin-right: 50px;'>";
-                        echo "<h2 style='text-align: center'>Number of Multi-Year<br>Donors: " . count($MultiYearDonors) . "</h2>";
+                        echo "<h2 style='text-align: center'>Number of Multi-Year<br>Donors: " . $MultiCounter . "</h2>";
                         echo "<p><small>Donors who have donated both in the current year and the previous year</small></p>";
                     echo "</div>";
                     echo "<div style='display: inline-block; padding-left: 50px;'>"; // Added padding-left for spacing
@@ -591,7 +594,8 @@ function reportMultiDonors(){
                         <th onclick='sortTable(\"MultiDonorsTable\", 0,)'>Email</th>
                         <th onclick='sortTable(\"MultiDonorsTable\", 1)'>First Name</th>
                         <th onclick='sortTable(\"MultiDonorsTable\", 2)'>Last Name</th>
-                        <th onclick='sortTable(\"MultiDonorsTable\", 3)'>Phone Number</th>
+                        <th onclick='sortTable(\"MultiDonorsTable\", 3)'>Retention Status</th>
+                        <th onclick='sortTable(\"MultiDonorsTable\", 4)'>Phone Number</th>
                     </tr>";
                 foreach($MultiYearDonors as $donor){
                     // Get the donor details
@@ -609,10 +613,18 @@ function reportMultiDonors(){
                     <td>" . htmlspecialchars($donor_email) . "</td>
                     <td>" . htmlspecialchars($donor_first_name) . "</td>
                     <td>" . htmlspecialchars($donor_last_name) . "</td>
+                    <td>" . htmlspecialchars(get_donor_status($donor_email)) . "</td>
                     <td>" . htmlspecialchars($formattedPhone) . "</td>
                     </tr>";
                 }
             echo "</table>";
+            
+            echo "New Year Donor: ".get_description("New Donor")."<br>";
+            echo "Multi Year Donor: ".get_description("Multiyear Donor")."<br>";
+            echo "Returning Donor: ".get_description("Returning Donor")."<br>";
+            echo "Formely Active Donor: ".get_description("Formerly Active Donor")."<br>";
+            echo "Inactive Donor: ".get_description("Inactive Donor")."<br>";
+            
             }else{
                 echo "<p>Not enough Multi-Year Donors are available to make the report.</p>";
             }
