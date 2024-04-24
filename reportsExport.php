@@ -400,7 +400,8 @@ function exportDonorsFOGGTY() {
 		
 		// Frequency of Giving
 		$FOG = get_donation_frequency($row["Email"]);
-		if ($FOG == "Monthly"){
+        $FUN= determine_donation_GTY($row["Email"]);
+		if ($FOG == "Monthly" || $FUN == "Greater Than Yearly"){
 		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $FOG, $row['DateDiff']));
 		}
 	}

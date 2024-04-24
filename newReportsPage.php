@@ -297,7 +297,6 @@ function reportFrequencyGreaterThanYearly($connection) {
                             <td>" . htmlspecialchars($formattedPhone) . "</td>
                             <td>" . htmlspecialchars($FOG) . "</td>
                             <td>" . number_format($row['DateDiff']) . "</td>
-                            
                           </tr>";
                         }
                 }
