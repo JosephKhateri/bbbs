@@ -9,29 +9,30 @@
      * Assigned Task - Excellent
      */
 
-  session_cache_expire(30);
-  session_start();
-  ini_set("display_errors",1);
-  error_reporting(E_ALL);
-  $loggedIn = false;
-  $accessLevel = 0;
-  $userID = null;
-  if (isset($_SESSION['_id'])) {
+    session_cache_expire(30);
+    session_start();
+    ini_set("display_errors",1);
+    error_reporting(E_ALL);
+
+    require_once('include/input-validation.php');
+    require_once ('include/api.php');
+    include_once('database/dbinfo.php');
+
+    $loggedIn = false;
+    $accessLevel = 0;
+    $userID = null;
+    if (isset($_SESSION['_id'])) {
       $loggedIn = true;
       // 0 = not logged in, 1 = standard user, 2 = manager (Admin), 3 super admin (TBI)
       $accessLevel = $_SESSION['access_level'];
       $userID = $_SESSION['_id'];
-  }
-  require_once('include/input-validation.php');
-  require_once('database/dbPersons.php');
+    }
 
-    // get animal data from database for form
-    // Connect to database
-    include_once('database/dbinfo.php'); 
-    $con=connect();  
-    // Get all the animals from animal table
-    $sql = "SELECT * FROM `dbAnimals`";
-    $all_animals = mysqli_query($con,$sql); 
+    // Require user privileges
+    if ($accessLevel < 1) {
+        redirect('login.php');
+        die();
+    }
 ?>
 <!DOCTYPE html>
 <html>

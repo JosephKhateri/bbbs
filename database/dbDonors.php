@@ -107,7 +107,7 @@
 
     /*
      * Parameters: $id = A string that represents the ID number of a donation
-     * This function retrieves a donation from the dbDonations table using the ID of the donation
+     * This function retrieves a donation from the dbdonations table using the ID of the donation
      * Return type: A Donation object
      * Pre-condition: $id is a string
      * Post-condition: A Donation object is returned if it exists, otherwise nothing is returned
@@ -273,7 +273,7 @@
         }
 
         $con = connect();
-        $query = "SELECT DATE_FORMAT(DateOfContribution, '%Y-%m-%d') AS donation_date FROM dbDonations WHERE Email = '" . $donorEmail . "'";
+        $query = "SELECT DATE_FORMAT(DateOfContribution, '%Y-%m-%d') AS donation_date FROM dbdonations WHERE Email = '" . $donorEmail . "'";
         $result = mysqli_query($con, $query);
 
         $donation_dates = array();
@@ -347,7 +347,7 @@
         // Calculate three months ago from today
         $two_months_ago = date('Y-m-d', strtotime('-2 months', strtotime($current_date)));
 
-        $query = "SELECT DATE_FORMAT(DateOfContribution, '%Y-%m-%d') AS donation_date FROM dbDonations WHERE Email = '" . $donorEmail . "'";
+        $query = "SELECT DATE_FORMAT(DateOfContribution, '%Y-%m-%d') AS donation_date FROM dbdonations WHERE Email = '" . $donorEmail . "'";
         $result = mysqli_query($con, $query);
 
         $donation_dates = array();
@@ -425,7 +425,7 @@
     }
 
     /*
-     * Parameters: $result_row = An associative array that represents a row in the dbDonations table
+     * Parameters: $result_row = An associative array that represents a row in the dbdonations table
      * This function constructs a new Donation object with the given parameters
      * Return type: A Donation object
      * Pre-condition: $result_row is a valid associative array

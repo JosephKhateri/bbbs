@@ -10,6 +10,11 @@
     ini_set("display_errors", 1);
     error_reporting(E_ALL);
 
+    require_once('database/dbUsers.php');
+    require_once('domain/User.php');
+    require_once('include/api.php');
+    require_once('include/input-validation.php');
+
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
@@ -20,15 +25,16 @@
         $userID = $_SESSION['_id'];
     }
 
-    // require admin privileges
-    if ($accessLevel < 2) {
-        header('Location: login.php');
+    // Require admin privileges
+    if ($accessLevel == 1) {
+        redirect('index.php');
+        die();
+    } elseif ($accessLevel < 1) { // If not logged in, redirect to login page
+        redirect('login.php');
         die();
     }
 
     // get all users from dbUsers table except for vmsroot if the current user is not vmsroot
-    require_once('database/dbUsers.php');
-    require_once('domain/User.php');
     if ($userID == 'vmsroot') {
         // vmsroot is allowed to remove any user including admins
         $users = get_all_users();
@@ -39,14 +45,12 @@
 
     // if users is equal to false (clarification: no users were retrieved from the database), redirect to the dashboard
     if (!$users) {
-        header('Location: index.php?noUsers');
+        redirect('index.php?noUsers');
         die();
     }
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        require_once('include/input-validation.php');
-        require_once('database/dbUsers.php');
-        require_once('domain/User.php');
+        // sanitize all input
         $args = sanitize($_POST, null);
         $required = array(
             "user_dropdown" // drop down field
@@ -63,14 +67,14 @@
                 $result = remove_user($id);
                 if (!$result) {
                     // if user removal fails redirect to the dashboard
-                    header('Location: index.php?removeFail');
+                    redirect('index.php?removeFail');
                 } else {
                     // user removal was successful redirect to the dashboard
                     echo '<script>document.location = "index.php?removeSuccess";</script>';
                 }
             } else {
                 // unauthorized access attempt
-                header('Location: index.php?unauthorized');
+                redirect('index.php?unauthorized');
                 die();
             }
         }

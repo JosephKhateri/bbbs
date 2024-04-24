@@ -1,3 +1,4 @@
+ 
 <?php
  /**
  * @version April 6, 2023
@@ -12,128 +13,134 @@
  $loggedIn = false;
  $accessLevel = 0;
  $userID = null;
- if (isset($_SESSION['_id'])) {
+ //if (isset($_SESSION['_id'])) {
      $loggedIn = true;
      // 0 = not logged in, 1 = standard user, 2 = manager (Admin), 3 super admin (TBI)
-     $accessLevel = $_SESSION['access_level'];
-     $userID = $_SESSION['_id'];
- }
+     $accessLevel = 3;//$_SESSION['access_level'];
+     $userID = 'vmsroot';//$_SESSION['_id'];
+ //}
+
 
  require_once('include/input-validation.php');
- require_once('database/dbPersons.php');
- require_once('database/dbEvents.php');
  require_once('include/output.php');
  require_once('database/dbinfo.php');
  
- 
- //$connection = connect();
- //$connection = connect();
- $servername = "localhost";
- $username = "bbbs";
- $password = "bbbs";
- $dbname = "bbbs";
- 
+
  // Create connection
- $connection = mysqli_connect($servername, $username, $password, $dbname);
+ $connection = connect();
  
  // Check connection
  if (!$connection) {
-   die("Connection failed: " . mysqli_connect_error());
- }   
-?>
+     die("Connection failed: " . mysqli_connect_error());
+ }
+ 
+ 
+ ?>
+ 
+ <!DOCTYPE html>
+ <html>
+ <head>
+     <?php require_once('universal.inc') ?>
+     <title>BBBS | View Donor Info</title>
+     <style>
+         /* Targeting the select element and option elements */
+         select, option, input {
+             color: white; /* Setting the font color to white */
+             background-color: #333; /* A darker background for contrast */
+         }
+ 
+         select {
+             -webkit-appearance: none; /* For some WebKit browsers */
+             -moz-appearance: none;    /* For Firefox */
+             appearance: none;         /* Standard syntax */
+         }
+ 
+         /* Optionally, style the select box to include a custom arrow icon */
+         /*select {
+             background-image: url('path-to-your-custom-arrow-icon');
+             background-repeat: no-repeat;
+             background-position: right .7em top 50%;
+             background-size: .65em auto;
+         }*/
+     </style>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <?php require_once('universal.inc') ?>
-    <title>BBBS | View Donor Info</title>
-    <style>
-        /* Targeting the select element and option elements */
-        select, option, input {
-            color: white; /* Setting the font color to white */
-            background-color: #333; /* A darker background for contrast */
+<script>
+    /*Script making the Get button inactive if no donor is selected*/
+    function toggleSubmit() {
+        var donorSelect = document.getElementById("donor");
+        var submitButton = document.getElementById("submitButton");
+        
+        // Check if a donor has been selected
+        if (donorSelect.value !== "") {
+            submitButton.disabled = false; // Enable the submit button
+        } else {
+            submitButton.disabled = true; // Disable the submit button
         }
+    }
+</script>
+ 
+ </head>
+ <body>
+     <?php require_once('header.php') ?>
+     <h1>Donors</h1>
+     <main class="date">
+         <style>
+             /* Styles for the table and form */
+             /* Define your styles here */
+         </style>
+ 
+ <?php
 
-        select {
-            -webkit-appearance: none; /* For some WebKit browsers */
-            -moz-appearance: none;    /* For Firefox */
-            appearance: none;         /* Standard syntax */
-        }
-
-        /* Optionally, style the select box to include a custom arrow icon */
-        /*select {
-            background-image: url('path-to-your-custom-arrow-icon');
-            background-repeat: no-repeat;
-            background-position: right .7em top 50%;
-            background-size: .65em auto;
-        }*/
-    </style>
-
-</head>
-<body>
-    <?php require_once('header.php') ?>
-    <h1>Donors</h1>
-    <main class="date">
-
-         
-
-        <style>
-            table {
-                margin-top: 1rem;
-                margin-left: auto;
-                margin-right: auto;
-                border-collapse: collapse;
-                width: 80%;
-            }
-            td {
-                border: 1px solid #333333;
-                text-align: left;
-                padding: 8px;
-            }
-            th {
-                background-color: var(--main-color);
-                color: black;
-                border: 1px solid #333333;
-                text-align: left;
-                padding: 8px;
-                font-weight: 500;
-            }
-            footer {
-                margin-bottom: 5rem;
-            }
-        </style>
-<?php
 // Fetch donor details from the database
-$query = "SELECT DonorID, FirstName, LastName FROM dbdonors";
+$query = "SELECT Email FROM dbdonors";
 $result = mysqli_query($connection, $query);
+
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['donor'])) {
+    $Email = $_GET['donor'];
+
+    echo "Selected donor: ".$Email;
+
+    // Fetch the selected donor's details from the database
+    $query = "SELECT * FROM dbdonors WHERE Email = '$Email'"; // Add single quotes around $Email
+    $result = mysqli_query($connection, $query);
+
+    // Check if any donors found
+    if ($result && mysqli_num_rows($result) > 0) {
+        $donor = mysqli_fetch_assoc($result);
+    } else {
+        echo "No donors found.";
+    }
+}
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if a donor is selected
     if (!empty($_POST['donor'])) {
-        $donorID = $_POST['donor'];
+        $Email = $_POST['donor'];
 
         // Fetch the selected donor's details from the database
-        $query = "SELECT * FROM dbdonors WHERE DonorID = $donorID";
+        $query = "SELECT * FROM dbdonors WHERE Email = '$Email'"; // Add single quotes around $Email
         $result = mysqli_query($connection, $query);
         $donor = mysqli_fetch_assoc($result);
     }
 }
-?>  
+?>
 
 <h2>Select a Donor to Edit</h2>
-<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+<form method="get" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
     <label for="donor">Select Donor:</label>
-    <select name="donor" id="donor">
+    <select name="donor" id="donor" onchange="toggleSubmit()">
         <option value="">Select Donor</option>
         <?php
         // Display donor names in dropdown list
+        $query = "SELECT * FROM dbdonors";
+        $result = mysqli_query($connection, $query);
         while ($row = mysqli_fetch_assoc($result)) {
-            echo "<option value='" . $row['DonorID'] . "'>" . $row['FirstName'] . " " . $row['LastName'] . "</option>";
+            echo "<option value='" . $row['Email'] . "'>" . $row['Email'] .  "</option>";
         }
         ?>
     </select>
-    <input type="submit" value="Submit">
+    <input type="submit" value="Get" id="submitButton" disabled>
 </form>
 
 <?php
@@ -142,32 +149,35 @@ if (!empty($donor)) {
     ?>
     <h2>Edit Donor Details</h2>
     <form method="post" action="editDonor_info.php">
-        <input type="hidden" name="donorID" value="<?php echo $donor['DonorID']; ?>">
+        <!-- Populate form fields with donor details -->
+        <input type="hidden" name="Email" value="<?php echo $donor['Email']; ?>">
         <label for="firstName">First Name:</label>
         <input type="text" name="firstName" id="firstName" value="<?php echo $donor['FirstName']; ?>"><br><br>
         <label for="lastName">Last Name:</label>
         <input type="text" name="lastName" id="lastName" value="<?php echo $donor['LastName']; ?>"><br><br>
-        <label for="lastName">Company:</label>
+        <label for="Company">Company:</label>
         <input type="text" name="Company" id="Company" value="<?php echo $donor['Company']; ?>"><br><br>
-        <label for="lastName">Phone Number:</label>
+        <label for="PhoneNumber">Phone Number:</label>
         <input type="text" name="PhoneNumber" id="PhoneNumber" value="<?php echo $donor['PhoneNumber']; ?>"><br><br>
-        <label for="lastName">Address:</label>
+        <label for="Address">Address:</label>
         <input type="text" name="Address" id="Address" value="<?php echo $donor['Address']; ?>"><br><br>
-        <label for="lastName">City:</label>
+        <label for="City">City:</label>
         <input type="text" name="City" id="City" value="<?php echo $donor['City']; ?>"><br><br>
-        <label for="lastName">State:</label>
+        <label for="State">State:</label>
         <input type="text" name="State" id="State" value="<?php echo $donor['State']; ?>"><br><br>
-        <label for="lastName">Zip Code:</label>
+        <label for="Zip">Zip Code:</label>
         <input type="text" name="Zip" id="Zip" value="<?php echo $donor['Zip']; ?>"><br><br>
-         
         <input type="submit" value="Update">
     </form>
     <?php
 }
 ?>
 
-        <br>
-        <a class="button cancel" href="index.php" style="margin-top: -.5rem">Return to Dashboard</a>
-    </main>
-</body>
-</html>
+ 
+         <br>
+         <a class="button cancel" href="index.php" style="margin-top: -.5rem">Return to Dashboard</a>
+     </main>
+ </body>
+ </html>
+ 
+ 

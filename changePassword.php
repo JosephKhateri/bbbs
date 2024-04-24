@@ -13,9 +13,14 @@ Assigned Task - Excellent
     // Purpose: Allows users to change their password
     session_cache_expire(30);
     session_start();
-    require_once('include/api.php');
     ini_set("display_errors",1);
     error_reporting(E_ALL);
+
+    require_once('include/api.php');
+    require_once('include/input-validation.php');
+    require_once('domain/User.php');
+    require_once('database/dbUsers.php');
+
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
@@ -28,7 +33,10 @@ Assigned Task - Excellent
 
     // Prohibit vmsroot from accessing this page
     if ($accessLevel > 2) {
-        header('Location: login.php');
+        redirect('index.php');
+        die();
+    } elseif ($accessLevel < 1) { // If not logged in, redirect to login page
+        redirect('login.php');
         die();
     }
 
@@ -36,16 +44,12 @@ Assigned Task - Excellent
     if (isset($_SESSION['change-password']) && $_SESSION['change-password']) {
         $forced = true; // User must change password due to password expiration
     } else if (!$loggedIn) {
-        header('Location: login.php');
+        redirect('login.php');
         die();
     }
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        require_once('include/input-validation.php');
         //require_once('domain/Person.php');
         //require_once('database/dbPersons.php');
-
-        require_once('domain/User.php');
-        require_once('database/dbUsers.php');
         /*if ($forced) { // User must change password due to password expiration
             if (!wereRequiredFieldsSubmitted($_POST, array('new-password'))) {
                 echo "Args missing";
@@ -74,7 +78,7 @@ Assigned Task - Excellent
         $user = retrieve_user($userID);
 
         if (!$user) { // user doesn't exist
-            header('Location: index.php?userNotFound');
+            redirect('index.php?userNotFound');
             die();
         } else if (!password_verify($password, $user->get_password())) {
             $error1 = true; // old password provided is incorrect
@@ -86,10 +90,10 @@ Assigned Task - Excellent
             $hash = password_hash($newPassword, PASSWORD_BCRYPT);
             $change_password_result = change_password($userID, $hash);
             if ($change_password_result === false) { // password change failed
-                header('Location: index.php?pcFail');
+                redirect('index.php?pcFail');
             }
             else { // password change succeeded
-                header('Location: index.php?pcSuccess');
+                redirect('index.php?pcSuccess');
             }
             die();
         }

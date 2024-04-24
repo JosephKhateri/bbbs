@@ -18,6 +18,11 @@ Assigned Task - Excellent
     ini_set("display_errors",1);
     error_reporting(E_ALL);
 
+    require_once('database/dbUsers.php');
+    require_once('domain/User.php');
+    require_once ('include/api.php');
+    require_once('include/input-validation.php');
+
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
@@ -28,15 +33,17 @@ Assigned Task - Excellent
         $userID = $_SESSION['_id'];
     }
     // Require admin privileges
-    if ($accessLevel < 2) {
-        header('Location: login.php');
+    if ($accessLevel == 1) {
+        redirect('index.php');
+        die();
+    } elseif ($accessLevel < 1) { // If not logged in, redirect to login page
+        redirect('login.php');
         die();
     }
 
     // Get all users from dbUsers table except for vmsroot
     // This list of users will be used to populate the dropdown menu in the HTML form
-    require_once('database/dbUsers.php');
-    require_once('domain/User.php');
+
     if ($userID == 'vmsroot') {
         // vmsroot is allowed to change the password of any user except themselves
         $users = get_all_users();
@@ -48,14 +55,11 @@ Assigned Task - Excellent
 
     // if users is equal to false (meaning no users were retrieved from the database), redirect to the dashboard
     if (!$users) {
-        header('Location: index.php?noUsers');
+        redirect('index.php?noUsers');
         die();
     }
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        require_once('include/input-validation.php');
-        require_once('database/dbUsers.php');
-        require_once('domain/User.php');
         $args = sanitize($_POST, null);
         $required = array(
             "user_dropdown", "new_password" // Required fields for the form
@@ -79,7 +83,7 @@ Assigned Task - Excellent
                 $result = change_password($id, $newPassword);
                 if (!$result) {
                     // If the password change fails, alert the admin and redirect to the dashboard
-                    header('Location: index.php?pcFail');
+                    redirect('index.php?pcFail');
                 } else {
                     // Password change was successful, alert the admin and redirect to the dashboard
                     echo '<script>document.location = "index.php?pcSuccess";</script>';

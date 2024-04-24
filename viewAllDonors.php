@@ -10,6 +10,11 @@
     ini_set("display_errors",1);
     error_reporting(E_ALL);
 
+    // Include necessary files
+    require_once('database/dbDonors.php');
+    require_once('domain/Donor.php');
+    require_once('include/api.php');
+
     $loggedIn = false;
     $accessLevel = 0;
     $userID = null;
@@ -22,12 +27,9 @@
 
     // Require user privileges
     if ($accessLevel < 1) {
-        header('Location: login.php');
+        redirect('login.php');
         die();
     }
-
-    require_once('database/dbDonors.php');
-    require_once('domain/Donor.php');
 
     // Get all donors to display in the table
     $donors = get_all_donors();
@@ -45,7 +47,7 @@
 
     // if $donors is equal to false (meaning no donors were retrieved from the database), redirect to the dashboard
     if (!$donors) {
-        header('Location: index.php?noDonors');
+        redirect('index.php?noDonors');
         die();
     }
 
@@ -55,7 +57,7 @@
         $donorEmail = $_GET['donor'];
 
         // Redirect to viewDonor.php with the page parameter
-        header("Location: viewDonor.php?donor=$donorEmail");
+        redirect("viewDonor.php?donor=$donorEmail");
         exit();
     } elseif (isset($_GET['export'])) {
         exportAllDonorInfo();
@@ -63,26 +65,30 @@
         // Retrieve the search query
         $search_query = $_GET['query'];
         $donors = get_all_donors();
-        $matching_donors = array_filter($donors, function($donor) use ($search_query) {
-            // Array of attributes to search by
-            $attributes = array(
-                $donor->get_first_name() . " " . $donor->get_last_name(), // Full name
-                $donor->get_email(), // Email
-                $donor->get_company(), // Company
-            );
 
-            // Check if any attribute contains the search query
-            foreach ($attributes as $attribute) {
-                if (stripos($attribute, $search_query) !== false) {
-                    return true; // Match found
+        if (!empty($search_query)) {
+            // Filter donors only if search query is not empty
+            $matching_donors = array_filter($donors, function($donor) use ($search_query) {
+                // Array of attributes to search by
+                $attributes = array(
+                    $donor->get_first_name() . " " . $donor->get_last_name(), // Full name
+                    $donor->get_email(), // Email
+                    $donor->get_company(), // Company
+                );
+
+                // Check if any attribute contains the search query
+                foreach ($attributes as $attribute) {
+                    if (stripos($attribute, $search_query) !== false) {
+                        return true; // Match found
+                    }
                 }
-            }
 
-            return false; // No match found for any attribute
-        });
+                return false; // No match found for any attribute
+            });
 
-        // Update $donors with matching donors
-        $donors = $matching_donors;
+            // Update $donors with matching donors
+            $donors = $matching_donors;
+        }
     }
     // Check if city and state filters are set
     if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['city_state_combos'])) {
@@ -206,15 +212,14 @@
 
             #donorTable th,
             #donorTable td {
-                width: 150px; /* Adjust the width as per your design */
-                /* You can also use percentages for responsive design */
-                /* width: 25%; */
+                width: 150px; /* Adjust the width of each column */
             }
 
+            /* CSS for the filter popup */
             .filter-group {
                 display: flex;
                 flex-wrap: wrap;
-                margin-bottom: 10px; /* Adjust as needed */
+                margin-bottom: 10px;
             }
 
             .filter-group label {
@@ -243,20 +248,19 @@
             #clearFiltersButton:hover {
                 background-color: darkred;
             }
-            /* Add this CSS to change the color of the close button */
+            /* CSS to change the color of the close button */
             #closeFilterPopupButton {
                 background-color: #808080; /* Background color */
                 border: none; /* Remove border */
                 margin-top: 10px;
-                /*padding: 5px 10px; /* Adjust padding if needed */
-                border-radius: 5px; /* Optional: Add border-radius for rounded corners */
+                border-radius: 5px;
             }
-            /* CSS to lock scrolling */
+            /* CSS to lock scrolling  when filter popup is active */
             .no-scroll {
                 overflow: hidden;
             }
             #searchInput {
-                margin-bottom: -15px; /* Adjust the value as needed */
+                margin-bottom: -15px;
             }
         </style>
 
@@ -285,24 +289,28 @@
                     });
                 }
 
+                // Load all donors when no filters are selected
+                function loadAllDonors() {
+                    // Make AJAX call to fetch all donors
+                    $.ajax({
+                        url: 'viewAllDonors.php',
+                        type: 'POST',
+                        data: {}, // No filters needed
+                        success: function(response) {
+                            // Replace entire content of donor table with all donors
+                            $("#donorTable").html($(response).find('#donorTable').html());
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(error); // Handle errors if any
+                        }
+                    });
+                }
+
                 // Filter button click event
                 $("#filterButton").click(function(event){
                     event.preventDefault(); // Prevent default form submission behavior
                     loadDonorData(); // Call function to load donor data
                     closeFilterPopup(); // Close the filter popup after filtering
-                });
-
-                $('#searchInput').on('input', function() {
-                    let query = $(this).val();
-
-                    $.ajax({
-                        url: 'viewAllDonors.php',
-                        method: 'GET',
-                        data: { query: query },
-                        success: function(response) {
-                            $('#donorTable').html($(response).find('#donorTable').html()); // Replace content of the donor table
-                        }
-                    });
                 });
 
                 // Function to open the filter popup
@@ -327,22 +335,6 @@
                     $("body").removeClass("no-scroll"); // Unlock scrolling
                 }
 
-                function loadAllDonors() {
-                    // Make AJAX call to fetch all donors
-                    $.ajax({
-                        url: 'viewAllDonors.php',
-                        type: 'POST',
-                        data: {}, // No filters needed
-                        success: function(response) {
-                            // Replace entire content of donor table with all donors
-                            $("#donorTable").html($(response).find('#donorTable').html());
-                        },
-                        error: function(xhr, status, error) {
-                            console.error(error); // Handle errors if any
-                        }
-                    });
-                }
-
                 // Open filter popup when button is clicked
                 $("#popupButton").click(openFilterPopup);
 
@@ -354,6 +346,20 @@
                     if (event.target === document.getElementById('filterPopup')) {
                         closeFilterPopup();
                     }
+                });
+
+                // Dynamic search bar functionality
+                $('#searchInput').on('input', function() {
+                    let query = $(this).val();
+
+                    $.ajax({
+                        url: 'viewAllDonors.php',
+                        method: 'GET',
+                        data: { query: query },
+                        success: function(response) {
+                            $('#donorTable').html($(response).find('#donorTable').html()); // Replace content of the donor table
+                        }
+                    });
                 });
             });
         </script>
@@ -405,16 +411,19 @@
                 <th onclick="sortTable(1)">First Name</th>
                 <th onclick="sortTable(2)">Last Name</th>
                 <th onclick="sortTable(3)">Company</th>
+                <th></th>
             </tr>
             <?php
-            foreach ($donors as $donor) {
-                echo "<tr>";
-                echo "<td><a href='viewDonor.php?donor=" . $donor->get_email() . "'>" . $donor->get_email() . "</a></td>";
-                echo "<td>" . $donor->get_first_name() . "</td>";
-                echo "<td>" . $donor->get_last_name() . "</td>";
-                echo "<td>" . $donor->get_company() . "</td>";
-                echo "</tr>";
-            }
+                foreach ($donors as $donor) {
+                    echo "<tr>";
+                        echo "<td><a href='viewDonor.php?donor=" . $donor->get_email() . "'>" . $donor->get_email() . "</a></td>";
+                        echo "<td>" . $donor->get_first_name() . "</td>";
+                        echo "<td>" . $donor->get_last_name() . "</td>";
+                        echo "<td>" . $donor->get_company() . "</td>";
+                        echo "<td><a href='editDonorInfo.php?donor=" . $donor->get_email() . "'>Edit</a></td>";
+                    echo "</tr>";
+
+                }
             ?>
         </table>
 
@@ -423,7 +432,6 @@
             let sortDirection = "desc"; // Default sorting direction for email column is descending
 
             function sortTable(n) {
-                console.log("Sorting table...");
                 let table, rows, switching, i, x, y, shouldSwitch;
                 table = document.getElementById("donorTable");
                 switching = true;
@@ -433,16 +441,13 @@
                     // Start by assuming no switching is done:
                     switching = false;
                     rows = table.rows;
-                    /* Loop through all table rows (except the
-                    first, which contains table headers): */
+                    // Loop through all table rows (except the first, which contains table headers):
                     for (i = 1; i < (rows.length - 1); i++) {
                         shouldSwitch = false;
-                        /* Get the two elements you want to compare,
-                        one from the current row and one from the next: */
+                        // Get the two elements you want to compare, one from the current row and one from the next:
                         x = rows[i].getElementsByTagName("td")[n];
                         y = rows[i + 1].getElementsByTagName("td")[n];
-                        /* Check if the two rows should switch place,
-                        based on the sorting direction: */
+                        // Check if the two rows should switch place, based on the sorting direction:
                         if (sortDirection === "asc") {
                             if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
                                 // If so, mark as a switch and break the loop:
@@ -470,13 +475,12 @@
                     currentSortColumn = n;
                     sortDirection = (n === 0) ? "desc" : "asc"; // Set initial sorting direction to descending for email column, ascending for others
                 }
-                console.log("Sorting completed.");
                 // Update sorting images after sorting:
                 updateSortingImages();
             }
 
+            // Function to update sorting images based on current sorting column and direction
             function updateSortingImages() {
-                console.log("Updating sorting images...");
                 let tableHeaders = document.getElementsByTagName("th");
                 for (let i = 0; i < tableHeaders.length; i++) {
                     let img = tableHeaders[i].querySelector("img");
@@ -492,7 +496,6 @@
                         }
                     }
                 }
-                console.log("Sorting images updated.");
             }
 
             // Set initial images based on current order of the columns

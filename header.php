@@ -47,24 +47,19 @@
          * permission level, they will be sent back to the home page.
          */
         // Pages guests are allowed to view
-        //$permission_array['index.php'] = 0;
-        //$permission_array['about.php'] = 0;
-        //$permission_array['apply.php'] = 0;
         $permission_array['logout.php'] = 0;
-        $permission_array['register.php'] = 0;
-        //pages volunteers can view
-        $permission_array['dashboard.php'] = 1;
-        //$permission_array['calendar.php'] = 1;
-        $permission_array['eventsearch.php'] = 1;
-        $permission_array['changepassword.php'] = 1;
-        $permission_array['editprofile.php'] = 1;
-        $permission_array['inbox.php'] = 1;
-        $permission_array['viewprofile.php'] = 1;
-        $permission_array['viewnotification.php'] = 1;
+        $permission_array['login.php'] = 0;
+        //pages Users can view
+        $permission_array['index.php'] = 1;
+        $permission_array['changePassword.php'] = 1;
         $permission_array['UploadForm.php'] = 1;
         $permission_array['report.php'] = 1;
+        $permission_array['viewAllDonors.php'] = 1;
+        $permission_array['newReportsPage.php'] = 1;
         //pages only managers can view
         $permission_array['registerUserForm.php'] = 2;
+        $permission_array['adminResetPassword'] = 2;
+        $permission_array['removeUserForm.php'] = 2;
 
 
         //Check if they're at a valid page for their access level.
