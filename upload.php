@@ -92,19 +92,19 @@ function parseCSV($csvFilePath){
         //validate date format (assuming date is in column index 0)
         if (!validateDate($line[0])) {
             //invalid; redirect with error message
-            redirect('index.php?dateFormatFail');
+            redirect('index.php?dateFormatFail=' . $lineNumber);
             exit;
         }
 
         // Check for a valid email in the expected column (index 7)
         if (!validateEmail($line[7])) {
-            redirect('index.php?emailFormatFail');
+            redirect('index.php?emailFormatFail=' . $lineNumber);
             exit;
         }
 
         // Check for a valid zip code in the expected column (index 12)
         if (!validateZipcode($line[12])) {
-            redirect('index.php?zipFormatFail');
+            redirect('index.php?zipFormatFail=' . $lineNumber);
             exit;
         }
 
