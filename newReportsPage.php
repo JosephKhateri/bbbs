@@ -267,6 +267,7 @@ function reportFrequencyGreaterThanYearly($connection) {
                     GROUP BY d.Email";
             $result = mysqli_query($connection, $query);
 
+            
             // Check if we have results
             if (mysqli_num_rows($result) > 0) {
                 echo "<h2 style='text-align: center;'>Donors Whose Frequency of Giving is Greater than Yearly</h2>";
@@ -285,10 +286,10 @@ function reportFrequencyGreaterThanYearly($connection) {
                     $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
 
                     $FOG = get_donation_frequency($row["Email"]); // Calculate frequency of giving
-
+                    $FUN= determine_donation_GTY($row["Email"]);
                     //Checks if the current ratio of the Donor is more than yearly if it isn't then their row
                     //won't appear in the generated table
-                    if($FOG == "Monthly") {
+                    if($FOG == "Monthly" || $FUN=="Greater Than Yearly") {
                     echo "<tr>
                             <td>" . htmlspecialchars($row['Email']) . "</td>
                             <td>" . htmlspecialchars($row['FirstName']) . "</td>
