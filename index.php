@@ -54,7 +54,7 @@
             <?php elseif (isset($_GET['noDonors'])): ?>
                 <div class="happy-toast">No donors exist in the system!</div> <!-- In the event that the dbDonors database is empty -->
             <?php elseif (isset($_GET['phoneFormatFail'])): ?>
-                <div class="error-toast">Invalid phone number format. Make sure the phone number contains no dashes and is 10 characters long</div>
+                <div class="error-toast">Invalid phone number format detected at line <?= htmlspecialchars($_GET['phoneFormatFail']) ?>. Ensure the phone number contains only numbers and is 10 characters long.</div>
             <?php elseif (isset($_GET['dateFormatFail'])): ?>
                 <div class="error-toast">Invalid date format. Make sure the date is in YYYY-MM-DD format.</div>
             <?php elseif (isset($_GET['emailFormatFail'])): ?>

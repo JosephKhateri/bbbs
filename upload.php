@@ -41,10 +41,12 @@ function parseCSV($csvFilePath){
     }
 
     fgetcsv($file); // Skip header row
+    $lineNumber = 1; //Start counting lines from 1
 
     $support = '';
     $category = '';
     while (($line = fgetcsv($file)) !== false) {
+        $lineNumber++;
         // Check for a valid email in the expected column (index 7 based on your CSV structure)
         /*if (!filter_var(trim($line[7]), FILTER_VALIDATE_EMAIL)) {
             error_log("Invalid or missing email for row: " . implode(",", $line));
@@ -83,7 +85,7 @@ function parseCSV($csvFilePath){
         //validate phone number format (assuming phone number is in column index 8)
         if (!validatePhoneNumberFormat($line[8])) {
             //invalid; redirect with error message
-            redirect('index.php?phoneFormatFail');
+            redirect('index.php?phoneFormatFail=' . $lineNumber);
             exit;
         }
 
