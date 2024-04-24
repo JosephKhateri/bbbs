@@ -621,7 +621,7 @@ function exportDonorsRR() {
         fputcsv($output, array());
         
         // Write the CSV header
-        fputcsv($output, array('Email', 'First Name', 'Last Name', 'Donor Status', 'Phone Number'));
+        fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Donor Status'));
 
         foreach($MultiYearDonors as $donor){
             // Get the donor details
@@ -634,7 +634,7 @@ function exportDonorsRR() {
             $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
             
             //Write Multi-Year Donor's Details to CSV File
-            fputcsv($output, array($donor_email, $donor_first_name, $donor_last_name, get_donor_status($donor_email), $formattedPhone));
+            fputcsv($output, array($donor_email, $donor_first_name, $donor_last_name, $formattedPhone, get_donor_status($donor_email),));
         }  
     }
     fclose($output);
