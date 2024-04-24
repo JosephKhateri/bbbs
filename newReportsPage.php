@@ -588,14 +588,25 @@ function reportMultiDonors(){
                 echo "<br>"; // Add multiple <br> tags for increased line break
 
                 //Create a Table of all the Multi-Year Donors
-                echo "<h2 style='text-align: center;'>Multi-Year Donors</h2>";
+                echo "<h2 style='text-align: center;'>Donor Retention</h2>";
+                echo "<h4 style='margin: 0; padding: 0; margin-left: 150px'> Retention Statuses:</h4>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - New Donor: Donor made their first donation within the past year</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Multiyear Donor: Donor made a donation both within the past year and the year before</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Returning Donor: Donor donated over 2 years ago, then started donating again within the last year</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Formerly Active Donor: Donor has not donated within the past year, but has donated within the past 2 years</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Inactive Donor: Donor has not donated in 2 or more years from today's date</p>";
                 echo "<table id='MultiDonorsTable'>";
                 echo "<tr>
                         <th onclick='sortTable(\"MultiDonorsTable\", 0,)'>Email</th>
                         <th onclick='sortTable(\"MultiDonorsTable\", 1)'>First Name</th>
                         <th onclick='sortTable(\"MultiDonorsTable\", 2)'>Last Name</th>
-                        <th onclick='sortTable(\"MultiDonorsTable\", 3)'>Retention Status</th>
-                        <th onclick='sortTable(\"MultiDonorsTable\", 4)'>Phone Number</th>
+                        <th onclick='sortTable(\"MultiDonorsTable\", 3)'>Phone Number</th>
+                        <th onclick='sortTable(\"MultiDonorsTable\", 4)'>Retention Status</th>
                     </tr>";
                 foreach($MultiYearDonors as $donor){
                     // Get the donor details
@@ -613,17 +624,11 @@ function reportMultiDonors(){
                     <td>" . htmlspecialchars($donor_email) . "</td>
                     <td>" . htmlspecialchars($donor_first_name) . "</td>
                     <td>" . htmlspecialchars($donor_last_name) . "</td>
-                    <td>" . htmlspecialchars(get_donor_status($donor_email)) . "</td>
                     <td>" . htmlspecialchars($formattedPhone) . "</td>
+                    <td>" . htmlspecialchars(get_donor_status($donor_email)) . "</td>
                     </tr>";
                 }
             echo "</table>";
-            
-            echo "New Year Donor: ".get_description("New Donor")."<br>";
-            echo "Multi Year Donor: ".get_description("Multiyear Donor")."<br>";
-            echo "Returning Donor: ".get_description("Returning Donor")."<br>";
-            echo "Formely Active Donor: ".get_description("Formerly Active Donor")."<br>";
-            echo "Inactive Donor: ".get_description("Inactive Donor")."<br>";
             
             }else{
                 echo "<p>Not enough Donors are available to make the report.</p>";
