@@ -461,6 +461,10 @@ function reportTopXDonors($connection, $topXDonors) {
     }
 }
 
+// Report 8: Donation Stage Report
+// Pre-Condition: User is logged in to be able to access report functionality
+// Post-Condition: User will be able to look through the report as a generated table and
+//                 be able to export the data as a CSV file
 function reportDonationStage(){
     //How Donation Stages Work:
     //  1.INTERESTED: If the donor has donated at least once in the past three years
