@@ -72,7 +72,7 @@ Assigned Task - Excellent
             } elseif ($args['account_type'] == '') {
                 $accountTypeError = true; // No account type was selected
             } elseif($args['password'] !== $args['password_confirm']){
-                $passwordMismatchError = true;
+                $passwordMismatchError = true; // Password does not match with Confirm Password
             }
             else {
                 $password = password_hash($args['password'], PASSWORD_BCRYPT);
