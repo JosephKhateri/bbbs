@@ -41,10 +41,12 @@ function parseCSV($csvFilePath){
     }
 
     fgetcsv($file); // Skip header row
+    $lineNumber = 1;
 
     $support = '';
     $category = '';
     while (($line = fgetcsv($file)) !== false) {
+        $lineNumber++;
         // Check for a valid email in the expected column (index 7 based on your CSV structure)
         /*if (!filter_var(trim($line[7]), FILTER_VALIDATE_EMAIL)) {
             error_log("Invalid or missing email for row: " . implode(",", $line));
@@ -83,26 +85,26 @@ function parseCSV($csvFilePath){
         //validate phone number format (assuming phone number is in column index 8)
         if (!validatePhoneNumberFormat($line[8])) {
             //invalid; redirect with error message
-            redirect('index.php?phoneFormatFail');
+            redirect('index.php?phoneFormatFail=' . $lineNumber);
             exit;
         }
 
         //validate date format (assuming date is in column index 0)
         if (!validateDate($line[0])) {
             //invalid; redirect with error message
-            redirect('index.php?dateFormatFail');
+            redirect('index.php?dateFormatFail=' . $lineNumber);
             exit;
         }
 
         // Check for a valid email in the expected column (index 7)
         if (!validateEmail($line[7])) {
-            redirect('index.php?emailFormatFail');
+            redirect('index.php?emailFormatFail=' . $lineNumber);
             exit;
         }
 
         // Check for a valid zip code in the expected column (index 12)
         if (!validateZipcode($line[12])) {
-            redirect('index.php?zipFormatFail');
+            redirect('index.php?zipFormatFail=' . $lineNumber);
             exit;
         }
 

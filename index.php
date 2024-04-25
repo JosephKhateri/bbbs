@@ -54,13 +54,13 @@
             <?php elseif (isset($_GET['noDonors'])): ?>
                 <div class="happy-toast">No donors exist in the system!</div> <!-- In the event that the dbDonors database is empty -->
             <?php elseif (isset($_GET['phoneFormatFail'])): ?>
-                <div class="error-toast">Invalid phone number format. Make sure the phone number contains no dashes and is 10 characters long</div>
+                <div class="error-toast">Invalid phone number format detected at line <?= htmlspecialchars($_GET['phoneFormatFail']) ?>. Ensure the phone number contains only numbers and is 10 characters long.</div>
             <?php elseif (isset($_GET['dateFormatFail'])): ?>
-                <div class="error-toast">Invalid date format. Make sure the date is in YYYY-MM-DD format.</div>
+                <div class="error-toast">Invalid date format detected at line <?= htmlspecialchars($_GET['dateFormatFail']) ?>. Make sure the date is in YYYY-MM-DD format.</div>
             <?php elseif (isset($_GET['emailFormatFail'])): ?>
-                <div class="error-toast">Invalid email. Try again with a correct email.</div>
+                <div class="error-toast">Invalid email detected at line <?= htmlspecialchars($_GET['emailFormatFail']) ?>. Try again with a correct email.</div>
             <?php elseif (isset($_GET['zipFormatFail'])): ?>
-                <div class="error-toast">Invalid zip code. Make sure the Zip is only 5 numbers long.</div>
+                <div class="error-toast">Invalid zip code detected at line <?= htmlspecialchars($_GET['zipFormatFail']) ?>. Make sure the Zip is only 5 numbers long.</div>
             <?php elseif (isset($_GET['uploadFail'])): ?>
                 <div class="error-toast">There was an issue with uploading the data. Please try again later.</div>
             <?php endif ?>
