@@ -333,6 +333,60 @@
 
     /*
      * Parameters: $donorEmail = A string that represents the email of a donor
+     * This function sorts the donor into a donation funnel based on their donation history
+     * Return type: A string that represents the donation funnel the donor falls into
+     * Pre-condition: $donorEmail is a string
+     * Post-condition: The donation funnel the donor falls into is returned or "N/A" if the donor doesn't fit into any funnel
+     */
+    function determine_donation_GTY($donorEmail) : string {
+        $con = connect();
+        $query = "SELECT DATE_FORMAT(DateOfContribution, '%Y-%m-%d') AS donation_date FROM dbdonations WHERE Email = '" . $donorEmail . "'";
+        $result = mysqli_query($con, $query);
+
+        $donation_dates = array();
+        while ($result_row = mysqli_fetch_assoc($result)) {
+            $donation_dates[] = $result_row['donation_date'];
+        }
+
+        sort($donation_dates); // Sort the donations by oldest to newest
+
+        // if donation dates is empty (no donations were made), return an empty string
+        if (empty($donation_dates)) {
+            return "";
+        }
+
+        $num_donations_current_year = 0; // Initialize number of donations (current year)
+        $num_donations_previous_year = 0; // Initialize number of donations (previous year)
+
+        $current_date = date('Y-m-d');
+
+        // Check number of donations for the current year
+        $current_year = date('Y-m-d', strtotime("-1 years", strtotime($current_date)));
+        $previous_year = date('Y-m-d', strtotime("+1 year", strtotime($current_year))); // Get the year after the year to check
+        foreach ($donation_dates as $donation_date) { // Iterate through donation dates to find donations within the year being checked
+            if ($donation_date >= $current_year && $donation_date <= $previous_year) {
+                $num_donations_current_year++; // Increment if a donation was found for the current year
+            }
+        }
+
+        // Get number of donations for the previous year
+        $current_year = date('Y-m-d', strtotime("-2 years", strtotime($current_date)));
+        $previous_year = date('Y-m-d', strtotime("+1 year", strtotime($current_year))); // Get the year after the year to check
+        foreach ($donation_dates as $donation_date) { // Iterate through donation dates to find donations within the year being checked
+            if ($donation_date >= $current_year && $donation_date <= $previous_year) {
+                $num_donations_previous_year++; // Increment if a donation was found for the previous year
+            }
+        }
+
+        // Check if the donor has donated more than once each year for each of the past 2 years
+        if ($num_donations_current_year >= 2 && $num_donations_previous_year >= 2) {
+            return "Greater Than Yearly";
+        } else {
+            return "NGY"; // The donor does not donate more than once a year for the past 2 years
+        }
+    }
+    /*
+     * Parameters: $donorEmail = A string that represents the email of a donor
      * This function retrieves the donation frequency of a donor
      * Return type: A string that represents the donation frequency of the donor
      * Pre-condition: $donorEmail is a string
