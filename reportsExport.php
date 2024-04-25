@@ -290,6 +290,17 @@ function exportDonorsFOG() {
     header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving.csv"');
     
     $output = fopen("php://output", "w");
+
+    //Descriptions of Every type
+    fputcsv($output, array("Frequency of Giving", "Description"));
+    fputcsv($output, array('Monthly', get_description("Monthly")));
+    fputcsv($output, array('Yearly', get_description("Yearly")));
+    fputcsv($output, array('Sporadic', get_description("Sporadic")));
+
+    //Add a few blank lines to make the thing easier to read
+    fputcsv($output, array());
+    fputcsv($output, array());
+    fputcsv($output, array());
     
     // Write the CSV header
     fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Frequency of Giving', 'Days From Earliest Donation'));
@@ -362,89 +373,38 @@ function exportDonorsLessThanTwoYears() {
     //exit();
 }
 
-// Export Function for the Report on Donor's retention rate
-function retentionRate() {
-    include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
-    $connection = connect();  // This should be your function to establish a database connection
-    $prev_year = $_POST["prev_year"];
-    $current_year = $_POST["current_year"];
-    // Your SQL query to fetch the required data
-       
-                    // Calculate the number of donors in the previous period
-                    $sql_prev_period = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31'";
-                    $result_prev_period = $connection->query($sql_prev_period);
-                    $num_donors_prev_period = $result_prev_period->num_rows;
-                    
-                    // Calculate the number of donors in the current period
-                    $sql_current_period = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31'";
-                    $result_current_period = $connection->query($sql_current_period);
-                    $num_donors_current_period = $result_current_period->num_rows;
-
-                    // Calculate the number of retained donors (donors who contributed in both periods)
-                    $sql_retained_donors = "SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$prev_year-01-01' AND '$prev_year-12-31' AND DonorID IN (SELECT DISTINCT DonorID FROM dbdonations WHERE DateOfContribution BETWEEN '$current_year-01-01' AND '$current_year-12-31')";
-                    
-
-                    $result_retained_donors = $connection->query($sql_retained_donors);
-                    $num_retained_donors = $result_retained_donors->num_rows;
-
-                        // Calculate donor retention rate
-                        if ($num_donors_prev_period > 0) {
-                            $retention_rate = ($num_retained_donors / $num_donors_prev_period) * 100;
-                        } else {
-                            $retention_rate = 0; // Default to 0 if no donors in the previous period
-                        }
-					$result = mysqli_query($connection, $num_retained_donors);
-					
-					header('Content-Type: text/csv');
-					header('Content-Disposition: attachment; filename="retentionRate.csv"');
-					
-					$output = fopen("php://output", "w");
-					
-					// Write the CSV header
-					fputcsv($output, array('Donors this year', 'Donors last year', 'Retained Donors', 'Donor Retention Rate'));
-					
-					// Write rows
-					while ($row = mysqli_fetch_assoc($result)) {
-						
-						
-						fputcsv($output, array($sql_current_period, $sql_prev_period, $sql_retained_donors, $retention_rate));
-	
-					}
-					fclose($output);
-    //exit();
-}
-
 // Export Function for the Report on Donors whose Frequency of Giving is Greater than Yearly
 function exportDonorsFOGGTY() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
-    $connection = connect();  // This should be your function to establish a database connection
-    
-    // Your SQL query to fetch the required data
-    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
-                    DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
-                    FROM dbdonations AS d
-                    JOIN dbdonors AS p ON d.Email = p.Email
-                    GROUP BY d.Email";
-    $result = mysqli_query($connection, $query);
 	
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving_GTY.csv"');
     
     $output = fopen("php://output", "w");
+
+    $donors = get_all_donors();
     
     // Write the CSV header
-    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Frequency of Giving', 'Days From Earliest Donation'));
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number'));
     
     // Write rows
-    while ($row = mysqli_fetch_assoc($result)) {
-		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
-		
-		// Frequency of Giving
-		$FOG = get_donation_frequency($row["Email"]);
-		if ($FOG == "Monthly"){
-		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $FOG, $row['DateDiff']));
-		}
+    $greater_than_yearly_donors = []; // Array to store donors who donate greater than yearly
+    foreach ($donors as $donor) {
+        $FUN= determine_donation_GTY($donor->get_email());
+        if ($FUN=="Greater Than Yearly") {
+            $greater_than_yearly_donors[] = $donor; // Add the donor to the array
+        }
 	}
+
+    if (count($greater_than_yearly_donors) > 0) {
+        foreach ($greater_than_yearly_donors as $donor) {
+            fputcsv($output, array($donor->get_email(), $donor->get_first_name(), $donor->get_last_name(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone())));
+        }
+    } else {
+        fputcsv($output, array('No donors found'));
+    }
+
+    //fputcsv($output, array($donor->get_email(), $donor->get_first_name(), $donor->get_last_name(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone())));
     fclose($output);
 }
 // Export Function for the Report on Donor's in the Past Three Years who haven't donated to an Event
@@ -566,6 +526,18 @@ function exportDonorsDSF() {
     header('Content-Disposition: attachment; filename="donors_Donors_Stage.csv"');
     
     $output = fopen("php://output", "w");
+
+    fputcsv($output, array("Donation Funnel", "Description"));
+    fputcsv($output, array('Interested', get_description("Interested")));
+    fputcsv($output, array('Donor', get_description("Donor")));
+    fputcsv($output, array('Engaged', get_description("Engaged")));
+    fputcsv($output, array('Loyal Donor', get_description("Loyal Donor")));
+    fputcsv($output, array('Leadership Donor', get_description("Leadership Donor")));
+
+    //Add a few blank lines to make the thing easier to read
+    fputcsv($output, array());
+    fputcsv($output, array());
+    fputcsv($output, array());
     
     // Write the CSV header
     fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Donation Funnel'));
@@ -610,45 +582,60 @@ function exportDonorsRR() {
     $donors=get_all_donors();
     //Array for Multi-Year Donors
     $MultiYearDonors=array();
-
+    //Counter for Multi-Year Donors
+    $MultiCounter=0;
     foreach($donors as $donor){
         //Go through each donor and see if they are a Multi-Year donor
         //and add to Multi-Year array if they are and increas the Multi
         //Counter.
         $dmail=$donor->get_email();
         $type= get_donor_status($dmail);
+        $MultiYearDonors[]=$donor;
         if($type=="Multiyear Donor"){
-            $MultiYearDonors[]=$donor;
+            $MultiCounter++;
         }
     }
 
     //Generate Table and Calculate Retention Rate of Multi Year Donors
     if(count($MultiYearDonors)>0){
-        $RetentionRate=(count($MultiYearDonors)/count($donors))*100;
+        $RetentionRate=($MultiCounter/count($donors))*100;
         $RetentionRate=$RetentionRate."%";
         //Put the Number of Multi-Year Donors and Retention Rate in the CSV as well
         fputcsv($output, array('Number of Multi-Year Donors', 'Retention Rate'));
-        fputcsv($output, array(count($MultiYearDonors), $RetentionRate));
+        fputcsv($output, array($MultiCounter, $RetentionRate));
         //Add a few blank lines to make the thing easier to read
         fputcsv($output, array());
         fputcsv($output, array());
         fputcsv($output, array());
+        
+        //Descriptions of Every type
+        fputcsv($output, array("Retention Status", "Description"));
+        fputcsv($output, array('New Donor', get_description("New Donor")));
+        fputcsv($output, array('Multi-Year Donor', get_description("Multiyear Donor")));
+        fputcsv($output, array('Returning Donor', get_description("Returning Donor")));
+        fputcsv($output, array('Formerly Active Donor', get_description("Formerly Active Donor")));
+        fputcsv($output, array('Inactive  Donor', get_description("Inactive Donor")));
 
+        //Add a few blank lines to make the thing easier to read
+        fputcsv($output, array());
+        fputcsv($output, array());
+        fputcsv($output, array());
+        
         // Write the CSV header
-        fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number'));
+        fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Donor Status'));
 
         foreach($MultiYearDonors as $donor){
             // Get the donor details
             $donor_first_name = $donor->get_first_name();
             $donor_last_name = $donor->get_last_name();
             $donor_email = $donor->get_email();
-            $phone = $donor->get_phone();    
-            
+            $phone = $donor->get_phone();
+
             //Format the Phone Number
             $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
             
             //Write Multi-Year Donor's Details to CSV File
-            fputcsv($output, array($donor_email, $donor_first_name, $donor_last_name, $formattedPhone));
+            fputcsv($output, array($donor_email, $donor_first_name, $donor_last_name, $formattedPhone, get_donor_status($donor_email),));
         }  
     }
     fclose($output);

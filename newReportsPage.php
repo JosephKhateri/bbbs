@@ -259,52 +259,44 @@ function reportEventsDonorsContributed($connection) {
 // Post-Condition: User will be able to look through the report as a generated table and
 //                 be able to export the data as a CSV file
 function reportFrequencyGreaterThanYearly($connection) {
-            // Modified SQL query to join Donations with Donors table and fetch required details
-            $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
-                    DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
-                    FROM dbdonations AS d
-                    JOIN dbdonors AS p ON d.Email = p.Email
-                    GROUP BY d.Email";
-            $result = mysqli_query($connection, $query);
+    $donors = get_all_donors();
 
-            // Check if we have results
-            if (mysqli_num_rows($result) > 0) {
-                echo "<h2 style='text-align: center;'>Donors Whose Frequency of Giving is Greater than Yearly</h2>";
-                echo "<table id='FrequencyGreaterThanYearlyTable'>";
-                echo "<tr>
-                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 0,)'>Email</th>
-                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 1)'>First Name</th>
-                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 2)'>Last Name</th>
-                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 3)'>Phone Number</th>
-                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 4)'>Frequency of Giving</th>
-                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 5)'>Days from Earliest Donation</th>
-                    </tr>";
-                while ($row = mysqli_fetch_assoc($result)) {
-                    // Format the phone number
-                    $phone = $row['PhoneNumber'];
-                    $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+    echo "<h2 style='text-align: center;'>Donors Whose Frequency of Giving is Greater than Yearly</h2>";
 
-                    $FOG = get_donation_frequency($row["Email"]); // Calculate frequency of giving
-
-                    //Checks if the current ratio of the Donor is more than yearly if it isn't then their row
-                    //won't appear in the generated table
-                    if($FOG == "Monthly") {
-                    echo "<tr>
-                            <td>" . htmlspecialchars($row['Email']) . "</td>
-                            <td>" . htmlspecialchars($row['FirstName']) . "</td>
-                            <td>" . htmlspecialchars($row['LastName']) . "</td>
-                            <td>" . htmlspecialchars($formattedPhone) . "</td>
-                            <td>" . htmlspecialchars($FOG) . "</td>
-                            <td>" . number_format($row['DateDiff']) . "</td>
-                            
-                          </tr>";
-                        }
-                }
-                
-                echo "</table>";
-            } else {
-                echo "<p>Not enough Donors are available to make the report.</p>";
+    if (count($donors) > 0) {
+        $greater_than_yearly_donors = []; // Array to store donors who donate greater than yearly
+        foreach ($donors as $donor) {
+            $FUN= determine_donation_GTY($donor->get_email());
+            if ($FUN=="Greater Than Yearly") {
+                $greater_than_yearly_donors[] = $donor; // Add the donor to the array
             }
+        }
+
+        if (count($greater_than_yearly_donors) > 0) {
+            echo "<table id='FrequencyGreaterThanYearlyTable'>";
+            echo "<tr>
+                <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 0,)'>Email</th>
+                <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 1)'>First Name</th>
+                <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 2)'>Last Name</th>
+                <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 3)'>Phone Number</th>
+            </tr>";
+
+            foreach ($greater_than_yearly_donors as $donor) {
+                echo "<tr>
+                        <td>" . $donor->get_email() . "</td>
+                        <td>" . $donor->get_first_name() . "</td>
+                        <td>" . $donor->get_last_name() . "</td>
+                        <td>" . preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()) . "</td>
+                     </tr>";
+            }
+            echo "</table>";
+        } else { // No donors donate greater than yearly
+            echo "<p style='text-align: center'>No donors donate greater than yearly.</p>";
+        }
+    } else { // No donors exist in the database
+        redirect('index.php?noDonors');
+        die();
+    }
 }
 
 // Report 6: Donors Who Have Donated in the Past Three Years but Not to Events
@@ -343,7 +335,7 @@ function reportDonorsDonatedNotToEvents($connection) {
                     // Format the phone number
                     $phone = $row['PhoneNumber'];
                     $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
-                    
+
                     //Checks if the current donor has donated in the past three years if they have then
                     //print. If not then print nothing.
                     echo "<tr>
@@ -356,7 +348,6 @@ function reportDonorsDonatedNotToEvents($connection) {
                           </tr>";
                         
                 }
-                
                 echo "</table>";
             } else {
                 echo "<p>Not enough Donors are available to make the report.</p>";
@@ -548,21 +539,24 @@ function reportMultiDonors(){
             $donors=get_all_donors();
             //Array for Multi-Year Donors
             $MultiYearDonors=array();
-
+            //Counter for Multi Year Donors
+            $MultiCounter=0;
             foreach($donors as $donor){
                 //Go through each donor and see if they are a Multi-Year donor
                 //and add to Multi-Year array if they are and increas the Multi
                 //Counter.
                 $dmail=$donor->get_email();
                 $type= get_donor_status($dmail);
+                $MultiYearDonors[]=$donor;
+                
                 if($type=="Multiyear Donor"){
-                    $MultiYearDonors[]=$donor;
+                    $MultiCounter++;
                 }
             }
 
             //Generate Table and Calculate Retention Rate of Multi Year Donors
             if(count($MultiYearDonors)>0){
-                $RetentionRate=(count($MultiYearDonors)/count($donors))*100;
+                $RetentionRate=($MultiCounter/count($donors))*100;
                 $RetentionRate=substr($RetentionRate,0,5);
                 $RetentionRate=$RetentionRate."%";
 
@@ -572,7 +566,7 @@ function reportMultiDonors(){
                 // Display # of multiyear donors and retention rate
                 echo "<div style='text-align: center;'>";
                     echo "<div style='display: inline-block; margin-right: 50px;'>";
-                        echo "<h2 style='text-align: center'>Number of Multi-Year<br>Donors: " . count($MultiYearDonors) . "</h2>";
+                        echo "<h2 style='text-align: center'>Number of Multi-Year<br>Donors: " . $MultiCounter . "</h2>";
                         echo "<p><small>Donors who have donated both in the current year and the previous year</small></p>";
                     echo "</div>";
                     echo "<div style='display: inline-block; padding-left: 50px;'>"; // Added padding-left for spacing
@@ -585,13 +579,25 @@ function reportMultiDonors(){
                 echo "<br>"; // Add multiple <br> tags for increased line break
 
                 //Create a Table of all the Multi-Year Donors
-                echo "<h2 style='text-align: center;'>Multi-Year Donors</h2>";
+                echo "<h2 style='text-align: center;'>Donor Retention</h2>";
+                echo "<h4 style='margin: 0; padding: 0; margin-left: 150px'> Retention Statuses:</h4>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - New Donor: Donor made their first donation within the past year</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Multiyear Donor: Donor made a donation both within the past year and the year before</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Returning Donor: Donor donated over 2 years ago, then started donating again within the last year</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Formerly Active Donor: Donor has not donated within the past year, but has donated within the past 2 years</p>
+                    <p style='margin: 0; padding: 0; margin-left: 150px'> 
+                            - Inactive Donor: Donor has not donated in 2 or more years from today's date</p>";
                 echo "<table id='MultiDonorsTable'>";
                 echo "<tr>
                         <th onclick='sortTable(\"MultiDonorsTable\", 0,)'>Email</th>
                         <th onclick='sortTable(\"MultiDonorsTable\", 1)'>First Name</th>
                         <th onclick='sortTable(\"MultiDonorsTable\", 2)'>Last Name</th>
                         <th onclick='sortTable(\"MultiDonorsTable\", 3)'>Phone Number</th>
+                        <th onclick='sortTable(\"MultiDonorsTable\", 4)'>Retention Status</th>
                     </tr>";
                 foreach($MultiYearDonors as $donor){
                     // Get the donor details
@@ -610,11 +616,13 @@ function reportMultiDonors(){
                     <td>" . htmlspecialchars($donor_first_name) . "</td>
                     <td>" . htmlspecialchars($donor_last_name) . "</td>
                     <td>" . htmlspecialchars($formattedPhone) . "</td>
+                    <td>" . htmlspecialchars(get_donor_status($donor_email)) . "</td>
                     </tr>";
                 }
             echo "</table>";
+            
             }else{
-                echo "<p>Not enough Multi-Year Donors are available to make the report.</p>";
+                echo "<p>Not enough Donors are available to make the report.</p>";
             }
     }
     //End of report 
