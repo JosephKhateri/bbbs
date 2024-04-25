@@ -376,35 +376,35 @@ function exportDonorsLessThanTwoYears() {
 // Export Function for the Report on Donors whose Frequency of Giving is Greater than Yearly
 function exportDonorsFOGGTY() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
-    $connection = connect();  // This should be your function to establish a database connection
-    
-    // Your SQL query to fetch the required data
-    $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
-                    DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
-                    FROM dbdonations AS d
-                    JOIN dbdonors AS p ON d.Email = p.Email
-                    GROUP BY d.Email";
-    $result = mysqli_query($connection, $query);
 	
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="donors_Frequncy_Of_Giving_GTY.csv"');
     
     $output = fopen("php://output", "w");
+
+    $donors = get_all_donors();
     
     // Write the CSV header
-    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number', 'Frequency of Giving', 'Days From Earliest Donation'));
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Phone Number'));
     
     // Write rows
-    while ($row = mysqli_fetch_assoc($result)) {
-		$formattedPhone = '(' . substr($row['PhoneNumber'], 0, 3) . ') ' . substr($row['PhoneNumber'], 3, 3) . '-' . substr($row['PhoneNumber'], 6);
-		
-		// Frequency of Giving
-		$FOG = get_donation_frequency($row["Email"]);
-        $FUN= determine_donation_GTY($row["Email"]);
-		if ($FOG == "Monthly" || $FUN == "Greater Than Yearly"){
-		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $formattedPhone, $FOG, $row['DateDiff']));
-		}
+    $greater_than_yearly_donors = []; // Array to store donors who donate greater than yearly
+    foreach ($donors as $donor) {
+        $FUN= determine_donation_GTY($donor->get_email());
+        if ($FUN=="Greater Than Yearly") {
+            $greater_than_yearly_donors[] = $donor; // Add the donor to the array
+        }
 	}
+
+    if (count($greater_than_yearly_donors) > 0) {
+        foreach ($greater_than_yearly_donors as $donor) {
+            fputcsv($output, array($donor->get_email(), $donor->get_first_name(), $donor->get_last_name(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone())));
+        }
+    } else {
+        fputcsv($output, array('No donors found'));
+    }
+
+    //fputcsv($output, array($donor->get_email(), $donor->get_first_name(), $donor->get_last_name(), preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone())));
     fclose($output);
 }
 // Export Function for the Report on Donor's in the Past Three Years who haven't donated to an Event

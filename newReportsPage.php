@@ -259,52 +259,44 @@ function reportEventsDonorsContributed($connection) {
 // Post-Condition: User will be able to look through the report as a generated table and
 //                 be able to export the data as a CSV file
 function reportFrequencyGreaterThanYearly($connection) {
-            // Modified SQL query to join Donations with Donors table and fetch required details
-            $query = "SELECT d.Email, p.FirstName, p.LastName, p.PhoneNumber, COUNT(d.email) AS Number_Of_Donations, 
-                    DATEDIFF( CURRENT_DATE(), MIN(DateOfContribution)) AS DateDiff  
-                    FROM dbdonations AS d
-                    JOIN dbdonors AS p ON d.Email = p.Email
-                    GROUP BY d.Email";
-            $result = mysqli_query($connection, $query);
+    $donors = get_all_donors();
 
-            
-            // Check if we have results
-            if (mysqli_num_rows($result) > 0) {
-                echo "<h2 style='text-align: center;'>Donors Whose Frequency of Giving is Greater than Yearly</h2>";
-                echo "<table id='FrequencyGreaterThanYearlyTable'>";
-                echo "<tr>
-                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 0,)'>Email</th>
-                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 1)'>First Name</th>
-                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 2)'>Last Name</th>
-                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 3)'>Phone Number</th>
-                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 4)'>Frequency of Giving</th>
-                        <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 5)'>Days from Earliest Donation</th>
-                    </tr>";
-                while ($row = mysqli_fetch_assoc($result)) {
-                    // Format the phone number
-                    $phone = $row['PhoneNumber'];
-                    $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+    echo "<h2 style='text-align: center;'>Donors Whose Frequency of Giving is Greater than Yearly</h2>";
 
-                    $FOG = get_donation_frequency($row["Email"]); // Calculate frequency of giving
-                    $FUN= determine_donation_GTY($row["Email"]);
-                    //Checks if the current ratio of the Donor is more than yearly if it isn't then their row
-                    //won't appear in the generated table
-                    if($FOG == "Monthly" || $FUN=="Greater Than Yearly") {
-                    echo "<tr>
-                            <td>" . htmlspecialchars($row['Email']) . "</td>
-                            <td>" . htmlspecialchars($row['FirstName']) . "</td>
-                            <td>" . htmlspecialchars($row['LastName']) . "</td>
-                            <td>" . htmlspecialchars($formattedPhone) . "</td>
-                            <td>" . htmlspecialchars($FOG) . "</td>
-                            <td>" . number_format($row['DateDiff']) . "</td>
-                          </tr>";
-                        }
-                }
-                
-                echo "</table>";
-            } else {
-                echo "<p>Not enough Donors are available to make the report.</p>";
+    if (count($donors) > 0) {
+        $greater_than_yearly_donors = []; // Array to store donors who donate greater than yearly
+        foreach ($donors as $donor) {
+            $FUN= determine_donation_GTY($donor->get_email());
+            if ($FUN=="Greater Than Yearly") {
+                $greater_than_yearly_donors[] = $donor; // Add the donor to the array
             }
+        }
+
+        if (count($greater_than_yearly_donors) > 0) {
+            echo "<table id='FrequencyGreaterThanYearlyTable'>";
+            echo "<tr>
+                <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 0,)'>Email</th>
+                <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 1)'>First Name</th>
+                <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 2)'>Last Name</th>
+                <th onclick='sortTable(\"FrequencyGreaterThanYearlyTable\", 3)'>Phone Number</th>
+            </tr>";
+
+            foreach ($greater_than_yearly_donors as $donor) {
+                echo "<tr>
+                        <td>" . $donor->get_email() . "</td>
+                        <td>" . $donor->get_first_name() . "</td>
+                        <td>" . $donor->get_last_name() . "</td>
+                        <td>" . preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $donor->get_phone()) . "</td>
+                     </tr>";
+            }
+            echo "</table>";
+        } else { // No donors donate greater than yearly
+            echo "<p style='text-align: center'>No donors donate greater than yearly.</p>";
+        }
+    } else { // No donors exist in the database
+        redirect('index.php?noDonors');
+        die();
+    }
 }
 
 // Report 6: Donors Who Have Donated in the Past Three Years but Not to Events
@@ -343,7 +335,7 @@ function reportDonorsDonatedNotToEvents($connection) {
                     // Format the phone number
                     $phone = $row['PhoneNumber'];
                     $formattedPhone = '(' . substr($phone, 0, 3) . ') ' . substr($phone, 3, 3) . '-' . substr($phone, 6);
-                    
+
                     //Checks if the current donor has donated in the past three years if they have then
                     //print. If not then print nothing.
                     echo "<tr>
@@ -356,7 +348,6 @@ function reportDonorsDonatedNotToEvents($connection) {
                           </tr>";
                         
                 }
-                
                 echo "</table>";
             } else {
                 echo "<p>Not enough Donors are available to make the report.</p>";

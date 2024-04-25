@@ -339,9 +339,6 @@
      * Post-condition: The donation funnel the donor falls into is returned or "N/A" if the donor doesn't fit into any funnel
      */
     function determine_donation_GTY($donorEmail) : string {
-        $current_date = date('Y-m-d'); // Get the current date
-        $two_years_ago = date('Y-m-d', strtotime('-2 years', strtotime($current_date))); // Get the date two years ago
-
         $con = connect();
         $query = "SELECT DATE_FORMAT(DateOfContribution, '%Y-%m-%d') AS donation_date FROM dbdonations WHERE Email = '" . $donorEmail . "'";
         $result = mysqli_query($con, $query);
@@ -358,46 +355,35 @@
             return "";
         }
 
+        $num_donations_current_year = 0; // Initialize number of donations (current year)
+        $num_donations_previous_year = 0; // Initialize number of donations (previous year)
 
-        $num_donations = 0; // Initialize number of donations
-        $num_num_donations=0;
-        // Check how many times the donor has donated in the last five years
-        $num_years = 1; // Number of years to check for donations
-        for ($i = 1; $i <= $num_years; $i++) {
-            // Get the year to check for donations
-            $year_to_check = date('Y-m-d', strtotime("-$i years", strtotime($current_date)));
-            $year_to_check_plus_one = date('Y-m-d', strtotime("+1 year", strtotime($year_to_check))); // Get the year after the year to check
+        $current_date = date('Y-m-d');
 
-            // Iterate through donation dates to find donations within the year being checked
-            foreach ($donation_dates as $donation_date) {
-                if ($donation_date >= $year_to_check && $donation_date <= $year_to_check_plus_one) {
-                    $num_donations++;
-                }
+        // Check number of donations for the current year
+        $current_year = date('Y-m-d', strtotime("-1 years", strtotime($current_date)));
+        $previous_year = date('Y-m-d', strtotime("+1 year", strtotime($current_year))); // Get the year after the year to check
+        foreach ($donation_dates as $donation_date) { // Iterate through donation dates to find donations within the year being checked
+            if ($donation_date >= $current_year && $donation_date <= $previous_year) {
+                $num_donations_current_year++; // Increment if a donation was found for the current year
             }
         }
 
-        $num_years = 2; // Number of years to check for donations
-        for ($i = 1; $i <= $num_years; $i++) {
-            // Get the year to check for donations
-            $year_to_check = date('Y-m-d', strtotime("-$i years", strtotime($current_date)));
-            $year_to_check_plus_one = date('Y-m-d', strtotime("+1 year", strtotime($year_to_check))); // Get the year after the year to check
-
-            // Iterate through donation dates to find donations within the year being checked
-            foreach ($donation_dates as $donation_date) {
-                if ($donation_date >= $year_to_check && $donation_date <= $year_to_check_plus_one) {
-                    $num_num_donations++;
-                }
+        // Get number of donations for the previous year
+        $current_year = date('Y-m-d', strtotime("-2 years", strtotime($current_date)));
+        $previous_year = date('Y-m-d', strtotime("+1 year", strtotime($current_year))); // Get the year after the year to check
+        foreach ($donation_dates as $donation_date) { // Iterate through donation dates to find donations within the year being checked
+            if ($donation_date >= $current_year && $donation_date <= $previous_year) {
+                $num_donations_previous_year++; // Increment if a donation was found for the previous year
             }
         }
 
-            if ($num_donations >= 2) { // If the donor has donated at least five times in the last five years
-                if(($num_num_donations-$num_donations)>=2){
-                    return "Greater Than Yearly";
-                }
-            }else{
-                return "NGY";
-            }
-        return "";
+        // Check if the donor has donated more than once each year for each of the past 2 years
+        if ($num_donations_current_year >= 2 && $num_donations_previous_year >= 2) {
+            return "Greater Than Yearly";
+        } else {
+            return "NGY"; // The donor does not donate more than once a year for the past 2 years
+        }
     }
     /*
      * Parameters: $donorEmail = A string that represents the email of a donor
