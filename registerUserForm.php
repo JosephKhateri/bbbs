@@ -148,7 +148,7 @@ Assigned Task - Excellent
 
             <!-- Form for registering a new user -->
             <h2>User Registration</h2>
-            <form id="new-animal-form" method="post">
+            <form id="new-user-form" method="post">
                 <label for="name">Email *</label>
                 <input type="email" id="email" name="email" required placeholder="Enter Email">
                 <label for="password">Password *</label>
