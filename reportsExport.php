@@ -323,21 +323,6 @@ function exportDonorsLessThanTwoYears() {
     include_once('database/dbinfo.php'); // Make sure you have your database connection setup here
     $connection = connect();  // This should be your function to establish a database connection
     
-	// Get the current date
-	$currentDate = date("Y-m-d");
-
-	// Define the threshold date (two years ago from current date)
-	$thresholdDate = date('Y-m-d', strtotime('-2 years', strtotime($currentDate)));
-    // Your SQL query to fetch the required data
-    $query = "SELECT d.FirstName, d.LastName, d.Email, dd.DateOfContribution, dd.AmountGiven
-						FROM DbDonors d
-						LEFT JOIN DbDonations dd ON d.Email = dd.Email
-						WHERE dd.DateOfContribution IS NULL 
-						  OR dd.DateOfContribution < '$thresholdDate'
-						GROUP BY d.Email
-						ORDER BY d.LastName";
-
-    // Modified SQL query to join Donations with Donors table and fetch required details
     // Get the current date
     $currentDate = date("Y-m-d");
 
@@ -359,18 +344,16 @@ function exportDonorsLessThanTwoYears() {
     $output = fopen("php://output", "w");
     
     // Write the CSV header
-    fputcsv($output, array('Email', 'First Name', 'Last Name', 'DateOfContribution', 'AmountGiven'));
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Last Donation'));
     
     // Write rows
     while ($row = mysqli_fetch_assoc($result)) {
 		 // Format the total donation to include a dollar sign and commas
 		$formattedTotalDonation = '$' . number_format($row['AmountGiven'], 2, '.', ',');
-		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $row['LastDonation'], $formattedTotalDonation));
+		fputcsv($output, array($row['Email'], $row['FirstName'], $row['LastName'], $row['LastDonation']));
 	}
-	
-    
+	    
     fclose($output);
-    //exit();
 }
 
 // Export Function for the Report on Donors whose Frequency of Giving is Greater than Yearly
@@ -420,9 +403,8 @@ function exportDonorsL3YNE() {
                       MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
                     FROM dbdonations AS d
                     JOIN dbdonors AS p ON d.Email = p.Email
-                    WHERE (d.DateOfContribution IS NULL 
-                        OR  d.DateOfContribution > '$thresholdDate')
-                        AND d.email NOT IN (SELECT Email FROM dbdonations WHERE ContributionCategory='Event Sponsorship')						
+                    WHERE (d.DateOfContribution > '$thresholdDate')
+                          AND ContributedSupportType != 'Fundraising Events'
                     GROUP BY d.Email ";
             $result = mysqli_query($connection, $query);
 	
@@ -455,9 +437,8 @@ function exportDonorsL3YE() {
                       MIN(DateOfContribution) AS EarliestDonation, ContributionCategory
                     FROM dbdonations AS d
                     JOIN dbdonors AS p ON d.Email = p.Email
-                    WHERE (d.DateOfContribution IS NULL
-                          OR d.DateOfContribution > '$thresholdDate')
-                          AND ContributionCategory='Event Sponsorship'
+                    WHERE (d.DateOfContribution > '$thresholdDate')
+                          AND ContributedSupportType = 'Fundraising Events'
                     GROUP BY d.Email ";
             $result = mysqli_query($connection, $query);
 	
