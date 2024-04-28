@@ -344,7 +344,7 @@ function exportDonorsLessThanTwoYears() {
     $output = fopen("php://output", "w");
     
     // Write the CSV header
-    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Last Donation', 'AmountGiven'));
+    fputcsv($output, array('Email', 'First Name', 'Last Name', 'Last Donation'));
     
     // Write rows
     while ($row = mysqli_fetch_assoc($result)) {
