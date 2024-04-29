@@ -5,43 +5,40 @@
  */
 
 
- session_cache_expire(30);
- session_start();
- ini_set("display_errors",1);
- error_reporting(E_ALL);
+    session_cache_expire(30);
+    session_start();
+    ini_set("display_errors",1);
+    error_reporting(E_ALL);
 
-require_once('include/api.php');
-require_once('include/input-validation.php');
-require_once('include/output.php');
-require_once('database/dbinfo.php');
+    require_once('include/api.php');
+    require_once('include/input-validation.php');
+    require_once('include/output.php');
+    require_once('database/dbinfo.php');
 
-$loggedIn = false;
-$accessLevel = 0;
-$userID = null;
+    $loggedIn = false;
+    $accessLevel = 0;
+    $userID = null;
 
-// Check if user is logged in
-if (isset($_SESSION['_id'])) {
-    $loggedIn = true;
-    $accessLevel = $_SESSION['access_level']; // Assuming this is set when the user logs in
-    $userID = $_SESSION['_id'];
-}
+    // Check if user is logged in
+    if (isset($_SESSION['_id'])) {
+        $loggedIn = true;
+        $accessLevel = $_SESSION['access_level']; // Assuming this is set when the user logs in
+        $userID = $_SESSION['_id'];
+    }
 
-// Require user privileges
-if ($accessLevel < 1) {
-    redirect('login.php');
-    die();
-}
- 
- 
- // Create connection
- $connection = connect();
+    // Require user privileges
+    if ($accessLevel < 1) {
+        redirect('login.php');
+        die();
+    }
 
+    // Create connection
+    $connection = connect();
 
- 
- // Check connection
- if (!$connection) {
-   die("Connection failed: " . mysqli_connect_error());
- }   
+    // Check connection
+    if (!$connection) {
+        die("Connection failed: " . mysqli_connect_error());
+    }
 ?>
 
 <!DOCTYPE html>
