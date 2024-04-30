@@ -5,19 +5,15 @@
  */
 
 
- session_cache_expire(30);
- session_start();
- ini_set("display_errors",1);
- error_reporting(E_ALL);
- $loggedIn = false;
- $accessLevel = 0;
- $userID = null;
- //if (isset($_SESSION['_id'])) {
-     $loggedIn = true;
-     // 0 = not logged in, 1 = standard user, 2 = manager (Admin), 3 super admin (TBI)
-     $accessLevel = 3;//$_SESSION['access_level'];
-     $userID = 'vmsroot';//$_SESSION['_id'];
- //}
+    session_cache_expire(30);
+    session_start();
+    ini_set("display_errors",1);
+    error_reporting(E_ALL);
+
+    require_once('include/input-validation.php');
+    require_once('include/output.php');
+    require_once('database/dbinfo.php');
+    require_once('include/api.php');
 
     $loggedIn = false;
     $accessLevel = 0;
@@ -31,28 +27,41 @@
 
     // Require user privileges
     if ($accessLevel < 1) {
-        header('Location: login.php');
+        redirect('login.php');
         die();
     }
+
+
+    //$connection = connect();
+    $servername = "localhost";
+    $username = "bbbs";
+    $password = "bbbs";
+    $dbname = "bbbs";
+
+    // Create connection
+    $connection = mysqli_connect($servername, $username, $password, $dbname);
+
+    // Check connection
+    if (!$connection) {
 
     require_once('include/input-validation.php');
   require_once('include/output.php');
   require_once('database/dbinfo.php');
   
   
-  //$connection = connect();
+  $connection = connect();
   //$servername = "localhost";
   //$username = "bbbs";
   //$password = "bbbs";
   //$dbname = "bbbs";
   
   // Create connection
-  $connection = mysqli_connect($servername, $username, $password, $dbname);
+  //$connection = mysqli_connect($servername, $username, $password, $dbname);
   
   // Check connection
   if (!$connection) {
     die("Connection failed: " . mysqli_connect_error());
-  }
+}
     
 ?>
 
