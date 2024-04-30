@@ -120,7 +120,6 @@ function reportFrequencyOfGiving($connection) {
                               <th onclick='sortTable(\"FrequencyOfGivingTable\", 2)'>Last Name</th>
                               <th onclick='sortTable(\"FrequencyOfGivingTable\", 3)'>Phone Number</th>
                               <th onclick='sortTable(\"FrequencyOfGivingTable\", 4)'>Frequency of Giving</th>
-                              <th onclick='sortTable(\"FrequencyOfGivingTable\", 5)'>Days from Earliest Donation</th>
                           </tr>";
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Format the phone number
@@ -136,7 +135,6 @@ function reportFrequencyOfGiving($connection) {
                             <td>" . htmlspecialchars($row['LastName']) . "</td>
                             <td>" . htmlspecialchars($formattedPhone) . "</td>
                             <td>" . htmlspecialchars($FOG) . "</td>
-                            <td data-sort-value='" . $row['DateDiff'] . "'>" . number_format($row['DateDiff']) . "</td>
                         </tr>";
                 }
                 
@@ -175,7 +173,7 @@ function reportDonorsNotDonatedIn2Years($connection) {
                     <th onclick='sortTable(\"DonorsNotDonatedIn2YearsTable\", 0,)'>Email</th>
                     <th onclick='sortTable(\"DonorsNotDonatedIn2YearsTable\", 1)'>First Name</th>
                     <th onclick='sortTable(\"DonorsNotDonatedIn2YearsTable\", 2)'>Last Name</th>
-                    <th onclick='sortTable(\"DonorsNotDonatedIn2YearsTable\", 3)'>Last Donation</th>
+                    <th onclick='sortTable(\"DonorsNotDonatedIn2YearsTable\", 3)'>Date of Last Donation</th>
                 </tr>";
             while ($row = mysqli_fetch_assoc($result)) {
                 // Format the phone number
