@@ -93,11 +93,11 @@
                     </div>
                     <div class="dashboard-item" data-link="editDonorInfo.php">
                         <img src="images/delete.svg">
-                        <span>Edit Donor Information</span>
+                        <span>Edit Donor Info</span>
                     </div> 
                     <div class="dashboard-item" data-link="editDonationsInfo.php">
                         <img src="images/delete.svg">
-                        <span>Edit Donations Information</span>
+                        <span>Edit Donation Info</span>
                     </div>
                     <div class="dashboard-item" data-link="adminResetPassword.php">
                         <img src="images/settings.png">
