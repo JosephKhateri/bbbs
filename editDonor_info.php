@@ -41,10 +41,10 @@
   
   
   //$connection = connect();
-  $servername = "localhost";
-  $username = "bbbs";
-  $password = "bbbs";
-  $dbname = "bbbs";
+  //$servername = "localhost";
+  //$username = "bbbs";
+  //$password = "bbbs";
+  //$dbname = "bbbs";
   
   // Create connection
   $connection = mysqli_connect($servername, $username, $password, $dbname);
