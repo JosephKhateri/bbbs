@@ -31,17 +31,34 @@
         die();
     }
 
-    //$connection = connect();
-    $servername = "localhost";
-    $username = "bbbs";
-    $password = "bbbs";
-    $dbname = "bbbs";
+    $connection = connect();
+    //$servername = "localhost";
+    //$username = "bbbs";
+    //$password = "bbbs";
+    //$dbname = "bbbs";
 
     // Create connection
-    $connection = mysqli_connect($servername, $username, $password, $dbname);
+    //$connection = mysqli_connect($servername, $username, $password, $dbname);
 
     // Check connection
     if (!$connection) {
+
+    require_once('include/input-validation.php');
+  require_once('include/output.php');
+  require_once('database/dbinfo.php');
+  
+  
+  //$connection = connect();
+  //$servername = "localhost";
+  //$username = "bbbs";
+  //$password = "bbbs";
+  //$dbname = "bbbs";
+  
+  // Create connection
+  $connection = mysqli_connect($servername, $username, $password, $dbname);
+  
+  // Check connection
+  if (!$connection) {
     die("Connection failed: " . mysqli_connect_error());
     }
     
