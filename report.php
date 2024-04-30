@@ -1,13 +1,4 @@
-<?php 
-
-    /**
-     * Reviewed by Zack 
-     * Program Specifications/Correctness - Excellent
-     * Readability - Good
-     * Code Efficiency - Excellent
-     * Documentation - Developing
-     * Assigned Task - Excellent
-     */
+<?php
 
     session_cache_expire(30);
     session_start();

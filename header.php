@@ -30,9 +30,6 @@
                 </span>
                 <img id="menu-toggle" src="images/menu.png">
             </span>
-            <ul>
-                <li><a href="login.php">Log in</a></li>
-            </ul>
         </nav>';
         //      <li><a href="register.php">Register</a></li>     was at line 35
 

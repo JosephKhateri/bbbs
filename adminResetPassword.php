@@ -1,11 +1,4 @@
 <?php
-/* Code Review by Joseph
-Program Specifications/Correctness - Excellent
-Readability - Excellent
-Code Efficiency - Excellent
-Documentation - Excellent
-Assigned Task - Excellent
-*/
 
     // Edited by Megan and Noor for BBBS in Spring 2024
     // Purpose: Allows admins to reset a user's password
