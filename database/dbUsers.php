@@ -1,11 +1,4 @@
 <?php
-/* Code Review by Joseph
-Program Specifications/Correctness - Excellent
-Readability - Good - Might be better to put comments directly in the code instead of before each function
-Code Efficiency - Excellent
-Documentation - Excellent
-Assigned Task - Excellent
-*/
 
 /*
  * Copyright 2013 by Jerrick Hoang, Ivy Xing, Sam Roberts, James Cook, 
@@ -147,23 +140,14 @@ function get_all_users() {
 
 /*
  * Parameters: $result_row = a row from the dbusers table, $login = boolean value that signifies if the User object is being created during a login attempt; is an optional argument
+ * the $login variable is used to determine if the User object is being created during a login attempt. This is to avoid any errors that could arise during login vs any other time User objects are being manipulated, such as when adding a user or changes a password
  * This function constructs a new User object with the row from the dbusers table
  * Return type: User
  * Pre-condition: $result_row is an associative array and $login is a boolean value if passed
  * Post-condition: a new User object is created
  */
-//Note from Conor: Needed an explanation on the purpose of login. It's not clear from the documentation here
-//the purpose of Login and what it is doing by existing. A further explanation at the end in a comment or in the
-//header would do good.
 function make_a_user($result_row, $login = null) {
     $theUser = new User(
-        /*$result_row['first_name'],
-        $result_row['last_name'],
-        $result_row['email'],
-        $result_row['type'],
-        $result_row['password'],
-        $result_row['force_password_change'],*/
-
         $result_row['email'],
         $result_row['password'],
         $result_row['first_name'],

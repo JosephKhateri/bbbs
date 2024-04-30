@@ -20,113 +20,6 @@
     include_once(dirname(__FILE__).'/../domain/Donation.php');
 
     /*
-     * Parameters: $user = A Donation object
-     * This function adds a Donation to the dbdonations table
-     * Return type: A boolean value that represents if the Donation was added to the dbdonations table
-     * Pre-condition: $donation is a Donation object
-     * Post-condition: A Donation is added to the dbdonations table if its ID doesn't already exist in the table, otherwise nothing happens
-     */
-    function add_donation($donation) : bool {
-        if (!$donation instanceof Donation)
-            die("Error: add_donation type mismatch");
-        $con=connect();
-        $query = "SELECT * FROM dbdonations WHERE DonationID = '" . $donation->get_id() . "'";
-        $result = mysqli_query($con,$query);
-        //if there's no entry for this id, add it
-        if ($result == null || mysqli_num_rows($result) == 0) {
-            mysqli_query($con,'INSERT INTO dbdonations VALUES("' .
-                $donation->get_id() . '","' .
-                $donation->get_email() . '","' .
-                $donation->get_contribution_date() . '","' .
-                $donation->get_contribution_type() . '","' .
-                $donation->get_contribution_category() . '","' .
-                $donation->get_amount() . '","' .
-                $donation->get_payment_method() . '","' .
-                $donation->get_memo() . '");'
-            );
-            mysqli_close($con);
-            return true;
-        }
-        mysqli_close($con);
-        return false;
-    }
-
-    /*
-     * Parameters: $id = A string that represents the ID number of a donation
-     * This function removes a donation from the dbdonations table using the ID of the donation
-     * Return type: A boolean value that represents if the Donation was removed from the dbdonations table
-     * Pre-condition: $id is a string
-     * Post-condition: A Donation is removed from the dbdonations table if it exists, otherwise nothing happens
-     */
-    function remove_donation($id) : bool {
-        $con=connect();
-        $query = 'SELECT * FROM dbdonations WHERE id = "' . $id . '"';
-        $result = mysqli_query($con,$query);
-        if ($result == null || mysqli_num_rows($result) == 0) {
-            mysqli_close($con);
-            return false;
-        }
-        $query = 'DELETE FROM dbdonations WHERE id = "' . $id . '"';
-        $result = mysqli_query($con,$query);
-        mysqli_close($con);
-        return $result;
-    }
-
-    /*
-     * Parameters: $donation = A Donation object with updated information
-     * This function updates a donation in the dbdonations table
-     * Return type: A boolean value that represents if the Donation was updated in the dbdonations table
-     * Pre-condition: $donation is a Donation object
-     * Post-condition: The donation is updated in the dbdonations table if it exists, otherwise nothing happens
-     */
-    function update_donation($donation) : bool {
-        $con=connect();
-
-        // Get the values from the donation object
-        $id = $donation->get_id();
-        $email = $donation->get_email();
-        $date = $donation->get_contribution_date();
-        $type = $donation->get_contribution_type();
-        $category = $donation->get_contribution_category();
-        $amount = $donation->get_amount();
-        $method = $donation->get_payment_method();
-        $memo = $donation->get_memo();
-
-        // Query is broken up into multiple lines for readability
-        $query = "UPDATE dbdonations SET ";
-        $query .= "Email = '" . $email . "', ";
-        $query .= "DateOfContribution = '" . $date . "', ";
-        $query .= "ContributedSupportType = '" . $type . "', ";
-        $query .= "ContributionCategory = '" . $category . "', ";
-        $query .= "AmountGiven = '" . $amount . "', ";
-        $query .= "PaymentMethod = '" . $method . "', ";
-        $query .= "Memo = '" . $memo . "' ";
-        $query .= "WHERE DonationID = '" . $id . "'";
-        $result = mysqli_query($con,$query);
-        mysqli_close($con);
-        return $result;
-    }
-
-    /*
-     * Parameters: $id = A string that represents the ID number of a donation
-     * This function retrieves a donation from the dbdonations table using the ID of the donation
-     * Return type: A Donation object
-     * Pre-condition: $id is a string
-     * Post-condition: A Donation object is returned if it exists, otherwise nothing is returned
-     */
-    function retrieve_donation($id) : Donation {
-        $con=connect();
-        $query = "SELECT * FROM dbdonations WHERE DonationID = '" . $id . "'";
-        $result = mysqli_query($con,$query);
-        $result_row = mysqli_fetch_assoc($result);
-
-        // Create a donation object
-        $theDonation = make_a_donation($result_row);
-    //    mysqli_close($con);
-        return $theDonation;
-    }
-
-    /*
      * Parameters: $email = A string that represents the email a donation is associated with
      * This function retrieves an array of Donations from the dbdonations table that match the given email
      * Return type: An array of Donation objects
@@ -365,10 +258,12 @@
             error_log("Missing essential donation information: " . implode(", ", $donationData));
             return;
         }
+        $con = connect();
         // Prepare the SQL query to insert a new donation
         $query = $con->prepare("INSERT INTO dbdonations (Email, DateOfContribution, ContributedSupportType, ContributionCategory, AmountGiven, PaymentMethod, Memo, DonationID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $query->bind_param("ssssdssi", $donationData[7], $dateOfContribution, $support, $category, $donationData[3], $donationData[13], $donationData[14], $newID);
         if (!$query->execute()) {
+            echo "fail";
             error_log("Failed to insert donation: " . $query->error);
         }
     }
