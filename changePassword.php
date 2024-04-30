@@ -1,11 +1,4 @@
 <?php
-/* Code Review by Joseph
-Program Specifications/Correctness - Excellent
-Readability - Good - Commented out code makes things a bit messy
-Code Efficiency - Excellent
-Documentation - Excellent
-Assigned Task - Excellent
-*/
 
     // Template for new VMS pages. Base your new page on this one
 
@@ -31,44 +24,13 @@ Assigned Task - Excellent
         $userID = $_SESSION['_id'];
     }
 
-    // Prohibit vmsroot from accessing this page
-    if ($accessLevel > 2) {
-        redirect('index.php');
-        die();
-    } elseif ($accessLevel < 1) { // If not logged in, redirect to login page
+    // Require user privileges
+    if ($accessLevel < 1) {
         redirect('login.php');
         die();
     }
 
-    $forced = false;
-    if (isset($_SESSION['change-password']) && $_SESSION['change-password']) {
-        $forced = true; // User must change password due to password expiration
-    } else if (!$loggedIn) {
-        redirect('login.php');
-        die();
-    }
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        //require_once('domain/Person.php');
-        //require_once('database/dbPersons.php');
-        /*if ($forced) { // User must change password due to password expiration
-            if (!wereRequiredFieldsSubmitted($_POST, array('new-password'))) {
-                echo "Args missing";
-                die();
-            }
-            $newPassword = $_POST['new-password'];
-            $hash = password_hash($newPassword, PASSWORD_BCRYPT);
-            change_password($userID, $hash);
-            if ($userID == 'vmsroot') {
-                $_SESSION['access_level'] = 3;
-            } else {
-                $user = retrieve_person($userID); //  if this returns false, we should redirect to index.php and tell the user that the password failed to be changed for any reason
-                $_SESSION['access_level'] = $user->get_access_level();
-            }
-            $_SESSION['logged_in'] = true;
-            unset($_SESSION['change-password']);
-            header('Location: index.php?pcSuccess');
-            die();
-        } else { // User is changing password voluntarily*/
         if (!wereRequiredFieldsSubmitted($_POST, array('password', 'new-password'))) {
             echo "Args missing";
             die();
@@ -91,13 +53,11 @@ Assigned Task - Excellent
             $change_password_result = change_password($userID, $hash);
             if ($change_password_result === false) { // password change failed
                 redirect('index.php?pcFail');
-            }
-            else { // password change succeeded
+            } else { // password change succeeded
                 redirect('index.php?pcSuccess');
             }
             die();
         }
-        //}
     }
 ?>
 <!DOCTYPE html>
@@ -142,12 +102,8 @@ Assigned Task - Excellent
 
             <!-- Form for user to change their password -->
             <form id="password-change" method="post">
-                <?php if (!$forced): ?>
-                    <label for="password">Current Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter old password" required>
-                <?php else: ?>
-                    <p>You must change your password before continuing.</p>
-                <?php endif ?>
+                <label for="password">Current Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter old password" required>
                 <label for="new-password">New Password</label>
                 <input type="password" id="new-password" name="new-password" placeholder="Enter new password" required>
                 <label for="reenter-new-password">New Password</label>
@@ -173,9 +129,7 @@ Assigned Task - Excellent
 
                 <p id="password-match-error" class="error hidden">Passwords must match!</p>
                 <input type="submit" id="submit" name="submit" value="Change Password">
-                <?php if (!$forced): ?>
-                    <a class="button cancel" href="index.php">Cancel</a>
-                <?php endif ?>
+                <a class="button cancel" href="index.php">Cancel</a>
             </form>
         </main>
     </body>

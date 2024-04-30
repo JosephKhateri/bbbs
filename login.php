@@ -1,11 +1,4 @@
 <?php
-/* Code Review by Joseph
-Program Specifications/Correctness - Excellent
-Readability - Good - Could be cleaned up a little
-Code Efficiency - Excellent
-Documentation - Excellent
-Assigned Task - Excellent
-*/
     // Template for new VMS pages. Base your new page on this one
 
     // Make session information accessible, allowing us to associate
@@ -43,13 +36,6 @@ Assigned Task - Excellent
             } else if (password_verify($password, $user->get_password())) {
                 // User exists and password is correct
                 $changePassword = false;
-                // Commented out for now, will reinstate later if we want to implement forced password changes
-                /*if ($user->is_password_change_required()) {
-                    $changePassword = true;
-                    $_SESSION['logged_in'] = false;
-                } else {
-                    $_SESSION['logged_in'] = true;
-                }*/
                 $_SESSION['logged_in'] = true;
                 $types = $user->get_access_level();
                 if (in_array('super admin', $types)) {
@@ -61,8 +47,6 @@ Assigned Task - Excellent
                 }
                 $_SESSION['f_name'] = $user->get_first_name();
                 $_SESSION['l_name'] = $user->get_last_name();
-                //$_SESSION['venue'] = $user->get_venue(); // Not sure what this is for, keeping this here
-                //$_SESSION['type'] = $user->get_type(); // Not sure what this is for, kleeping this here
                 $_SESSION['_id'] = $user->get_id();
                 // hard code root privileges
                 if ($user->get_id() == 'vmsroot') {
@@ -83,8 +67,6 @@ Assigned Task - Excellent
             }
         }
     }
-    //<p>Or <a href="register.php">register as a new volunteer</a>!</p>
-    //Had this line under login button, took user to register page
 ?>
 <!DOCTYPE html>
 <html>

@@ -79,12 +79,12 @@
                     <img src="images/create-report.svg">
                     <span>Create Report</span>
                 </div>
-                <?php if ($notRoot) : ?>
-                    <div class="dashboard-item" data-link="changePassword.php">
-                        <img src="images/change-password.svg">
-                        <span>Change Password</span>
-                    </div>
-                <?php endif ?>
+                <div class="dashboard-item" data-link="changePassword.php">
+                    <img src="images/change-password.svg">
+                    <span>Change Password</span>
+                </div>
+
+                <!-- Functions limited to admin and super admins --->
                 <?php if ($_SESSION['access_level'] >= 2): ?>
                     <!--***added User Registration button ?***-->
                     <div class="dashboard-item" data-link="registerUserForm.php">
@@ -93,11 +93,11 @@
                     </div>
                     <div class="dashboard-item" data-link="editDonorInfo.php">
                         <img src="images/delete.svg">
-                        <span>Edit Donor Information</span>
+                        <span>Edit Donor Info</span>
                     </div> 
                     <div class="dashboard-item" data-link="editDonationsInfo.php">
                         <img src="images/delete.svg">
-                        <span>Edit Donations Information</span>
+                        <span>Edit Donation Info</span>
                     </div>
                     <div class="dashboard-item" data-link="adminResetPassword.php">
                         <img src="images/settings.png">

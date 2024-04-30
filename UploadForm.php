@@ -1,13 +1,5 @@
 <?php
 
-    // UploadForm.php
-    // Overall Grading:
-    // 1. Program specifications/correctness: Excellent - Only accepts csv files and does so without any errors
-    // 2. Readability: Excellent - Variables are named accordingly and make code pretty easy to read, but need more documentation
-    // 3. Code efficiency: Excellent - Code is very efficient and achieves the task perfectly
-    // 4. Documentation: Adequate - Add some documentation about what each section of code does
-    // 5. Assigned Task: Excellent - Only accepts csv files and does so without any errors
-
     session_cache_expire(30);
     session_start();
 
