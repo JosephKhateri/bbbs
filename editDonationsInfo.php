@@ -45,7 +45,7 @@
 <html>
 <head>
     <?php require_once('universal.inc') ?>
-    <title>BBBS | Edit Donation Details</title>
+    <title>BBBS | Edit Donation Info</title>
     <style>
         /* Targeting the select element and option elements */
         select, option, input {
@@ -88,11 +88,8 @@
 </head>
 <body>
     <?php require_once('header.php') ?>
-    <h1>Donors</h1>
+    <h1>Edit Donation Information</h1>
     <main class="date">
-
-         
-
         <style>
             table {
                 margin-top: 1rem;
@@ -161,8 +158,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Display donor names in dropdown list
         $query = "SELECT do.DonationID, do.DateOfContribution, do.AmountGiven, 
         d.FirstName, d.LastName
-        FROM dbDonations do
-        INNER JOIN dbDonors d ON do.Email = d.Email";
+        FROM dbdonations do
+        INNER JOIN dbdonors d ON do.Email = d.Email";
         $result = mysqli_query($connection, $query);
         while ($row = mysqli_fetch_assoc($result)) {
             echo "<option value='" . $row['DonationID'] . "'>" . $row['FirstName'] . " &nbsp " . $row['LastName'] . " &nbsp &nbsp " . $row['DateOfContribution'] . " &nbsp &nbsp " . $row['AmountGiven'] . "</option>";

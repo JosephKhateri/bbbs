@@ -47,43 +47,32 @@ function parseCSV($csvFilePath){
 
         // Process each line of the CSV file
         $date = trim($line[0]);
-        $contributed_support = trim($line[1]);
-        $contribution_category = trim($line[2]);
-        $amount = trim($line[3]);
-        $company = trim($line[4]);
-        $first_name = trim($line[5]);
-        $last_name = trim($line[6]);
         $email = trim($line[7]);
         $phone = trim($line[8]);
-        $address = trim($line[9]);
-        $city = trim($line[10]);
-        $state = trim($line[11]);
         $zip = trim($line[12]);
-        $payment_method = trim($line[13]);
-        $memo = trim($line[14]);
 
         //validate phone number format (assuming phone number is in column index 8)
-        if (!validatePhoneNumberFormat($line[8])) {
+        if (!validatePhoneNumberFormat($phone)) {
             //invalid; redirect with error message
             redirect('index.php?phoneFormatFail=' . $lineNumber);
             exit;
         }
 
         //validate date format (assuming date is in column index 0)
-        if (!validateDate($line[0])) {
+        if (!validateDate($date)) {
             //invalid; redirect with error message
             redirect('index.php?dateFormatFail=' . $lineNumber);
             exit;
         }
 
         // Check for a valid email in the expected column (index 7)
-        if (!validateEmail($line[7])) {
+        if (!validateEmail($email)) {
             redirect('index.php?emailFormatFail=' . $lineNumber);
             exit;
         }
 
         // Check for a valid zip code in the expected column (index 12)
-        if (!validateZipcode($line[12])) {
+        if (!validateZipcode($zip)) {
             redirect('index.php?zipFormatFail=' . $lineNumber);
             exit;
         }
@@ -97,7 +86,7 @@ function parseCSV($csvFilePath){
     fclose($file);
 
     // Redirect with success message
-    //redirect('index.php?fileSuccess');
+    redirect('index.php?fileSuccess');
     exit;
 }
  

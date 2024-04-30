@@ -247,13 +247,22 @@
 
     //Returns total number of donations in db
     function getMaxDonationID(){
-        return count(get_all_donations());
+        // get the max donation id from dbdonations
+        $con = connect();
+        $query = "SELECT MAX(DonationID) FROM dbdonations";
+        $result = mysqli_query($con, $query);
+        $row = mysqli_fetch_array($result);
+        return $row[0];
     }
 
     function addDonation($donationData, $con, $newID, $support, $category) {
-        $email = trim($donationData[7]);
+        // Get values from $donationData array
         $dateOfContribution = date('Y-m-d', strtotime($donationData[0])); // Convert date to MySQL-compatible format
         $amountGiven = $donationData[3]; // Ensure this is captured correctly from our CSV
+        $email = trim($donationData[7]);
+        $paymentMethod = $donationData[13];
+        $memo = $donationData[14];
+
         if (empty($email) || empty($dateOfContribution) || empty($amountGiven)) {
             error_log("Missing essential donation information: " . implode(", ", $donationData));
             return;
@@ -261,28 +270,9 @@
         $con = connect();
         // Prepare the SQL query to insert a new donation
         $query = $con->prepare("INSERT INTO dbdonations (Email, DateOfContribution, ContributedSupportType, ContributionCategory, AmountGiven, PaymentMethod, Memo, DonationID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $query->bind_param("ssssdssi", $donationData[7], $dateOfContribution, $support, $category, $donationData[3], $donationData[13], $donationData[14], $newID);
+        $query->bind_param("ssssdssi", $email, $dateOfContribution, $support, $category, $amountGiven, $paymentMethod, $memo, $newID);
         if (!$query->execute()) {
-            echo "fail";
-            error_log("Failed to insert donation: " . $query->error);
-        } else {
-            // Optionally, call updateLifetime here if it's not automatically triggered elsewhere
-            //updateLifetime($email, $con);
-        }
-    }
-
-    function updateDonationInfo($donationData, $con){
-        // Prepare the SQL query to update donation info
-        $query = $con->prepare("UPDATE dbdonations SET DateOfContribution = ?, ContributedSupportType = ?, ContributionCategory = ?, AmountGiven = ?, PaymentMethod = ?, Memo = ? WHERE Email = ?");
-        $query->bind_param("sssdsss", $donationData['Date of Contribution'], $donationData['Contributed Support'], $donationData['Contribution Category'], $donationData['Amount Given'], $donationData['Payment Method'], $donationData['Memo'], $donationData['Email']);
-        $query->execute();
-    }
-
-    function updateLifetime($email, $con){
-        $query = $con->prepare("UPDATE dbdonors SET LifetimeDonation = COALESCE((SELECT SUM(AmountGiven) FROM dbdonations WHERE Email = ?), 0) WHERE Email = ?");
-        $query->bind_param("ss", $email, $email);
-        if (!$query->execute()) {
-            error_log("Failed to update lifetime donation: " . $query->error);
+            echo "Failed to upload donation: " . $query->error;
         }
     }
 
@@ -298,16 +288,10 @@
             return;
         }
     
-        $newID = getMaxDonationID($con) + 1;
-    
-        // Check if the donation exists based on email, date, and amount
-        $donationExists = checkDonationExists($email, $dateOfContribution, $amountGiven, $con);
-    
-        if (!empty($email) && !checkDonationExists($email, $dateOfContribution, $amountGiven, $con)) {
-            $newID = getMaxDonationID($con) + 1;
+        if (!checkDonationExists($email, $dateOfContribution, $amountGiven, $con)) {
+            $newID = getMaxDonationID() + 1;
             addDonation($donationData, $con, $newID, $support, $category);
         } else {
             error_log("Donation already exists for $email on $dateOfContribution with amount $amountGiven");
         }
-            
     }
