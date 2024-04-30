@@ -370,9 +370,6 @@
         $query->bind_param("ssssdssi", $donationData[7], $dateOfContribution, $support, $category, $donationData[3], $donationData[13], $donationData[14], $newID);
         if (!$query->execute()) {
             error_log("Failed to insert donation: " . $query->error);
-        } else {
-            // Optionally, call updateLifetime here if it's not automatically triggered elsewhere
-            //updateLifetime($email, $con);
         }
     }
 
@@ -381,14 +378,6 @@
         $query = $con->prepare("UPDATE dbdonations SET DateOfContribution = ?, ContributedSupportType = ?, ContributionCategory = ?, AmountGiven = ?, PaymentMethod = ?, Memo = ? WHERE Email = ?");
         $query->bind_param("sssdsss", $donationData['Date of Contribution'], $donationData['Contributed Support'], $donationData['Contribution Category'], $donationData['Amount Given'], $donationData['Payment Method'], $donationData['Memo'], $donationData['Email']);
         $query->execute();
-    }
-
-    function updateLifetime($email, $con){
-        $query = $con->prepare("UPDATE dbdonors SET LifetimeDonation = COALESCE((SELECT SUM(AmountGiven) FROM dbdonations WHERE Email = ?), 0) WHERE Email = ?");
-        $query->bind_param("ss", $email, $email);
-        if (!$query->execute()) {
-            error_log("Failed to update lifetime donation: " . $query->error);
-        }
     }
 
     function processDonationData($donationData, $con, $support, $category) {
@@ -403,16 +392,10 @@
             return;
         }
     
-        $newID = getMaxDonationID($con) + 1;
-    
-        // Check if the donation exists based on email, date, and amount
-        $donationExists = checkDonationExists($email, $dateOfContribution, $amountGiven, $con);
-    
-        if (!empty($email) && !checkDonationExists($email, $dateOfContribution, $amountGiven, $con)) {
-            $newID = getMaxDonationID($con) + 1;
+        if (!checkDonationExists($email, $dateOfContribution, $amountGiven, $con)) {
+            $newID = getMaxDonationID() + 1;
             addDonation($donationData, $con, $newID, $support, $category);
         } else {
             error_log("Donation already exists for $email on $dateOfContribution with amount $amountGiven");
         }
-            
     }
