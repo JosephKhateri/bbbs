@@ -117,7 +117,7 @@ function parseCSV($csvFilePath){
     fclose($file);
 
     // Redirect with success message
-    redirect('index.php?fileSuccess');
+    //redirect('index.php?fileSuccess');
     exit;
 }
  

@@ -36,7 +36,7 @@
         $fileType = mime_content_type($tmpFilePath);
         //Filepath printing for debugging
         //echo $tmpFilePath;
-        echo $fileType;
+        //echo $fileType;
         if (($fileType == 'text/csv') || ($fileType == 'text/plain')) {
             require 'upload.php';
             parseCSV($tmpFilePath);

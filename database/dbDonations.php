@@ -365,10 +365,12 @@
             error_log("Missing essential donation information: " . implode(", ", $donationData));
             return;
         }
+        $con = connect();
         // Prepare the SQL query to insert a new donation
         $query = $con->prepare("INSERT INTO dbdonations (Email, DateOfContribution, ContributedSupportType, ContributionCategory, AmountGiven, PaymentMethod, Memo, DonationID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $query->bind_param("ssssdssi", $donationData[7], $dateOfContribution, $support, $category, $donationData[3], $donationData[13], $donationData[14], $newID);
         if (!$query->execute()) {
+            echo "fail";
             error_log("Failed to insert donation: " . $query->error);
         } else {
             // Optionally, call updateLifetime here if it's not automatically triggered elsewhere
