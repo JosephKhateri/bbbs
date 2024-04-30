@@ -55,7 +55,10 @@
         $permission_array['UploadForm.php'] = 1;
         $permission_array['report.php'] = 1;
         $permission_array['viewAllDonors.php'] = 1;
+        $permission_array['viewDonor.php'] = 1;
         $permission_array['newReportsPage.php'] = 1;
+        $permission_array['editDonorInfo.php'] = 1;
+        $permission_array['editDonationsInfo.php'] = 1;
         //pages only managers can view
         $permission_array['registerUserForm.php'] = 2;
         $permission_array['adminResetPassword'] = 2;

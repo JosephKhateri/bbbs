@@ -45,12 +45,12 @@ Assigned Task - Excellent
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Sanitize all input except for 'password'
-        $ignoreList = array('password');
+        $ignoreList = array('password', 'password_confirm');
         $args = sanitize($_POST, $ignoreList);
 
         $required = array(
-			"email", "password", "first_name", "last_name", "account_type", "role" // Required fields for the form
-		);
+            "email", "password", "password_confirm", "first_name", "last_name", "account_type", "role" // Required fields for form
+        );
         $errors = false;
 
         if (!wereRequiredFieldsSubmitted($args, $required)) {
@@ -71,6 +71,8 @@ Assigned Task - Excellent
                 $passwordError = true; // Password doesn't meet requirements
             } elseif ($args['account_type'] == '') {
                 $accountTypeError = true; // No account type was selected
+            } elseif($args['password'] !== $args['password_confirm']){
+                $passwordMismatchError = true; // Password does not match with Confirm Password
             }
             else {
                 $password = password_hash($args['password'], PASSWORD_BCRYPT);
@@ -140,15 +142,20 @@ Assigned Task - Excellent
                 <p class="error-toast">Password must meet requirements.</p>
             <?php elseif (isset($accountTypeError)): ?>
                 <p class="error-toast">Select an account type (Admin or User).</p>
+            <?php elseif (isset($passwordMismatchError)): ?>
+                <p class="error-toast">Passwords do not match.</p>
             <?php endif ?>
 
             <!-- Form for registering a new user -->
             <h2>User Registration</h2>
-            <form id="new-animal-form" method="post">
+            <form id="new-user-form" method="post">
                 <label for="name">Email *</label>
                 <input type="email" id="email" name="email" required placeholder="Enter Email">
-                <label for="name">Password *</label>
+                <label for="password">Password *</label>
                 <input type="password" id="password" name="password" required placeholder="Enter Password">
+                <label for="password_confirm">Confirm Password *</label>
+                <input type="password" id="password_confirm" name="password_confirm" required placeholder="Confirm Password">
+
                 <!-- Display password requirements list -->
                 <style>
                     p1 {
