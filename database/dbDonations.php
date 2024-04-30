@@ -288,7 +288,9 @@
         $email = trim($donationData[7]);
         $dateOfContribution = date('Y-m-d', strtotime($donationData[0]));
         $amountGiven = $donationData[3];
-    
+
+        error_log("Attempting to process donation for: $email on $dateOfContribution with amount $amountGiven");
+
         if (empty($email) || empty($dateOfContribution) || empty($amountGiven)) {
             error_log("Missing essential donation information: " . implode(", ", $donationData));
             return;
@@ -302,6 +304,8 @@
         if (!empty($email) && !checkDonationExists($email, $dateOfContribution, $amountGiven, $con)) {
             $newID = getMaxDonationID($con) + 1;
             addDonation($donationData, $con, $newID, $support, $category);
+        } else {
+            error_log("Donation already exists for $email on $dateOfContribution with amount $amountGiven");
         }
             
     }
