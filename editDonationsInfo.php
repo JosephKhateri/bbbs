@@ -45,7 +45,7 @@
 <html>
 <head>
     <?php require_once('universal.inc') ?>
-    <title>BBBS | Edit Donation Details</title>
+    <title>BBBS | Edit Donation Info</title>
     <style>
         /* Targeting the select element and option elements */
         select, option, input {
@@ -88,11 +88,8 @@
 </head>
 <body>
     <?php require_once('header.php') ?>
-    <h1>Donors</h1>
+    <h1>Edit Donation Information</h1>
     <main class="date">
-
-         
-
         <style>
             table {
                 margin-top: 1rem;

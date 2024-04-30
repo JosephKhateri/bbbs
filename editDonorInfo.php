@@ -46,7 +46,7 @@ if (!$connection) {
 <html>
 <head>
     <?php require_once('universal.inc') ?>
-    <title>BBBS | View Donor Info</title>
+    <title>BBBS | Edit Donor Info</title>
     <style>
         /* Targeting the select element and option elements */
         select, option, input {
@@ -87,7 +87,7 @@ if (!$connection) {
 </head>
 <body>
 <?php require_once('header.php') ?>
-<h1>Donors</h1>
+<h1>Edit Donor Information</h1>
 <main class="date">
     <style>
         /* Styles for the table and form */
