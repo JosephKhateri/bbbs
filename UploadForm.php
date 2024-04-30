@@ -26,9 +26,7 @@
         // Get the temporary file path
         $tmpFilePath = $_FILES['file']['tmp_name'];
         $fileType = mime_content_type($tmpFilePath);
-        //Filepath printing for debugging
-        //echo $tmpFilePath;
-        //echo $fileType;
+
         if (($fileType == 'text/csv') || ($fileType == 'text/plain')) {
             require 'upload.php';
             parseCSV($tmpFilePath);
