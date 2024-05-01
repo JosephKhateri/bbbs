@@ -100,7 +100,7 @@ Below are the steps required to run the project on your local machine for develo
 4. Start the XAMPP MySQL server and Apache server
 5. Open the PHPMyAdmin console by navigating to [http://localhost/phpmyadmin/](http://localhost/phpmyadmin/)
 6. Create a new database named `bbbs`. With the database created, navigate to it by clicking on it in the lefthand pane
-7. Import the `bbbs.sql` file located in `C:\xampp\htdocs\bbbs.sql` into this new database
+7. Import the `bbbs.sql` file located in `bbbs\sql\bbbs.sql` into this new database
 8. Create a new user by navigating to `Privileges -> New -> Add user account`
 9. Enter the following credentials for the new user:
   * Name: `bbbs`
