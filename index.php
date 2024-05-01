@@ -79,25 +79,24 @@
                     <img src="images/create-report.svg">
                     <span>Create Report</span>
                 </div>
+                <div class="dashboard-item" data-link="editDonorInfo.php">
+                    <img src="images/delete.svg">
+                    <span>Edit Donor Info</span>
+                </div>
+                <div class="dashboard-item" data-link="editDonationsInfo.php">
+                    <img src="images/delete.svg">
+                    <span>Edit Donation Info</span>
+                </div>
                 <div class="dashboard-item" data-link="changePassword.php">
                     <img src="images/change-password.svg">
                     <span>Change Password</span>
                 </div>
-
                 <!-- Functions limited to admin and super admins --->
                 <?php if ($_SESSION['access_level'] >= 2): ?>
                     <!--***added User Registration button ?***-->
                     <div class="dashboard-item" data-link="registerUserForm.php">
                         <img src="images/add-person.svg">
                         <span>Add User</span>
-                    </div>
-                    <div class="dashboard-item" data-link="editDonorInfo.php">
-                        <img src="images/delete.svg">
-                        <span>Edit Donor Info</span>
-                    </div> 
-                    <div class="dashboard-item" data-link="editDonationsInfo.php">
-                        <img src="images/delete.svg">
-                        <span>Edit Donation Info</span>
                     </div>
                     <div class="dashboard-item" data-link="adminResetPassword.php">
                         <img src="images/settings.png">
