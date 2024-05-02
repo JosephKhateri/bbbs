@@ -107,7 +107,7 @@ function reportFrequencyOfGiving($connection) {
                 // Display the donation frequency categories
                 echo "<h4 style='margin: 0; padding: 0; margin-left: 150px'> Donation Frequency Categories:</h4>
                     <p style='margin: 0; padding: 0; margin-left: 150px'> 
-                            - Monthly: Donated at least twice each month for the past 2 months</p>
+                            - Monthly: Donated at least once each month for the past 2 months</p>
                     <p style='margin: 0; padding: 0; margin-left: 150px'> 
                             - Yearly: Donated at least once each year for the past 2 years</p>
                     <p style='margin: 0; padding: 0; margin-left: 150px'> 
